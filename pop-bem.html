@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./css/reset.css">
+  <title>Document</title>
+</head>
+<style>
+  .popup {
+    width: 370px;
+    background-color: #fff;
+    border: 1px solid #560891;
+    border-radius: 5px;
+    box-shadow: 0 0 8px #333;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
+  .popup__header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    background-color: #6f25a7;
+  }
+  
+  .popup__title {
+    font-weight: bold;
+  }
+  
+  .popup__close-btn {
+    position: relative;
+    width: 35px; /* Adjust size as needed */
+    height: 35px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .popup__close-btn::before,
+  .popup__close-btn::after {
+    content: '';
+    position: absolute;
+    width: 70%;
+    height: 2px;
+    background-color: #fff;
+    border-radius: 2px;
+  }
+  .popup__close-btn:hover::before,
+  .popup__close-btn:hover::after {
+    background-color: #ffffffea; /* Hover color for lines */
+  }
+  .popup__close-btn::before {
+    transform: rotate(50deg);
+  }
+
+  .popup__close-btn::after {
+    transform: rotate(-50deg);
+  }
+  .popup__content {
+    margin-top: 16px;
+  }
+  
+  .popup__item {
+    display: flex;
+    margin-bottom: 8px;
+  }
+  
+  .popup__label {
+    font-weight: bold;
+  }
+  
+  .popup__value {
+    margin-left: 8px;
+  }
+  
+  .popup__actions {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 16px;
+  }
+  
+  .popup__button {
+    width: 100px;
+    padding: 8px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #fff;
+  }
+  
+  .popup__button--confirm {
+    background-color: #A535C0;
+  }
+  
+  .popup__button--cancel {
+    background-color: #C0C0C0;
+  }
+</style>
+<body>
+  <div class="popup">
+    <div class="popup__header">
+      <span class="popup__close-btn"></span>
+    </div>
+    <div class="popup__content">
+      <div class="popup__item">
+        <span class="popup__label">姓名：</span>
+        <span class="popup__value popup__value--name">拆定了</span>
+      </div>
+      <div class="popup__item">
+        <span class="popup__label">性別：</span>
+        <span class="popup__value popup__value--gender">女</span>
+      </div>
+      <div class="popup__item">
+        <span class="popup__label">生辰：</span>
+        <span class="popup__value popup__value--birthdate">西元1990年01月01日</span>
+        <span class="popup__value popup__value--birthtime">00:00~00:59 (早子)</span>
+      </div>
+      <div class="popup__item">
+        <span class="popup__label">感情現況：</span>
+        <span class="popup__value popup__value--relationship">單身</span>
+      </div>
+      <div class="popup__item">
+        <span class="popup__label">子息現況：</span>
+        <span class="popup__value popup__value--children">無子女</span>
+      </div>
+      <div class="popup__item">
+        <span class="popup__label">事業現況：</span>
+        <span class="popup__value popup__value--occupation">受雇員工</span>
+      </div>
+    </div>
+    <div class="popup__actions">
+      <button class="popup__button popup__button--confirm">確定</button>
+      <button class="popup__button popup__button--cancel">取消</button>
+    </div>
+  </div>
+  
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./css/reset.css">
+  <link rel="stylesheet" href="./css/wenqu.css">
+</head>
+<body>
+  <form action="" class="wq-form" id="form">
+    <div class="DATA_BOX">
+      <div class="wq-group">
+        <ul class="FORM">
+          <li style="width: 50%">
+            <input type="text" class="wq-input" placeholder="請輸入女方的姓名或暱稱" data-value="女優"/>
+          </li>
+          <li style="width: 50%">
+            <select class="wq-select" data-type="sex" data-value="0"></select>
+          </li>
+          <li style="width: 50%">
+            <select class="wq-select" data-type="calendar"></select>
+          </li>
+          <li style="width: 50%;">
+            <select class="wq-select" data-type="year" min="1990" max="2010"></select>
+          </li>
+          <li style="width: 50%;">
+            <select class="wq-select" data-type="month" data-value="6"></select>
+          </li>
+          <li style="width: 50%">
+            <select class="wq-select" data-type="day" data-value="14"></select>
+          </li>
+          <li style="width: 50%; margin-bottom: 5px">
+            <select class="wq-select" data-type="hour"></select>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="DATA_BOX" style="margin: 20px auto">
+      <div class="wq-group">
+        <ul class="FORM">
+          <li style="width: 50%">
+            <input type="text" class="wq-input" placeholder="請輸入男方的姓名或暱稱" data-value="男優"/>
+          </li>
+          <li style="width: 50%">
+            <select class="wq-select" data-type="calendar"></select>
+          </li>
+          <li style="width: 50%">
+            <select class="wq-select" data-type="sex" data-value="1"></select>
+          </li>
+          <li style="width: 50%;">
+            <select class="wq-select" data-type="year" data-value="1997" min="1990" max="2010"></select>
+          </li>
+          <li style="width: 50%;">
+            <select class="wq-select" data-type="month" data-value="3"></select>
+          </li>
+          <li style="width: 50%">
+            <select class="wq-select" data-type="day" data-value="30"></select>
+          </li>
+          <li style="width: 50%; margin-bottom: 5px">
+            <select class="wq-select" data-type="hour"></select>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </form>
+  <div class="pq_e_BT">
+    <ul class="TWO">
+      <button><a class="pq_BT_SROUND pq_BG_GRA_PINK01" id="checkGo_free" data-href="./free.php" type="button">免費體驗</a></button>
+    </ul>
+  </div>
+</body>
+<script src="./js/class.datetime.js"></script>
+<script src="./js/class.input.js"></script>
+<script src="./js/class.sex.js"></script>
+<script src="./js/class.wq_form.js"></script>
+<script src="./js/class.popup.js"></script>
+<script src="./js/class.radio.js"></script>
+<script src="./js/class.init.js"></script>
+<script type="text/javascript">
+  window.addEventListener('load', function() {
+    if (!window.wq_form?.form) {
+      window.wq_form = {
+        form: new wqForm('.wq-form')
+      };
+    }
+    
+    const button = document.querySelector("#checkGo_free");
+    if (button) {
+      button.addEventListener("click", function(event) {
+        event.preventDefault();
+        if (window.wq_form?.form?.validation()) {
+          const href = this.getAttribute('data-href');
+          if (href) {
+            window.location.href = href;
+          }
+        }
+      });
+    }
+  });
+</script>
+</html>

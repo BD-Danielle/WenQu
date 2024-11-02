@@ -1,0 +1,356 @@
+@charset "UTF-8";
+
+/* Define CSS Variables */
+:root {
+  --border-color: #999;
+  --background-color: #fff;
+  --text-color: #333;
+  --error-color: #c00;
+  --error-background-color: #fc6;
+  --icon-background-color: #727272;
+  --hover-background-color: #333;
+  --input-height: 2.5rem;
+  --border-radius: 5px;
+  --transition-duration: 0.3s;
+  --font-family: var(--font-family);
+}
+
+/* reset box-sizing */
+.wq-input,
+.wq-radio,
+.wq-radio + label,
+.wq-iconx,
+.wq-select {
+  box-sizing: border-box;
+}
+
+/* input element for wenqu */
+input[type="text"].wq-input {
+  width: 100%;
+  height: var(--input-height);
+  font-size: 1rem;
+  padding-left: 0.4rem;
+  border: 1px solid var(--border-color);
+  background-color: var(--background-color);
+  color: var(--text-color);
+  border-radius: var(--border-radius);
+  font-family: var(--font-family);
+}
+
+input[type="text"].wq-input::placeholder {
+  color: var(--text-color);
+  background: transparent;
+}
+
+input[type="text"].wq-input.error {
+  color: var(--error-color);
+  background-color: var(--error-background-color);
+  border: 1px solid var(--error-color);
+}
+
+input[type="text"].wq-input.error::placeholder {
+  color: var(--error-color);
+}
+
+/* CSS-only close icon */
+.wq-iconx {
+  position: relative;
+  right: 2rem;
+  margin-right: -1.5rem;
+  cursor: pointer;
+  user-select: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  max-width: 1.5rem;
+  max-height: 1.5rem;
+  min-width: 1.5rem;
+  min-height: 1.5rem;
+  background-color: var(--icon-background-color);
+  border-radius: 50%;
+  opacity: 1;
+  transition: opacity var(--transition-duration), background-color var(--transition-duration);
+}
+
+.wq-iconx:hover {
+  opacity: 0.9;
+  background-color: var(--hover-background-color);
+}
+
+.wq-iconx::before,
+.wq-iconx::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0.125rem;
+  height: 70%;
+  border-radius: 2px;
+  background-color: #fff;
+  transition: background-color var(--transition-duration);
+}
+
+.wq-iconx::before {
+  transform: translate(-50%, -50%) rotate(40deg);
+}
+
+.wq-iconx::after {
+  transform: translate(-50%, -50%) rotate(-40deg);
+}
+
+/* iOS 17 fix */
+.wq-form li:has(> .wq-input) {
+  display: flex;
+}
+
+.wq-form li:has(> .wq-input) .wq-iconx {
+  top: 0.5rem !important;
+}
+
+/* radio button element for wenqu */
+input[type="radio"].wq-radio {
+  display: none;
+}
+
+input[type="radio"].wq-radio + label {
+  display: inline-block;
+  cursor: pointer;
+  position: relative;
+  width: 100%;
+  height: var(--input-height);
+  text-align: center;
+  background-color: var(--background-color);
+  border-radius: var(--border-radius);
+  color: var(--text-color);
+  line-height: calc(var(--input-height) - 10px);
+  border: 1px solid var(--border-color);
+}
+
+input[type="radio"].wq-radio + label::before {
+  content: '';
+  display: inline-block;
+  width: 1.25em;
+  height: 1.25em;
+  margin-right: 0.625rem;
+  transform: translateY(0.375rem);
+  background-color: var(--background-color);
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  border: 1px solid #aaa;
+  font-size: 2rem;
+  text-align: center;
+  line-height: 1.25rem;
+  font-family: Arial;
+}
+
+input[type="radio"].wq-radio:checked + label {
+  background-color: #deccf2;
+}
+
+input[type="radio"].wq-radio:checked + label::before {
+  content: "•";
+}
+
+/* drop-down element for wenqu */
+.wq-select {
+  position: relative;
+  width: 100%;
+  height: var(--input-height);
+  line-height: var(--input-height);
+  padding: 0 0.4rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  color: var(--text-color);
+  font-family: var(--font-family);
+  appearance: none;
+  cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 45%, #333 45%),
+                    linear-gradient(-45deg, transparent 45%, #333 45%);
+  background-position: calc(100% - 15px) calc(65% - 5px), calc(100% - 10px) calc(65% - 5px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+
+.wq-select option.leap-month {
+  color: var(--error-color);
+}
+
+.wq-select.error {
+  color: var(--error-color);
+  background-color: var(--error-background-color);
+  border: 1px solid var(--error-color);
+}
+
+/* Mobile-responsive styling */
+@media only screen and (max-width: 420px) {
+  .wqPOP {
+    width: 90vw;
+  }
+}
+.wq-pop.cover {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  background-color: rgba(0, 0, 0, 0.5);
+  opacity: 1;
+}
+.wqPOP {
+  max-width: 370px;
+  height: auto;
+  overflow: hidden;
+  margin: 0 auto;
+  background-color: #fff;
+  border: 1px solid #560891;
+  border-radius: 5px;
+  box-shadow: 0 0 8px #333;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.wqPOP .COM {
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+  margin: 0 auto;
+  padding: 10px;
+}
+
+.wqPOP .RABOX {
+  width: 100%;
+  height: auto;
+  padding: 8px 5px 2px;
+}
+
+.wqPOP .TBAR {
+  width: 100%;
+  height: 35px;
+  background-color: #6f25a7;
+  -webkit-border-top-left-radius: 3px;
+  -webkit-border-top-right-radius: 3px;
+  -moz-border-radius-topleft: 3px;
+  -moz-border-radius-topright: 3px;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+}
+
+.wqPOP .TBAR .XX {
+  width: 35px;
+  height: 35px;
+  float: right;
+}
+
+.wqPOP .TBAR .XX a {
+  display: block;
+  width: 35px;
+  height: 35px;
+  background-repeat: no-repeat;
+  background-size: 25px 25px;
+  background-position: center center;
+  background-image: url("//imgs.click108.com.tw/wenqu/images/pop_x_icon.png");
+}
+
+.wqPOP .BT01 {
+  width: 100%;
+  height: 45px;
+  margin: 0 auto;
+  margin-top: 10px;
+}
+
+.wqPOP .BT01 li {
+  width: 100%;
+  float: left;
+  margin: 0 auto;
+  margin-bottom: 10px;
+}
+
+.wqPOP .BT01 li a {
+  display: block;
+  width: 100%;
+  height: 45px;
+  font-size: 1.2em;
+  color: #333;
+  text-align: center;
+  line-height: 45px;
+  background-color: #cfcfcf;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  border: 1px solid #969696;
+  box-shadow: inset 0 0 2px white;
+  -moz-box-shadow: inset 0 0 2px white;
+  -webkit-box-shadow: inset 0 0 2px white;
+}
+
+.wqPOP .BT02 {
+  width: 100%;
+  height: 45px;
+  margin: 0 auto;
+  margin-top: 10px;
+}
+
+.wqPOP .BT02 ul li {
+  width: 49.3%;
+  float: left;
+}
+
+.wqPOP .BT02 ul li:first-child {
+  margin-right: 1px;
+}
+
+.wqPOP .BT02 ul li:last-child {
+  margin-left: 2px;
+}
+
+.wqPOP .BT02 ul a {
+  display: block;
+  width: 100%;
+  height: 45px;
+  font-size: 1.2em;
+  color: #333;
+  text-align: center;
+  line-height: 45px;
+  background-color: #cfcfcf;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  border: 1px solid #969696;
+  box-shadow: inset 0 0 2px white;
+  -moz-box-shadow: inset 0 0 2px white;
+  -webkit-box-shadow: inset 0 0 2px white;
+}
+
+.POP_LINE {
+  width: 100%;
+  height: 1px;
+  background-color: #ccc;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.COM .TUL {
+  width: 100%;
+}
+
+.COM .TUL ul {
+  width: 100%;
+  padding-left: 25px;
+}
+
+.COM .TUL li {
+  width: 100%;
+  list-style-type: decimal;
+  font-size: 0.8em;
+  line-height: 1.6em;
+  color: #333;
+}
+
+.btn-alert a,
+.btn-yes a,
+.btn-no a {
+  cursor: pointer;
+}
