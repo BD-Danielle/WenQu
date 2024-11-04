@@ -7,6 +7,15 @@
   <title>Document</title>
 </head>
 <style>
+  .popup__modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 3;
+  }
   .popup {
     width: 370px;
     background-color: #fff;
@@ -17,6 +26,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    font-size: 1rem;
   }
   
   .popup__header {
@@ -25,14 +35,13 @@
     align-items: center;
     background-color: #6f25a7;
   }
-  
-  .popup__title {
+  .popup__content--header {
+    padding: 10px;
     font-weight: bold;
   }
-  
   .popup__close-btn {
     position: relative;
-    width: 35px; /* Adjust size as needed */
+    width: 35px;
     height: 35px;
     cursor: pointer;
     display: flex;
@@ -50,7 +59,7 @@
   }
   .popup__close-btn:hover::before,
   .popup__close-btn:hover::after {
-    background-color: #ffffffea; /* Hover color for lines */
+    background-color: #ffffffea;
   }
   .popup__close-btn::before {
     transform: rotate(50deg);
@@ -60,12 +69,13 @@
     transform: rotate(-50deg);
   }
   .popup__content {
-    margin-top: 16px;
+    padding: 0 10px 10px 10px;
   }
   
-  .popup__item {
+  .popup__item:not(:last-child) {
     display: flex;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+    font-size: 1rem;
   }
   
   .popup__label {
@@ -73,70 +83,82 @@
   }
   
   .popup__value {
-    margin-left: 8px;
+    color: #6f25a7;
   }
-  
+  .popup__border-line {
+    width: 100%;
+    height: 1px;
+    background-color: #ccc;
+  }
   .popup__actions {
+    width: 100%;
     display: flex;
     justify-content: space-around;
-    margin-top: 16px;
+    padding: 0 10px 10px 10px;
+    column-gap: 0.3rem;
   }
   
-  .popup__button {
-    width: 100px;
-    padding: 8px 0;
-    border: none;
-    border-radius: 4px;
+  .popup__confirm-btn,
+  .popup__cancel-btn,
+  .popup__alert-btn {
+    width: 50%;
+    height: 45px;
+    font-size: 1.2rem;
+    border: 1px solid #969696;
+    border-radius: 5px;
     cursor: pointer;
     font-weight: bold;
-    color: #fff;
+    color: #333;
+    box-shadow: inset 0 0 2px #fff;
+    background-color: #cfcfcf;
   }
-  
-  .popup__button--confirm {
-    background-color: #A535C0;
-  }
-  
-  .popup__button--cancel {
-    background-color: #C0C0C0;
+  .popup__button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
   }
 </style>
 <body>
-  <div class="popup">
-    <div class="popup__header">
-      <span class="popup__close-btn"></span>
-    </div>
-    <div class="popup__content">
-      <div class="popup__item">
-        <span class="popup__label">姓名：</span>
-        <span class="popup__value popup__value--name">拆定了</span>
+  <div class="popup__modal">
+    <div class="popup">
+      <div class="popup__header">
+        <span class="popup__close-btn"></span>
       </div>
-      <div class="popup__item">
-        <span class="popup__label">性別：</span>
-        <span class="popup__value popup__value--gender">女</span>
+      <div class="popup__content--header">請確認您提供的資料是否正確：</div>
+      <div class="popup__content">
+        <div class="popup__item">
+          <span class="popup__label">姓名：</span>
+          <span class="popup__value">拆定了</span>
+        </div>
+        <div class="popup__item">
+          <span class="popup__label">性別：</span>
+          <span class="popup__value">女</span>
+        </div>
+        <div class="popup__item">
+          <span class="popup__label">生辰：</span>
+          <span class="popup__value">西元1990年01月01日</span>
+          <span class="popup__value">00:00~00:59 (早子)</span>
+        </div>
+        <div class="popup__item">
+          <span class="popup__label">感情現況：</span>
+          <span class="popup__value">單身</span>
+        </div>
+        <div class="popup__item">
+          <span class="popup__label">子息現況：</span>
+          <span class="popup__value">無子女</span>
+        </div>
+        <div class="popup__item">
+          <span class="popup__label">事業現況：</span>
+          <span class="popup__value">受雇員工</span>
+        </div>
       </div>
-      <div class="popup__item">
-        <span class="popup__label">生辰：</span>
-        <span class="popup__value popup__value--birthdate">西元1990年01月01日</span>
-        <span class="popup__value popup__value--birthtime">00:00~00:59 (早子)</span>
+      <div class="popup__actions">
+        <div class="popup__confirm-btn"><a class="popup__button">確定</a></div>
+        <div class="popup__cancel-btn"><a class="popup__button">取消</a></div>
       </div>
-      <div class="popup__item">
-        <span class="popup__label">感情現況：</span>
-        <span class="popup__value popup__value--relationship">單身</span>
-      </div>
-      <div class="popup__item">
-        <span class="popup__label">子息現況：</span>
-        <span class="popup__value popup__value--children">無子女</span>
-      </div>
-      <div class="popup__item">
-        <span class="popup__label">事業現況：</span>
-        <span class="popup__value popup__value--occupation">受雇員工</span>
-      </div>
-    </div>
-    <div class="popup__actions">
-      <button class="popup__button popup__button--confirm">確定</button>
-      <button class="popup__button popup__button--cancel">取消</button>
     </div>
   </div>
-  
 </body>
 </html>

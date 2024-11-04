@@ -180,7 +180,118 @@ input[type="radio"].wq-radio:checked + label::before {
   background-color: var(--error-background-color);
   border: 1px solid var(--error-color);
 }
+.popup__modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 3;
+}
+.popup {
+  width: 370px;
+  background-color: #fff;
+  border: 1px solid #560891;
+  border-radius: 5px;
+  box-shadow: 0 0 8px #333;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1rem;
+}
 
+.popup__header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  background-color: #6f25a7;
+}
+.popup__content--header {
+  padding: 10px;
+  font-weight: bold;
+}
+.popup__close-btn {
+  position: relative;
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.popup__close-btn::before,
+.popup__close-btn::after {
+  content: '';
+  position: absolute;
+  width: 70%;
+  height: 2px;
+  background-color: #fff;
+  border-radius: 2px;
+}
+.popup__close-btn:hover::before,
+.popup__close-btn:hover::after {
+  background-color: #ffffffea;
+}
+.popup__close-btn::before {
+  transform: rotate(50deg);
+}
+
+.popup__close-btn::after {
+  transform: rotate(-50deg);
+}
+.popup__content {
+  padding: 0 10px 10px 10px;
+}
+
+.popup__item:not(:last-child) {
+  margin-bottom: 10px;
+  font-size: 1rem;
+}
+
+.popup__label {
+  font-weight: bold;
+}
+
+.popup__value {
+  color: #6f25a7;
+}
+.popup__border-line {
+  width: 100%;
+  height: 1px;
+  background-color: #ccc;
+  margin: 0.5rem auto;
+}
+.popup__actions {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  padding: 0 10px 10px 10px;
+  column-gap: 0.3rem;
+}
+
+.popup__confirm-btn,
+.popup__cancel-btn,
+.popup__alert-btn {
+  width: 50%;
+  height: 45px;
+  font-size: 1.2rem;
+  border: 1px solid #969696;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  color: #333;
+  box-shadow: inset 0 0 2px #fff;
+  background-color: #cfcfcf;
+}
+.popup__button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
 /* Mobile-responsive styling */
 @media only screen and (max-width: 420px) {
   .wqPOP {

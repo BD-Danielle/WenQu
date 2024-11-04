@@ -76,7 +76,7 @@ class wqForm {
             // 創建彈窗實例
             const popup = new wqPopup();
             
-            // 顯示確認視窗，將跳轉邏輯移到 on_yes 回調中
+            // 顯示確認視窗，將跳轉邏輯移到 submit 回調中
             popup.confirm(formData, () => {
                 const button = document.querySelector('#checkGo_free');
                 const href = button?.getAttribute('data-href');
@@ -85,7 +85,7 @@ class wqForm {
                 }
             }, {
                 pop_title: '請確認您提供的資料是否正確',
-                birth_title: '你的生辰'
+                birth_title: '生辰'
             });
 
             // 返回 false 阻止表單默認提交

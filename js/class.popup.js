@@ -1,12 +1,12 @@
 class wqPopup {
     constructor() {
         this.guid = null;
-        this.popalert = null;
-        this.popconfirm = null;
+        this.popupAlert = null;
+        this.popupConfirm = null;
         this.btn_close = null;
-        this.btn_no = null;
-        this.btn_yes = null;
-        this.btn_xx = null;
+        this.btn_cancel = null;
+        this.btn_confirm = null;
+        this.close_btn = null;
     }
 
     generateGuid() {
@@ -18,7 +18,7 @@ class wqPopup {
     }
 
     closeAlert(guid) {
-        const alert = document.querySelector(`.wq-pop.cover.alert-${guid}`);
+        const alert = document.querySelector(`.popup__modal.alert-${guid}`);
         if (alert) {
             alert.remove();
         }
@@ -32,83 +32,75 @@ class wqPopup {
         this.btn_close.textContent = '確定';
         this.btn_close.addEventListener('click', () => self.closeAlert(self.guid));
 
-        this.popalert = document.createElement('div');
-        this.popalert.className = `wq-pop cover alert-${this.guid}`;
-        this.popalert.innerHTML = `
-            <div style="display:block">
-                <div class="wqPOP" style="display:block">
-                    <div class="TBAR"></div>
-                    <div class="COM">
-                        <p class="pop_t01">${msg}</p>
-                        <div class="BT01">
-                            <ul>
-                                <li class="btn-alert"></li>
-                            </ul>
-                        </div>
-                    </div>
+        this.popupAlert = document.createElement('div');
+        this.popupAlert.className = `popup__modal alert-${this.guid}`;
+        this.popupAlert.innerHTML = `
+                <div class="popup">
+                    <div class="popup__header">
+                    <span class="popup__close-btn"></span>
                 </div>
-            </div>
+                <div class="popup__content">${msg}</div>
+                <div class="popup__actions">
+                    <div class="popup__alert-btn"></div>
+                </div>
+                </div>
         `;
 
-        this.popalert.querySelector('.btn-alert').appendChild(this.btn_close);
-        document.body.appendChild(this.popalert);
+        this.popupAlert.querySelector('.popup__alert-btn').appendChild(this.btn_close);
+        document.body.appendChild(this.popupAlert);
     }
 
     closeConfirm() {
-        const confirm = document.querySelector('.wq-pop.cover');
+        const confirm = document.querySelector('.popup__modal');
         if (confirm) {
             confirm.remove();
         }
     }
 
-    confirm(form_data, on_yes, options) {
+    confirm(form_data, submit, options) {
         const self = this;
         const num = form_data.length;
 
-        this.btn_no = document.createElement('a');
-        this.btn_no.textContent = '取消';
-        this.btn_no.addEventListener('click', () => self.closeConfirm());
+        this.btn_cancel = document.createElement('a');
+        this.btn_cancel.className = 'popup__button';
+        this.btn_cancel.textContent = '取消';
+        this.btn_cancel.addEventListener('click', () => self.closeConfirm());
 
-        this.btn_xx = document.createElement('a');
-        this.btn_xx.href = '#';
-        this.btn_xx.style.backgroundImage = 'url(//imgs.click108.com.tw/wenqu/images/pop_x_icon.png)';
-        this.btn_xx.addEventListener('click', (e) => {
+        this.close_btn = document.createElement('span');
+        this.close_btn.className = 'popup__close-btn';
+        this.close_btn.addEventListener('click', (e) => {
             e.preventDefault();
             self.closeConfirm();
         });
 
-        this.btn_yes = document.createElement('a');
-        this.btn_yes.textContent = '確定';
-        this.btn_yes.addEventListener('click', () => {
-            on_yes();
+        this.btn_confirm = document.createElement('a');
+        this.btn_confirm.className = 'popup__button';
+        this.btn_confirm.textContent = '確定';
+        this.btn_confirm.addEventListener('click', () => {
+            submit();
             self.closeConfirm();
         });
 
         const pop_title = options.pop_title || '請確認您提供的資料是否正確';
         const birth_title = options.birth_title || '生辰';
 
-        this.popconfirm = document.createElement('div');
-        this.popconfirm.className = 'wq-pop cover confirm';
-        this.popconfirm.innerHTML = `
-            <div style="display:block">
-                <div class="wqPOP">
-                    <div class="TBAR">
-                        <div class="XX"></div>
-                    </div>
-                    <div class="COM">
-                        <p class="pop_t01 pop-data-container">${pop_title}：</p>
-                        <div class="BT02">
-                            <ul>
-                                <li class="btn-yes"></li>
-                                <li class="btn-no"></li>
-                            </ul>
-                        </div>
-                    </div>
+        this.popupConfirm = document.createElement('div');
+        this.popupConfirm.className = 'popup__modal';
+        this.popupConfirm.innerHTML = `
+            <div class="popup">
+                <div class="popup__header">
+                    <span class="popup__close-btn"></span>
+                </div>
+                <div class="popup__content--header">${pop_title}：</div>
+                <div class="popup__content"></div>
+                <div class="popup__actions">
+                    <div class="popup__confirm-btn"></div>
+                    <div class="popup__cancel-btn"></div>
                 </div>
             </div>
         `;
 
-        const clonePopconfirm = (i) => {
+        const clonePopupConfirm = (i) => {
             const dateString = [];
             if (form_data[i-1].date_format === 'both') {
                 dateString.push(form_data[i-1].datetime.solarString + 
@@ -121,12 +113,20 @@ class wqPopup {
                 dateString.push((form_data[i-1].datetime.hour[0] === false ? '' : 
                     form_data[i-1].datetime.hour[1]));
             }
-
             return `
-                <p class="pop_t01">姓名：<span class="pop_t03">${form_data[i-1].nickname}</span></p>
-                <p class="pop_t01">性別：<span class="pop_t03">${form_data[i-1].sex[1]}</span></p>
-                <p class="pop_t01" id="dateFormat">${birth_title}：<span class="pop_t03">${dateString[0]}</span></p>
-                <p class="pop_t03" style="margin-left:3em;">${dateString[1]}</p>
+                <div class="popup__item">
+                    <span class="popup__label">姓名：</span>
+                    <span class="popup__value">${form_data[i-1].nickname}</span>
+                </div>
+                <div class="popup__item">
+                    <span class="popup__label">性別：</span>
+                    <span class="popup__value">${form_data[i-1].sex[1]}</span>
+                </div>
+                <div class="popup__item">
+                    <span class="popup__label">${birth_title}：</span>
+                    <span class="popup__value">${dateString[0]}</span>
+                    <span class="popup__value">${dateString[1]}</span>
+                </div>
                 ${this.#generateCustomFields(form_data[i-1].custom)}
             `;
         };
@@ -134,25 +134,29 @@ class wqPopup {
         const clone = [];
         for (let i = 1; i <= num; i++) {
             if (i > 1) {
-                clone.push('<div class="POP_LINE"></div>');
+                clone.push('<div class="popup__border-line"></div>');
             }
-            clone.push(clonePopconfirm(i));
+            clone.push(clonePopupConfirm(i));
         }
 
-        this.popconfirm.querySelector('.btn-yes').appendChild(this.btn_yes);
-        this.popconfirm.querySelector('.btn-no').appendChild(this.btn_no);
-        this.popconfirm.querySelector('.XX').appendChild(this.btn_xx);
-        this.popconfirm.querySelector('.pop-data-container')
-            .insertAdjacentHTML('afterend', clone.join(''));
+        this.popupConfirm.querySelector('.popup__confirm-btn').appendChild(this.btn_confirm);
+        this.popupConfirm.querySelector('.popup__cancel-btn').appendChild(this.btn_cancel);
+        this.popupConfirm.querySelector('.popup__close-btn').appendChild(this.close_btn);
+        this.popupConfirm.querySelector('.popup__content')
+            .insertAdjacentHTML('beforeend', clone.join(''));
 
-        document.body.appendChild(this.popconfirm);
+        document.body.appendChild(this.popupConfirm);
     }
 
     #generateCustomFields(custom) {
         if (!custom || !custom.length) return '';
         
         return Object.entries(custom).map(([_, value]) => 
-            `<p class="pop_t01">${value[2]}：<span class="pop_t03">${value[1]}</span></p>`
+            `<div class="popup__item">
+                <span class="popup__label">${value[2]}：</span>
+                <span class="popup__value">${value[1]}</span>
+            </div>
+            `
         ).join('');
     }
 
@@ -160,21 +164,22 @@ class wqPopup {
         const self = this;
         const num = confirmMsgElements.length;
 
-        this.btn_no = document.createElement('a');
-        this.btn_no.textContent = '取消';
-        this.btn_no.addEventListener('click', () => self.closeConfirm());
+        this.btn_cancel = document.createElement('a');
+        this.btn_cancel.textContent = '取消';
+        this.btn_cancel.className = 'popup__button popup__cancel';
+        this.btn_cancel.addEventListener('click', () => self.closeConfirm());
 
-        this.btn_xx = document.createElement('a');
-        this.btn_xx.href = '#';
-        this.btn_xx.style.backgroundImage = 'url(//imgs.click108.com.tw/wenqu/images/pop_x_icon.png)';
-        this.btn_xx.addEventListener('click', (e) => {
+        this.close_btn = document.createElement('span');
+        this.close_btn.className = 'popup__close-btn';
+        this.close_btn.addEventListener('click', (e) => {
             e.preventDefault();
             self.closeConfirm();
         });
 
-        this.btn_yes = document.createElement('a');
-        this.btn_yes.textContent = '確定';
-        this.btn_yes.addEventListener('click', () => {
+        this.btn_confirm = document.createElement('a');
+        this.btn_confirm.textContent = '確定';
+        this.btn_confirm.className = 'popup__button';
+        this.btn_confirm.addEventListener('click', () => {
             if (beforeAndAfterSubmit.length > 0 && typeof beforeAndAfterSubmit[0] === 'function') {
                 beforeAndAfterSubmit[0]();
             }
@@ -193,23 +198,18 @@ class wqPopup {
 
         const pop_title = options.pop_title || '請確認您提供的資料是否正確';
 
-        this.popconfirm = document.createElement('div');
-        this.popconfirm.className = 'wq-pop cover confirm';
-        this.popconfirm.innerHTML = `
-            <div style="display:block">
-                <div class="wqPOP">
-                    <div class="TBAR">
-                        <div class="XX"></div>
-                    </div>
-                    <div class="COM">
-                        <p class="pop_t01 pop-data-container">${pop_title}：</p>
-                        <div class="BT02">
-                            <ul>
-                                <li class="btn-yes"></li>
-                                <li class="btn-no"></li>
-                            </ul>
-                        </div>
-                    </div>
+        this.popupConfirm = document.createElement('div');
+        this.popupConfirm.className = 'popup__modal';
+        this.popupConfirm.innerHTML = `
+            <div class="popup">
+                <div class="popup__header">
+                    <span class="popup__close-btn"></span>
+                </div>
+                <div class="popup__content--header">${pop_title}：</div>
+                <div class="popup__content"></div>
+                <div class="popup__actions">
+                    <div class="popup__confirm-btn"></div>
+                    <div class="popup__cancel-btn"></div>
                 </div>
             </div>
         `;
@@ -217,23 +217,27 @@ class wqPopup {
         const clone = [];
         for (let i = 1; i <= num; i++) {
             if (i > 1) {
-                clone.push('<div class="POP_LINE"></div>');
+                clone.push('<div class="popup__border-line"></div>');
             }
             clone.push(this.#generateConfirmContent(confirmMsgElements[i-1]));
         }
 
-        this.popconfirm.querySelector('.btn-yes').appendChild(this.btn_yes);
-        this.popconfirm.querySelector('.btn-no').appendChild(this.btn_no);
-        this.popconfirm.querySelector('.XX').appendChild(this.btn_xx);
-        this.popconfirm.querySelector('.pop-data-container')
-            .insertAdjacentHTML('afterend', clone.join(''));
+        this.popupConfirm.querySelector('.popup__confirm-btn').appendChild(this.btn_confirm);
+        this.popupConfirm.querySelector('.popup__cancel-btn').appendChild(this.btn_cancel);
+        this.popupConfirm.querySelector('.popup__close-btn').appendChild(this.close_btn);
+        this.popupConfirm.querySelector('.popup__content')
+            .insertAdjacentHTML('beforeend', clone.join(''));
 
-        document.body.appendChild(this.popconfirm);
+        document.body.appendChild(this.popupConfirm);
     }
 
     #generateConfirmContent(msgElems) {
         return msgElems.map(elem => 
-            `<p class="pop_t01">${elem.title}：<span class="pop_t03">${elem.value}</span></p>`
+            `<div class="popup__item">
+                <span class="popup__label">${elem.title}：</span>
+                <span class="popup__value">${elem.value}</span>
+            </div>
+            `
         ).join('');
     }
 }

@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="./css/wenqu.css">
 </head>
 <body>
-  <form action="" class="wq-form" id="form">
+  <form action="" class="wq-form" id="form2088">
     <div class="DATA_BOX">
       <div class="wq-group">
         <ul class="FORM">
@@ -79,21 +79,21 @@
 <script src="./js/class.init.js"></script>
 <script type="text/javascript">
   window.addEventListener('load', function() {
-    if (!window.wq_form?.form) {
+    /*if (!window.wq_form?.form) {
       window.wq_form = {
         form: new wqForm('.wq-form')
       };
-    }
+    }*/
     
     const button = document.querySelector("#checkGo_free");
     if (button) {
       button.addEventListener("click", function(event) {
         event.preventDefault();
-        if (window.wq_form?.form?.validation()) {
-          const href = this.getAttribute('data-href');
-          if (href) {
-            window.location.href = href;
-          }
+        if (window.wq_form?.form) {
+          window.wq_form.form.validation({
+            valid_action: this.getAttribute('data-href'),
+            birth_title: '生日'
+          })
         }
       });
     }
