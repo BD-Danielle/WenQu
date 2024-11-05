@@ -1,5 +1,5 @@
 class wqForm {
-    constructor(elem) {
+    constructor(elem, options = {}) {
         this.form = (typeof elem === 'string') ? 
             document.querySelector(elem) : 
             (elem instanceof Element ? elem : null);
@@ -8,54 +8,51 @@ class wqForm {
             throw new Error('Invalid form element');
         }
 
-        this.dateTimeInstances = new WeakMap(); // 使用 WeakMap 存儲實例
+        // 設置默認選項
+        this.options = {
+            submit_button: '#checkGo_free',  // 提交按鈕選擇器
+            popup_title: '請確認您提供的資料是否正確',  // 彈窗標題
+            birth_title: '生辰',  // 生辰標題
+            ...options  // 允許覆蓋默認選項
+        };
+
+        this.dateTimeInstances = new WeakMap();
         this.init();
     }
 
     init() {
-        try {
-            // 初始化輸入框
-            const inputs = this.form.querySelectorAll('.wq-input');
-            inputs.forEach(input => {
-                if (!input.wqInput) {
-                    input.wqInput = new wqInput(input);
-                }
-            });
+        // 初始化所有輸入框
+        this.form.querySelectorAll('.wq-input').forEach(input => {
+            if (!input.wqInput) {
+                input.wqInput = new wqInput(input);
+            }
+        });
 
-            // 初始化日期時間選擇器
-            const dateTimeGroups = this.form.querySelectorAll('.wq-group');
-            dateTimeGroups.forEach(group => {
-                if (!this.dateTimeInstances.has(group)) {
-                    const instance = new wqDateTime(group);
-                    this.dateTimeInstances.set(group, instance);
-                }
-            });
-
-            // 初始化性別選擇器（如果需要）
-            const sexSelects = this.form.querySelectorAll('.wq-select[data-type="sex"]');
-            sexSelects.forEach(select => {
-                if (!select.wqSex) {
-                    select.wqSex = new wqSex(select);
-                }
-            });
-        } catch (error) {
-            console.error('Form initialization error:', error);
-        }
+        // 初始化所有日期時間選擇器
+        this.form.querySelectorAll('.wq-group').forEach(group => {
+            if (!this.dateTimeInstances.has(group)) {
+                const instance = new wqDateTime(group);
+                this.dateTimeInstances.set(group, instance);
+            }
+        });
     }
 
-    validation() {
+    validation(options = {}) {
+        // 合併驗證時的選項
+        const validationOptions = {
+            ...this.options,  // 使用構造函數中的默認選項
+            ...options  // 允許在驗證時覆蓋選項
+        };
+
         let isValid = true;
 
-        // 驗證輸入框
+        // 使用 class.input.js 的驗證功能
         this.form.querySelectorAll('.wq-input').forEach(input => {
-            if (!input.value.trim()) {
-                isValid = false;
-                input.classList.add('error');
-                this.showError(input, '此欄位不能為空');
-            } else {
-                input.classList.remove('error');
-                const existingError = input.parentElement.querySelector('.error-message');
-                if (existingError) existingError.remove();
+            if (input.wqInput) {
+                const result = input.wqInput.validation();
+                if (!result.valid) {
+                    isValid = false;
+                }
             }
         });
 
@@ -73,22 +70,37 @@ class wqForm {
             // 收集表單數據
             const formData = this.#collectFormData();
             
-            // 創建彈窗實例
-            const popup = new wqPopup();
+            // 檢查 wqPopup 是否存在
+            if (typeof window.wqPopup !== 'function') {
+                console.error('wqPopup is not defined. Please make sure class.popup.js is loaded.');
+                return false;
+            }
             
-            // 顯示確認視窗，將跳轉邏輯移到 submit 回調中
-            popup.confirm(formData, () => {
-                const button = document.querySelector('#checkGo_free');
-                const href = button?.getAttribute('data-href');
-                if (href) {
-                    window.location.href = href;
-                }
-            }, {
-                pop_title: '請確認您提供的資料是否正確',
-                birth_title: '生辰'
-            });
+            try {
+                // 創建彈窗實例
+                const popup = new window.wqPopup();
+                
+                // 顯示確認視窗
+                popup.confirm(formData, () => {
+                    const button = document.querySelector(validationOptions.submit_b);
+                    if (!button) {
+                        console.error(`Submit button not found: ${validationOptions.submit_b}`);
+                        return;
+                    }
+                    const href = button.getAttribute('data-href');
+                    if (href) {
+                        window.location.href = href;
+                    }
+                }, {
+                    pop_title: validationOptions.popup_title,
+                    birth_title: validationOptions.birth_title,
+                    ...validationOptions.popupOptions  // 允許添加其他彈窗選項
+                });
+            } catch (error) {
+                console.error('Error creating popup:', error);
+                return false;
+            }
 
-            // 返回 false 阻止表單默認提交
             return false;
         }
 
@@ -98,8 +110,9 @@ class wqForm {
     #collectFormData() {
         const formData = [];
         
-        // 獲取所有 wq-group
         this.form.querySelectorAll('.wq-group').forEach(group => {
+            const dateTimeInstance = this.dateTimeInstances.get(group);
+            
             const data = {
                 nickname: '',
                 sex: ['', ''],
@@ -109,7 +122,7 @@ class wqForm {
                     lunarString: '',
                     hour: [false, '']
                 },
-                date_format: 'both',
+                date_format: '',
                 custom: []
             };
 
@@ -126,21 +139,12 @@ class wqForm {
             }
 
             // 獲取日期時間
-            const calendar = group.querySelector('.wq-select[data-type="calendar"]');
-            const year = group.querySelector('.wq-select[data-type="year"]');
-            const month = group.querySelector('.wq-select[data-type="month"]');
-            const day = group.querySelector('.wq-select[data-type="day"]');
-            const hour = group.querySelector('.wq-select[data-type="hour"]');
-
-            if (calendar && year && month && day) {
-                data.datetime.calendar = [calendar.value, calendar.value === '0' ? '農曆' : '西元'];
-                const dateStr = `${year.value}年${month.value}月${day.value}日`;
-                data.datetime.solarString = calendar.value === '1' ? dateStr : '';
-                data.datetime.lunarString = calendar.value === '0' ? dateStr : '';
-            }
-
-            if (hour) {
-                data.datetime.hour = [true, hour.options[hour.selectedIndex].text];
+            if (dateTimeInstance) {
+                // 直接使用 datetime 類的方法獲取格式化日期
+                const dateTimeData = dateTimeInstance.getFormattedDate();
+                if (dateTimeData) {
+                    data.datetime = dateTimeData;
+                }
             }
 
             formData.push(data);
@@ -149,11 +153,11 @@ class wqForm {
         return formData;
     }
 
-    showError(element, message) {
-        const parent = element.parentElement;
+    showError(input, message) {
+        const parent = input.parentElement;
         if (!parent) return;
 
-        // 移除舊的錯誤示
+        // 移除已存在的錯誤提示
         const existingError = parent.querySelector('.error-message');
         if (existingError) {
             existingError.remove();
@@ -167,21 +171,24 @@ class wqForm {
     }
 
     destroy() {
-        // 清理所有 DateTime 實例
-        this.dateTimeInstances.forEach(instance => {
+        // 清理所有實例
+        this.dateTimeInstances.forEach((instance, group) => {
             if (instance && typeof instance.destroy === 'function') {
                 instance.destroy();
             }
         });
+        this.dateTimeInstances = new WeakMap();
 
-        // 移除錯誤提示
+        // 移除所有錯誤提示
         this.form.querySelectorAll('.error-message').forEach(msg => msg.remove());
         
         // 清理引用
-        this.dateTimeInstances = null;
         this.form = null;
     }
 }
+
+// 確保 wqForm 被正確導出到全局
+window.wqForm = wqForm;
 
 // 只在全局範圍創建一次實例
 if (!window.wq_form) {

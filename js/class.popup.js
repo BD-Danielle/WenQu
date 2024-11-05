@@ -82,7 +82,10 @@ class wqPopup {
         });
 
         const pop_title = options.pop_title || '請確認您提供的資料是否正確';
+        const name_title = options.name_title || '姓名';
+        const sex_title = options.sex_title || '性別';
         const birth_title = options.birth_title || '生辰';
+        const hour_title = options.hour_title || '時辰';
 
         this.popupConfirm = document.createElement('div');
         this.popupConfirm.className = 'popup__modal';
@@ -113,18 +116,22 @@ class wqPopup {
                 dateString.push((form_data[i-1].datetime.hour[0] === false ? '' : 
                     form_data[i-1].datetime.hour[1]));
             }
+
             return `
                 <div class="popup__item">
-                    <span class="popup__label">姓名：</span>
+                    <span class="popup__label">${name_title}：</span>
                     <span class="popup__value">${form_data[i-1].nickname}</span>
                 </div>
                 <div class="popup__item">
-                    <span class="popup__label">性別：</span>
+                    <span class="popup__label">${sex_title}：</span>
                     <span class="popup__value">${form_data[i-1].sex[1]}</span>
                 </div>
                 <div class="popup__item">
                     <span class="popup__label">${birth_title}：</span>
                     <span class="popup__value">${dateString[0]}</span>
+                </div>
+                <div class="popup__item">
+                    <span class="popup__label">${hour_title}：</span>
                     <span class="popup__value">${dateString[1]}</span>
                 </div>
                 ${this.#generateCustomFields(form_data[i-1].custom)}

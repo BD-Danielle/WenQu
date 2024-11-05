@@ -103,35 +103,39 @@ class wqDateTime {
   }
 
   #bindEvents() {
-    this.#eventHandler = (event) => {
-      const target = event.target;
-      if (!target.matches('.wq-select')) return;
+    if (!this.elem.calendar || !this.elem.year || !this.elem.month) return;
 
-      const type = target.dataset.type;
-      if (!type) return;
+    // 日曆類型改變
+    this.elem.calendar.addEventListener('change', () => {
+      // 保存當前選中的值
+      const currentYear = this.elem.year.value;
+      const currentMonth = this.elem.month.value;
+      const currentDay = this.elem.day.value;
 
-      this.#debounce(() => {
-        switch (type) {
-          case 'calendar':
-            this.buildYearOptions();
-            this.buildMonthOptions();
-            this.buildDayOptions();
-            this.buildLeapMonth();
-            break;
-          case 'year':
-            this.buildMonthOptions();
-            this.buildDayOptions();
-            this.buildLeapMonth();
-            break;
-          case 'month':
-            this.buildDayOptions();
-            this.applyLeapMonth();
-            break;
-        }
-      }, 100);
-    };
+      // 重建選項
+      this.buildYearOptions();
+      this.buildMonthOptions();
+      
+      // 恢復之前的值
+      if (currentYear) this.elem.year.value = currentYear;
+      if (currentMonth) this.elem.month.value = currentMonth;
+      
+      // 重建並設置日期
+      this.buildDayOptions(currentDay);
+    });
 
-    this.#root.addEventListener('change', this.#eventHandler);
+    // 年份改變
+    this.elem.year.addEventListener('change', () => {
+      const currentDay = this.elem.day.value;
+      this.buildMonthOptions();
+      this.buildDayOptions(currentDay);
+    });
+
+    // 月份改變
+    this.elem.month.addEventListener('change', () => {
+      const currentDay = this.elem.day.value;
+      this.buildDayOptions(currentDay);
+    });
   }
 
   #debounce(fn, delay) {
@@ -149,24 +153,38 @@ class wqDateTime {
     this.#eventHandler = null;
   }
 
-  #updateSelectOptions(select, options, defaultValue = null) {
+  #updateSelectOptions(select, options, defaultValue) {
     if (!select) return;
 
-    const fragment = document.createDocumentFragment();
+    // console.log('Updating select options:', {
+    //     selectId: select.id,
+    //     options: options,
+    //     defaultValue: defaultValue
+    // });
+
+    // 保存當前滾動位置
+    const scrollTop = select.scrollTop;
+    
+    // 清空現有選項
     select.innerHTML = '';
 
+    // 添加新選項
+    const fragment = document.createDocumentFragment();
     options.forEach(option => {
-      const optionElement = document.createElement('option');
-      optionElement.value = option.value;
-      optionElement.textContent = option.text;
-      fragment.appendChild(optionElement);
+        const optElement = document.createElement('option');
+        optElement.value = option.value;
+        optElement.textContent = option.text;
+        fragment.appendChild(optElement);
     });
-
     select.appendChild(fragment);
 
-    if (defaultValue !== null) {
-      select.value = defaultValue;
+    // 設置默認值
+    if (defaultValue !== undefined && defaultValue !== null) {
+        select.value = defaultValue;
     }
+
+    // 恢復滾動位置
+    select.scrollTop = scrollTop;
   }
 
   buildCalendarOptions() {
@@ -177,15 +195,18 @@ class wqDateTime {
     const options = [];
 
     if (fixed) {
-      const optionIndex = ['solar', 'lunar'].indexOf(fixed);
-      if (optionIndex > -1) {
-        options.push(this.options.calendar[optionIndex]);
-      }
+        const optionIndex = ['solar', 'lunar'].indexOf(fixed);
+        if (optionIndex > -1) {
+            options.push(this.options.calendar[optionIndex]);
+        }
     } else {
-      options.push(...this.options.calendar);
+        options.push(...this.options.calendar);
     }
 
-    this.#updateSelectOptions(calendar, options);
+    // 獲取預設值：優先使用 data-value，否則默認為 "1"（西元）
+    const defaultValue = calendar.getAttribute('data-value') || "1";
+    
+    this.#updateSelectOptions(calendar, options, defaultValue);
   }
 
   buildYearOptions() {
@@ -258,83 +279,113 @@ class wqDateTime {
     hourSelect.appendChild(fragment);
   }
 
-  buildDayOptions() {
+  buildDayOptions(preserveValue = null) {
     const daySelect = this.elem.day;
     if (!daySelect) return;
 
-    const oldDayValue = daySelect.value || 1;
+    const oldDayValue = preserveValue || 
+                       daySelect.value || 
+                       daySelect.getAttribute('data-value');
+    const yearValue = parseInt(this.elem.year.value, 10);
+    const monthValue = parseInt(this.elem.month.value, 10);
+    const calendarType = this.elem.calendar.value;
+    
+    // 計算天數
+    let daysInMonth;
+    if (calendarType === '0') { // 農曆
+        // const actualMonth = Math.abs(monthValue);
+        const actualMonth = monthValue;
+        const isLeapMonth = monthValue < 0;
+        
+        // 輸出計算參數
+        console.log('Calculating lunar days:', {
+            year: yearValue,
+            month: actualMonth,
+            isLeap: isLeapMonth,
+            rawMonthValue: monthValue
+        });
+        
+        daysInMonth = this.getLunarMonthDays(yearValue, actualMonth, isLeapMonth);
+        
+        // 輸出結果
+        console.log('Lunar days result:', {
+            year: yearValue,
+            month: actualMonth,
+            isLeap: isLeapMonth,
+            days: daysInMonth
+        });
+    } else { // 陽曆
+        daysInMonth = new Date(yearValue, Math.abs(monthValue), 0).getDate();
+    }
+
     const dayOptions = [];
-
-    let totalDays = 0;
-    if (this.elem.calendar.value === "0") {
-      totalDays = this.calcLunarDay();
-    } else if (this.elem.calendar.value === "1") {
-      totalDays = this.calcSolarDay();
+    for (let i = 1; i <= daysInMonth; i++) {
+        dayOptions.push({
+            value: i,
+            text: `${i < 10 ? '0' + i : i}日`
+        });
     }
 
-    for (let i = 1; i <= totalDays; i++) {
-      dayOptions.push({
-        value: i,
-        text: `${i < 10 ? '0' + i : i}日`
-      });
+    // 設置默認值
+    let defaultValue = 1;
+    if (oldDayValue) {
+        const oldDayNum = parseInt(oldDayValue, 10);
+        if (oldDayNum <= daysInMonth) {
+            defaultValue = oldDayNum;
+        }
     }
 
-    this.#updateSelectOptions(
-      daySelect,
-      dayOptions,
-      daySelect.querySelector(`option[value='${oldDayValue}']`) ? oldDayValue : 1
-    );
+    // 更新選項
+    this.#updateSelectOptions(daySelect, dayOptions, defaultValue);
+
+    // 確保有選中值
+    if (!daySelect.value && dayOptions.length > 0) {
+        daySelect.value = dayOptions[0].value;
+    }
   }
 
-  calcSolarDay() {
-    const days = [0, 0, -3, 0, -1, 0, -1, 0, 0, -1, 0, -1, 0];
-    const thisMonth = parseInt(this.elem.month.value, 10);
-    let thisDay = days[thisMonth];
-
-    if (this.elem.calendar.value === "1" &&
-      this.checkSolarLeapYear(parseInt(this.elem.year.value, 10)) &&
-      thisMonth === 2) {
-      thisDay++;
+  // 獲取農曆月份的天數
+  getLunarMonthDays(year, month, isLeap) {
+    // 檢查年份範圍
+    if (year < 1901 || year > 2100) {
+        return 30;
     }
 
-    return thisDay + 31;
-  }
-
-  calcLunarDay() {
-    const days = this.getLunarDaysForMonths(parseInt(this.elem.year.value, 10));
-    let thisMonth = parseInt(this.elem.month.value, 10);
-    thisMonth = (thisMonth < 0) ? 0 : thisMonth;
-
-    const thisDay = days[thisMonth];
-    return 29 + parseInt(thisDay, 10);
-  }
-
-  getLunarDaysForMonths(year) {
-    const yinYear = this.data.lunarYear[year - 1900];
-    let binaryStr = yinYear.toString(2);
-
-    try {
-      binaryStr = ('0'.repeat(17) + binaryStr).slice(-17);
-    } catch (e) {
-      while (binaryStr.length < 17) {
-        binaryStr = '0' + binaryStr;
-      }
+    const yearIndex = year - 1901;
+    const yearData = this.data.lunarYear[yearIndex];
+    if (!yearData) {
+        return 30;
     }
 
-    if (binaryStr.length > 17) {
-      binaryStr = binaryStr.slice(-17);
+    // 解析農曆數據
+    const leapMonth = yearData & 0xf;
+    const monthDays = yearData >> 4;
+    const leapDays = (yearData >> 16) & 0x1;
+
+    // 處理閏月
+    if (isLeap && month === leapMonth) {
+        // 閏月天數
+        return leapDays ? 30 : 29;
     }
 
-    return binaryStr.slice(0, -4).split('');
+    // 處理正常月份
+    const bit = 1 << (13 - month);
+    return (monthDays & bit) ? 30 : 29;
   }
 
   buildMonthOptions() {
     const monthSelect = this.elem.month;
     if (!monthSelect) return;
 
-    const oldMonthValue = monthSelect.value || 1;
+    // 確保 leapmonth 元素已經建立
+    this.buildLeapMonth();
+
+    // 獲取 data-value，優先使用
+    const dataValue = monthSelect.getAttribute('data-value');
+
     const monthOptions = [];
 
+    // 生成基本月份選項
     for (let i = 1; i <= 12; i++) {
         monthOptions.push({
             value: i,
@@ -342,22 +393,38 @@ class wqDateTime {
         });
     }
 
+    // 處理農曆閏月
     if (this.elem.calendar.value === "0") {
-        const leapMonth = this.checkLunarLeapYear(parseInt(this.elem.year.value, 10));
+        const year = parseInt(this.elem.year.value, 10);
+        const leapMonth = this.checkLunarLeapYear(year);
+
         if (leapMonth !== 0) {
             monthOptions.splice(leapMonth, 0, {
-                value: -1 * leapMonth,
+                value: -leapMonth,  // 使用負值表示閏月
                 text: `${leapMonth < 10 ? '0' + leapMonth : leapMonth}(閏)月`
             });
         }
     }
 
-    this.#updateSelectOptions(
-        monthSelect,
-        monthOptions,
-        monthSelect.querySelector(`option[value='${oldMonthValue}']`) ? oldMonthValue : 1
-    );
+    // 設置默認值
+    let defaultValue = 1;
+    if (dataValue !== null) {
+        const targetValue = parseInt(dataValue, 10);
 
+        // 檢查是否有匹配的選項（包括閏月）
+        const matchingOption = monthOptions.find(opt => 
+            parseInt(opt.value, 10) === targetValue
+        );
+
+        if (matchingOption) {
+            defaultValue = matchingOption.value;
+        }
+    }
+
+    // 更新選項並設置值
+    this.#updateSelectOptions(monthSelect, monthOptions, defaultValue);
+
+    // 處理閏月相關邏輯
     this.applyLeapMonth();
   }
 
@@ -385,7 +452,6 @@ class wqDateTime {
 
     this.elem.leapmonth.value = '';
     const monthValue = parseInt(this.elem.month.value, 10);
-
     if (parseInt(this.elem.calendar.value, 10) === 0 && monthValue < 0) {
         this.elem.leapmonth.value = '1';
         
@@ -419,39 +485,138 @@ class wqDateTime {
         // 處理日曆類型
         if (this.elem.calendar) {
             const calendarValue = this.elem.calendar.getAttribute('data-value');
-            this.elem.calendar.value = calendarValue || "1";
+            this.elem.calendar.value = this.#validateCalendarValue(calendarValue);
         }
 
-        // 處理年份 - 使用更靈活的默認值邏輯
+        // 處理年份
         if (this.elem.year) {
             const yearValue = this.elem.year.getAttribute('data-value');
             const minYear = parseInt(this.elem.year.getAttribute('min'), 10);
-            const currentYear = this.getThisYear();
-            
-            // 優先順序：data-value > min > 當前年份
-            this.elem.year.value = yearValue || 
-                                 (minYear ? minYear.toString() : 
-                                 currentYear.toString());
+            const maxYear = parseInt(this.elem.year.getAttribute('max'), 10);
+            this.elem.year.value = this.#validateYearValue(yearValue, minYear, maxYear);
         }
 
-        // 處理月份
-        if (this.elem.month) {
-            const monthValue = this.elem.month.getAttribute('data-value');
-            this.elem.month.value = monthValue || "1";
-            this.applyLeapMonth();
-        }
+        // 重建月份選項並設置值
+        this.buildMonthOptions();
 
-        // 處理日期
-        if (this.elem.day) {
-            const dayValue = this.elem.day.getAttribute('data-value');
-            this.elem.day.value = dayValue || "1";
-        }
+        // 重建日期選項並設置值
+        this.buildDayOptions();
 
         // 處理小時
         if (this.elem.hour) {
             const hourValue = this.elem.hour.getAttribute('data-value');
-            this.elem.hour.value = hourValue || "00";
+            this.elem.hour.value = this.#validateHourValue(hourValue);
         }
     });
+  }
+
+  // 驗證日曆類型值
+  #validateCalendarValue(value) {
+    const validValue = parseInt(value, 10);
+    return validValue === 0 ? "0" : "1";  // 只允許 0 或 1
+  }
+
+  // 驗證年份值
+  #validateYearValue(value, min, max) {
+    const currentYear = new Date().getFullYear();
+    const validMin = min || 1901;
+    const validMax = max || currentYear;
+    
+    let validValue = parseInt(value, 10);
+    if (isNaN(validValue) || validValue < validMin || validValue > validMax) {
+        validValue = validMin;
+    }
+    return validValue.toString();
+  }
+
+  // 驗證月份值
+  #validateMonthValue(value, calendarType) {
+    let validValue = parseInt(value, 10);
+    
+    // 檢查是否為閏月（負值）
+    if (validValue < 0) {
+        const absMonth = Math.abs(validValue);
+        // 檢查是否為有效的閏月
+        if (calendarType === "0" && this.#isValidLeapMonth(absMonth)) {
+            return validValue.toString();
+        }
+        // 如果不是有效的閏月，返回對應的正常月份
+        validValue = absMonth;
+    }
+
+    // 驗證月份範圍
+    if (isNaN(validValue) || validValue < 1 || validValue > 12) {
+        validValue = 1;
+    }
+    return validValue.toString();
+  }
+
+  // 驗證日期值
+  #validateDayValue(value) {
+    const yearValue = parseInt(this.elem.year.value, 10);
+    const monthValue = parseInt(this.elem.month.value, 10);
+    const calendarType = this.elem.calendar.value;
+    
+    // 計算當月最大天數
+    let maxDays;
+    if (calendarType === "0") {
+        // 農曆
+        const isLeap = monthValue < 0;
+        const actualMonth = Math.abs(monthValue);
+        maxDays = this.getLunarMonthDays(yearValue, actualMonth, isLeap);
+    } else {
+        // 陽曆
+        maxDays = new Date(yearValue, monthValue, 0).getDate();
+    }
+
+    let validValue = parseInt(value, 10);
+    if (isNaN(validValue) || validValue < 1 || validValue > maxDays) {
+        validValue = 1;
+    }
+    return validValue.toString();
+  }
+
+  // 驗證小時值
+  #validateHourValue(value) {
+    let validValue = parseInt(value, 10);
+    if (isNaN(validValue) || validValue < 0 || validValue > 23) {
+        validValue = 0;
+    }
+    return validValue.toString().padStart(2, '0');
+  }
+
+  // 檢查是否為有效的閏月
+  #isValidLeapMonth(month) {
+    const yearValue = parseInt(this.elem.year.value, 10);
+    const yearData = this.data.lunarYear[yearValue - 1901];
+    if (!yearData) return false;
+
+    const leapMonth = yearData & 0xf;
+    return month === leapMonth;
+  }
+
+  // 新增方法：獲取格式化的日期字符串
+  getFormattedDate() {
+    if (!this.elem.calendar || !this.elem.year || !this.elem.month || !this.elem.day) {
+        return null;
+    }
+
+    const calendarValue = this.elem.calendar.value;
+    const yearValue = this.elem.year.value;
+    const monthValue = parseInt(this.elem.month.value, 10);
+    const monthText = this.elem.month.options[this.elem.month.selectedIndex].text;
+    const dayValue = this.elem.day.value;
+    const hourValue = this.elem.hour?.value;
+    const hourText = this.elem.hour?.options[this.elem.hour.selectedIndex]?.text || '';
+
+    return {
+        calendar: [calendarValue, calendarValue === '0' ? '農曆' : '西元'],
+        solarString: calendarValue === '1' ? 
+            `${yearValue}年${monthText}${dayValue}日` : '',
+        lunarString: calendarValue === '0' ? 
+            `${yearValue}年${monthText}${dayValue}日` : '',
+        hour: [!!hourValue, hourText],
+        isLeapMonth: monthValue < 0
+    };
   }
 }

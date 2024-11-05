@@ -122,41 +122,38 @@ class wqInput {
     }
 
     validation() {
-        const value = this.#input.value.trim();
-        const format = this.#input.dataset.format;
-        let maxLength = 0;
-        const popUpWords = "姓名格式錯誤，請重新輸入。";
-        
-        // 正則表達式
-        const patterns = {
-            chi: /^[\u4e00-\u9fa5\u3400-\u4db5]+$/,
-            chi_eng: /^[a-zA-Z\u4e00-\u9fa5\u3400-\u4db5]+$/,
-            num: /^\d+[.]?\d*$/
-        };
-
         let result = {
             valid: true,
             errMsg: ''
         };
 
-        // 處理中文格式的特殊情況
-        if (/^chi(\d*)$/.test(format)) {
-            const match = format.match(/^chi(\d*)$/);
-            if (match[1]) {
-                maxLength = parseInt(match[1], 10);
-            }
-            format = 'chi';
-        }
-
-        // 驗證邏輯
+        const value = this.#input.value.trim();
+        const format = this.#input.dataset.format;
+        let maxLength = 0;
+        
+        // 檢查是否為空
         if (!value) {
             result.valid = false;
             result.errMsg = '';
             this.#input.value = '';
-        } else {
+            this.#input.classList.add('error');
+            return result;
+        }
+
+        // 如果有指定格式，進行格式驗證
+        if (format) {
+            // 處理中文字數限制格式 (例如: chi2, chi3)
+            if (/^chi(\d*)$/.test(format)) {
+                const match = format.match(/^chi(\d*)$/);
+                if (match[1]) {
+                    maxLength = parseInt(match[1], 10);
+                }
+            }
+
+            // 根據格式進行驗證
             switch (format) {
                 case 'chi':
-                    if (!patterns.chi.test(value) || /\s/.test(value)) {
+                    if (!/^[\u4e00-\u9fa5\u3400-\u4db5]+$/.test(value) || /\s/.test(value)) {
                         result.valid = false;
                         result.errMsg = '格式錯誤，僅可輸入中文字';
                     } else if (maxLength > 0 && value.length > maxLength) {
@@ -164,31 +161,66 @@ class wqInput {
                         result.errMsg = `格式錯誤，最多可輸入${maxLength}個中文字`;
                     }
                     break;
+
                 case 'chi_eng':
-                    if (!patterns.chi_eng.test(value)) {
+                    if (!/^[a-zA-Z\u4e00-\u9fa5\u3400-\u4db5]+$/.test(value)) {
                         result.valid = false;
-                        result.errMsg = '';
+                        result.errMsg = '格式錯誤，僅可輸入中文或英文';
                     }
                     break;
+
                 case 'num':
-                    if (!patterns.num.test(value)) {
+                    if (!/^\d+[.]?\d*$/.test(value)) {
                         result.valid = false;
-                        result.errMsg = '';
+                        result.errMsg = '格式錯誤，僅可輸入數字';
                     }
                     break;
+
                 default:
-                    if (!value) {
-                        result.valid = false;
-                        result.errMsg = '';
+                    // 處理其他 chi{n} 格式
+                    if (/^chi\d+$/.test(format)) {
+                        if (!/^[\u4e00-\u9fa5\u3400-\u4db5]+$/.test(value) || /\s/.test(value)) {
+                            result.valid = false;
+                            result.errMsg = '格式錯誤，僅可輸入中文字';
+                        } else if (maxLength > 0 && value.length > maxLength) {
+                            result.valid = false;
+                            result.errMsg = `格式錯誤，最多可輸入${maxLength}個中文字`;
+                        }
                     }
+                    break;
             }
         }
 
+        // 根據驗證結果設置錯誤狀態
         if (!result.valid) {
             this.#input.classList.add('error');
+            if (result.errMsg) {
+                this.showError(result.errMsg);
+            }
+        } else {
+            this.#input.classList.remove('error');
+            this.hideError();
         }
 
         return result;
+    }
+
+    showError(message) {
+        // 移除舊的錯誤提示
+        this.hideError();
+
+        // 創建新的錯誤提示
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.textContent = message;
+        this.#input.parentElement.appendChild(errorDiv);
+    }
+
+    hideError() {
+        const errorMessage = this.#input.parentElement.querySelector('.error-message');
+        if (errorMessage) {
+            errorMessage.remove();
+        }
     }
 
     // 清理方法
