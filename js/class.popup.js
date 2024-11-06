@@ -105,17 +105,17 @@ class wqPopup {
 
         const clonePopupConfirm = (i) => {
             const dateString = [];
-            if (form_data[i-1].date_format === 'both') {
-                dateString.push(form_data[i-1].datetime.solarString + 
-                    (form_data[i-1].datetime.hour[0] === false ? '' : ' ' + form_data[i-1].datetime.hour[1]));
-                dateString.push(form_data[i-1].datetime.lunarString + 
-                    (form_data[i-1].datetime.hour[0] === false ? '' : ' ' + form_data[i-1].datetime.hour[1]));
-            } else {
+            // if (form_data[i-1].date_format === 'both') {
+            //     dateString.push(form_data[i-1].datetime.solarString + 
+            //         (form_data[i-1].datetime.hour[0] === false ? '' : ' ' + form_data[i-1].datetime.hour[1]));
+            //     dateString.push(form_data[i-1].datetime.lunarString + 
+            //         (form_data[i-1].datetime.hour[0] === false ? '' : ' ' + form_data[i-1].datetime.hour[1]));
+            // } else {
                 dateString.push(form_data[i-1].datetime.calendar[0] == 1 ? 
                     form_data[i-1].datetime.solarString : form_data[i-1].datetime.lunarString);
                 dateString.push((form_data[i-1].datetime.hour[0] === false ? '' : 
                     form_data[i-1].datetime.hour[1]));
-            }
+            // }
 
             return `
                 <div class="popup__item">
@@ -131,7 +131,7 @@ class wqPopup {
                     <span class="popup__value">${dateString[0]}</span>
                 </div>
                 <div class="popup__item">
-                    <span class="popup__label">${hour_title}：</span>
+                    <span class="popup__label" style="color: #fff;">${hour_title}：</span>
                     <span class="popup__value">${dateString[1]}</span>
                 </div>
                 ${this.#generateCustomFields(form_data[i-1].custom)}

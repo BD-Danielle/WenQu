@@ -102,7 +102,7 @@ input[type="text"].wq-input.error::placeholder {
 } */
 
 .wq-form .wq-input + .wq-iconx {
-  top: 0.5rem !important;
+  top: 0.4rem !important;
 }
 .wq-form .wq-input ~ .error-message {
   margin: 0.5rem 0;

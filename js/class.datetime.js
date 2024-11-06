@@ -107,21 +107,20 @@ class wqDateTime {
 
     // 日曆類型改變
     this.elem.calendar.addEventListener('change', () => {
-      // 保存當前選中的值
-      const currentYear = this.elem.year.value;
-      const currentMonth = this.elem.month.value;
-      const currentDay = this.elem.day.value;
-
-      // 重建選項
-      this.buildYearOptions();
-      this.buildMonthOptions();
-      
-      // 恢復之前的值
-      if (currentYear) this.elem.year.value = currentYear;
-      if (currentMonth) this.elem.month.value = currentMonth;
-      
-      // 重建並設置日期
-      this.buildDayOptions(currentDay);
+        // 保存當前選中的值
+        const currentYear = this.elem.year.value;
+        
+        // 重建選項
+        this.buildYearOptions();
+        
+        // 恢復年份值
+        if (currentYear) this.elem.year.value = currentYear;
+        
+        // 重建月份選項 (不保留之前的值,因為農曆和西元的月份結構不同)
+        this.buildMonthOptions();
+        
+        // 重建日期選項 (使用新的月份)
+        this.buildDayOptions();
     });
 
     // 年份改變
@@ -254,8 +253,21 @@ class wqDateTime {
   }
 
   checkLunarLeapYear(year) {
-    const yinYear = this.data.lunarYear[year - 1900];
-    return yinYear & 0xf;
+    if (year < 1901 || year > 2100) {
+        console.warn('Year out of range for leap month check:', year);
+        return 0;
+    }
+    
+    const yearData = this.data.lunarYear[year - 1900];
+    const leapMonth = yearData & 0xf;
+    
+    console.log('Lunar leap year check:', {
+        year,
+        yearData: yearData.toString(16),
+        leapMonth
+    });
+    
+    return leapMonth;
   }
 
   getThisYear() {
@@ -348,42 +360,63 @@ class wqDateTime {
   getLunarMonthDays(year, month, isLeap) {
     // 檢查年份範圍
     if (year < 1901 || year > 2100) {
+        console.warn('Year out of range:', year);
         return 30;
     }
 
-    const yearIndex = year - 1901;
+    const yearIndex = year - 1900;
     const yearData = this.data.lunarYear[yearIndex];
+    
     if (!yearData) {
+        console.warn('Invalid year data for year:', year);
         return 30;
     }
 
     // 解析農曆數據
-    const leapMonth = yearData & 0xf;
-    const monthDays = yearData >> 4;
-    const leapDays = (yearData >> 16) & 0x1;
+    const leapMonth = yearData & 0xf;         // 閏月月份
+    const monthData = yearData >> 4;          // 月份數據
+    const leapMonthDays = (yearData >> 16) & 0x1; // 閏月天數標誌
+
+    // 輸出調試信息
+    console.log('Lunar data:', {
+        year,
+        month: Math.abs(month),
+        isLeap,
+        yearData: yearData.toString(16),
+        leapMonth,
+        monthData: monthData.toString(2),
+        leapMonthDays
+    });
 
     // 處理閏月
-    if (isLeap && month === leapMonth) {
-        // 閏月天數
-        return leapDays ? 30 : 29;
+    if (isLeap && Math.abs(month) === leapMonth) {
+        return leapMonthDays ? 30 : 29;
     }
 
-    // 處理正常月份
-    const bit = 1 << (13 - month);
-    return (monthDays & bit) ? 30 : 29;
+    // 正常月份
+    const monthBit = 1 << (12 - Math.abs(month));
+    const monthDays = (monthData & monthBit) ? 30 : 29;
+
+    // 輸出最終結果
+    console.log('Final result:', {
+        monthBit: monthBit.toString(2),
+        monthDays
+    });
+
+    return monthDays;
   }
 
   buildMonthOptions() {
     const monthSelect = this.elem.month;
     if (!monthSelect) return;
 
-    // 確保 leapmonth 元素已經建立
-    this.buildLeapMonth();
-
-    // 獲取 data-value，優先使用
-    const dataValue = monthSelect.getAttribute('data-value');
-
     const monthOptions = [];
+    const calendarType = this.elem.calendar.value;
+    const year = parseInt(this.elem.year.value, 10);
+
+    // 保存當���選中的月份值
+    const currentMonthValue = parseInt(monthSelect.value, 10);
+    const dataValue = monthSelect.getAttribute('data-value');
 
     // 生成基本月份選項
     for (let i = 1; i <= 12; i++) {
@@ -393,39 +426,65 @@ class wqDateTime {
         });
     }
 
-    // 處理農曆閏月
-    if (this.elem.calendar.value === "0") {
-        const year = parseInt(this.elem.year.value, 10);
+    // 只在農曆模式下添加閏月
+    if (calendarType === "0") {
         const leapMonth = this.checkLunarLeapYear(year);
+        
+        console.log('Leap month check:', {
+            year,
+            leapMonth,
+            yearData: this.data.lunarYear[year - 1900].toString(16)
+        });
 
         if (leapMonth !== 0) {
             monthOptions.splice(leapMonth, 0, {
-                value: -leapMonth,  // 使用負值表示閏月
+                value: -leapMonth,
                 text: `${leapMonth < 10 ? '0' + leapMonth : leapMonth}(閏)月`
             });
         }
     }
 
     // 設置默認值
-    let defaultValue = 1;
-    if (dataValue !== null) {
-        const targetValue = parseInt(dataValue, 10);
-
-        // 檢查是否有匹配的選項（包括閏月）
-        const matchingOption = monthOptions.find(opt => 
-            parseInt(opt.value, 10) === targetValue
-        );
-
-        if (matchingOption) {
-            defaultValue = matchingOption.value;
+    let defaultValue;
+    
+    if (calendarType === "1") { // 西元
+        // 如果是從農曆切換到西元，使用絕對值
+        defaultValue = Math.abs(currentMonthValue || parseInt(dataValue, 10) || 1);
+    } else { // 農曆
+        // 檢查當前值是否為閏月
+        const leapMonth = this.checkLunarLeapYear(year);
+        if (leapMonth !== 0 && Math.abs(currentMonthValue) === leapMonth) {
+            // 如果當前月份是閏月位置，保持閏月狀態
+            defaultValue = -leapMonth;
+        } else {
+            // 否則使用原始值或 data-value
+            defaultValue = currentMonthValue || parseInt(dataValue, 10) || 1;
         }
+    }
+
+    // 確保默認值在有效範圍內
+    const validOptions = monthOptions.map(opt => parseInt(opt.value, 10));
+    if (!validOptions.includes(defaultValue)) {
+        defaultValue = validOptions[0];
     }
 
     // 更新選項並設置值
     this.#updateSelectOptions(monthSelect, monthOptions, defaultValue);
 
     // 處理閏月相關邏輯
-    this.applyLeapMonth();
+    if (calendarType === "0") {
+        this.applyLeapMonth();
+    } else {
+        this.restoreLeapMonth();
+    }
+
+    // 輸出調試信息
+    console.log('Month options updated:', {
+        calendarType,
+        year,
+        defaultValue,
+        options: monthOptions.map(o => `${o.value}:${o.text}`).join(', ')
+    });
   }
 
   buildLeapMonth() {
