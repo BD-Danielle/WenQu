@@ -60,4 +60,5 @@ a, span, em, strong, i, b, u, label, abbr, cite, code, q, ins, del, mark {
 }
 select {
   color: #333 !important;
+  background-color: #fff !important;
 }
