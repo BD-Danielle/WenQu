@@ -155,12 +155,6 @@ class wqDateTime {
   #updateSelectOptions(select, options, defaultValue) {
     if (!select) return;
 
-    // console.log('Updating select options:', {
-    //     selectId: select.id,
-    //     options: options,
-    //     defaultValue: defaultValue
-    // });
-
     // 保存當前滾動位置
     const scrollTop = select.scrollTop;
     
@@ -172,6 +166,9 @@ class wqDateTime {
     options.forEach(option => {
         const optElement = document.createElement('option');
         optElement.value = option.value;
+        if (option.value < 0) {
+          optElement.className = 'leap-month';
+        }
         optElement.textContent = option.text;
         fragment.appendChild(optElement);
     });
@@ -260,12 +257,6 @@ class wqDateTime {
     
     const yearData = this.data.lunarYear[year - 1900];
     const leapMonth = yearData & 0xf;
-    
-    console.log('Lunar leap year check:', {
-        year,
-        yearData: yearData.toString(16),
-        leapMonth
-    });
     
     return leapMonth;
   }
@@ -414,7 +405,7 @@ class wqDateTime {
     const calendarType = this.elem.calendar.value;
     const year = parseInt(this.elem.year.value, 10);
 
-    // 保存當���選中的月份值
+    // 儲存目前選擇的月份值
     const currentMonthValue = parseInt(monthSelect.value, 10);
     const dataValue = monthSelect.getAttribute('data-value');
 
@@ -477,14 +468,6 @@ class wqDateTime {
     } else {
         this.restoreLeapMonth();
     }
-
-    // 輸出調試信息
-    console.log('Month options updated:', {
-        calendarType,
-        year,
-        defaultValue,
-        options: monthOptions.map(o => `${o.value}:${o.text}`).join(', ')
-    });
   }
 
   buildLeapMonth() {
