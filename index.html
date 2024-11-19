@@ -13,7 +13,7 @@
       <div class="wq-group">
         <div class="FORM">
           <div style="width: 50%">
-            <input type="text" class="wq-input" placeholder="請輸入女方的姓名或暱稱" data-format="chi" data-value="女方" />
+            <input type="text" class="wq-input" placeholder="請輸入姓名（最多10個中文字）" data-format="chi10" />
           </div>
           <div style="width: 50%">
             <select class="wq-select" data-type="sex" data-value="0"></select>
@@ -40,7 +40,7 @@
       <div class="wq-group">
         <div class="FORM">
           <div style="width: 50%">
-            <input type="text" class="wq-input" placeholder="請輸入男方的姓名或暱稱" data-value="男優"/>
+            <input type="text" class="wq-input" placeholder="請輸入身分證字號" data-format="taiwanId" />
           </div>
           <div style="width: 50%">
             <select class="wq-select" data-type="calendar" data-value="0"></select>
@@ -70,6 +70,8 @@
     </ul>
   </div>
 </body>
+<script src="./js/validation.rules.js"></script>
+<script src="./js/validation.config.js"></script>
 <script src="./js/class.popup.js"></script>
 <script src="./js/class.datetime.js"></script>
 <script src="./js/class.input.js"></script>
