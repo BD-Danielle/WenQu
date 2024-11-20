@@ -13,7 +13,8 @@
       <div class="wq-group">
         <div class="FORM">
           <div style="width: 50%">
-            <input type="text" class="wq-input" placeholder="請輸入姓名（最多10個中文字）" data-format="chi10" />
+            <input type="text" class="wq-input" placeholder="請輸入姓名（最多10個中文字）" data-format="chi10" data-value="你他媽是個大美人" data-type="nickname"/>
+            <input type="text" class="wq-input" placeholder=請輸入身分證字號" data-format="taiwanId" data-value="C123456789" data-type="id"/>
           </div>
           <div style="width: 50%">
             <select class="wq-select" data-type="sex" data-value="0"></select>
@@ -40,7 +41,7 @@
       <div class="wq-group">
         <div class="FORM">
           <div style="width: 50%">
-            <input type="text" class="wq-input" placeholder="請輸入身分證字號" data-format="taiwanId" />
+            <input type="text" class="wq-input" placeholder="請輸入身分證字號" data-format="taiwanId" data-value="C123456789" data-type="id"/>
           </div>
           <div style="width: 50%">
             <select class="wq-select" data-type="calendar" data-value="0"></select>
@@ -76,7 +77,7 @@
 <script src="./js/class.datetime.js"></script>
 <script src="./js/class.input.js"></script>
 <script src="./js/class.sex.js"></script>
-<script src="./js/class.wq_form.js"></script>
+<script src="./js/class.form.js"></script>
 <script src="./js/class.radio.js"></script>
 <script src="./js/class.init.js"></script>
 <script type="text/javascript">
@@ -88,7 +89,7 @@
         event.preventDefault();
         if (window.wq_form?.form) {
           window.wq_form.form.validation({
-            //popup_title: '自定義標題',  // 自定義彈窗標題
+            popup_title: '自定義標題',  // 自定義彈窗標題
             valid_action: this.getAttribute('data-href'),
             birth_title: '生日'
           })
