@@ -85,6 +85,19 @@
 <script src="./js/class.init.js"></script>
 <script type="text/javascript">
   window.addEventListener('load', function() {
+    const formOptions = {
+      customFieldLabels: {
+        id: '身分證字號',
+        textarea: '備註內容',
+        // 可以添加更多自定義標籤
+        custom_field1: '自定義欄位1',
+        custom_field2: '自定義欄位2'
+      },
+      popup_title: '自定義標題',
+      birth_title: '生日'
+    };
+
+    window.wq_form.form = new wqForm('.wq-form', formOptions);
     
     const button = document.querySelector("#checkGo_free");
     if (button) {
@@ -92,10 +105,10 @@
         event.preventDefault();
         if (window.wq_form?.form) {
           window.wq_form.form.validation({
-            popup_title: '自定義標題',  // 自定義彈窗標題
+            popup_title: '自定義標題',
             valid_action: this.getAttribute('data-href'),
             birth_title: '生日'
-          })
+          });
         }
       });
     }

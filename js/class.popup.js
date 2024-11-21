@@ -105,19 +105,12 @@ class wqPopup {
 
 		const clonePopupConfirm = (i) => {
 			const dateString = [];
-			// if (form_data[i-1].date_format === 'both') {
-			//     dateString.push(form_data[i-1].datetime.solarString + 
-			//         (form_data[i-1].datetime.hour[0] === false ? '' : ' ' + form_data[i-1].datetime.hour[1]));
-			//     dateString.push(form_data[i-1].datetime.lunarString + 
-			//         (form_data[i-1].datetime.hour[0] === false ? '' : ' ' + form_data[i-1].datetime.hour[1]));
-			// } else {
 			dateString.push(form_data[i - 1].datetime.calendar[0] == 1 ?
 				form_data[i - 1].datetime.solarString : form_data[i - 1].datetime.lunarString);
 			dateString.push((form_data[i - 1].datetime.hour[0] === false ? '' :
 				form_data[i - 1].datetime.hour[1]));
-			// }
 
-			return `
+			let html = `
 				<div class="popup__item">
 					<span class="popup__label">${name_title}：</span>
 					<span class="popup__value">${form_data[i - 1].nickname}</span>
@@ -129,13 +122,21 @@ class wqPopup {
 				<div class="popup__item">
 					<span class="popup__label">${birth_title}：</span>
 					<span class="popup__value">${dateString[0]}</span>
-				</div>
+				</div>`;
+
+			if (dateString[1]) {
+				html += `
 				<div class="popup__item">
 					<span class="popup__label" style="color: #fff;">${hour_title}：</span>
 					<span class="popup__value">${dateString[1]}</span>
-				</div>
-				${this.#generateCustomFields(form_data[i - 1].custom)}
-			`;
+				</div>`;
+			}
+
+			if (form_data[i - 1].custom && form_data[i - 1].custom.length > 0) {
+				html += this.#generateCustomFields(form_data[i - 1].custom);
+			}
+
+			return html;
 		};
 
 		const clone = [];
@@ -156,15 +157,18 @@ class wqPopup {
 	}
 
 	#generateCustomFields(custom) {
-		if (!custom || !custom.length) return '';
-
-		return Object.entries(custom).map(([_, value]) =>
-			`<div class="popup__item">
-                <span class="popup__label">${value[2]}：</span>
-                <span class="popup__value">${value[1]}</span>
-            </div>
-            `
-		).join('');
+		if (!custom || !Array.isArray(custom)) return '';
+		
+		return custom.map(field => {
+			if (!field || !Array.isArray(field) || field.length < 3) return '';
+			
+			return `
+				<div class="popup__item">
+					<span class="popup__label">${field[2]}：</span>
+					<span class="popup__value">${field[1]}</span>
+				</div>
+			`;
+		}).join('');
 	}
 
 	confirmCustom(confirmMsgElements, options, ...beforeAndAfterSubmit) {

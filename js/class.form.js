@@ -13,6 +13,10 @@ class wqForm {
       submit_button: '#checkGo_free',  // 提交按鈕選擇器
       popup_title: '請確認您提供的資料是否正確',  // 彈窗標題
       birth_title: '生辰',  // 生辰標題
+      customFieldLabels: {
+        // id: '身分證字號',
+        // textarea: '備註內容',
+      },
       ...options  // 允許覆蓋默認選項
     };
 
@@ -45,13 +49,13 @@ class wqForm {
     };
     
     // 添加详细的日志输出
-    console.group('ValidationOptions Details:');
-    console.log('Default options:', this.options);
-    console.log('Incoming options:', options);
-    console.log('Merged options:', validationOptions);
-    console.log('Submit button selector:', validationOptions.submit_button);
-    console.dir(document.querySelector(validationOptions.submit_button));
-    console.groupEnd();
+    // console.group('ValidationOptions Details:');
+    // console.log('Default options:', this.options);
+    // console.log('Incoming options:', options);
+    // console.log('Merged options:', validationOptions);
+    // console.log('Submit button selector:', validationOptions.submit_button);
+    // console.dir(document.querySelector(validationOptions.submit_button));
+    // console.groupEnd();
 
     let isValid = true;
 
@@ -135,11 +139,26 @@ class wqForm {
         custom: []
       };
 
-      // 獲取姓名
-      const input = group.querySelector('.wq-input');
-      if (input) {
-        data.nickname = input.value.trim();
-      }
+      // 收集所有 wq-input 輸入框的數據
+      group.querySelectorAll('.wq-input').forEach(input => {
+        const type = input.getAttribute('data-type');
+        const value = input.value.trim();
+        
+        if (type === 'nickname') {
+          data.nickname = value;
+        } else {
+          // 使用配置中的標籤或回退到預設值
+          const label = this.options.customFieldLabels[type] || 
+                       input.placeholder || 
+                       type;
+          
+          data.custom.push([
+            type,
+            value,
+            label
+          ]);
+        }
+      });
 
       // 獲取性別
       const sexSelect = group.querySelector('.wq-select[data-type="sex"]');
@@ -149,7 +168,6 @@ class wqForm {
 
       // 獲取日期時間
       if (dateTimeInstance) {
-        // 直接使用 datetime 類的方法獲取格式化日期
         const dateTimeData = dateTimeInstance.getFormattedDate();
         if (dateTimeData) {
           data.datetime = dateTimeData;
@@ -158,6 +176,9 @@ class wqForm {
 
       formData.push(data);
     });
+
+    // 調試用
+    console.log('Collected Form Data:', formData);
 
     return formData;
   }
