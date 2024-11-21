@@ -25,7 +25,7 @@
 }
 
 /* input element for wenqu */
-input[type="text"].wq-input {
+[type="text"].wq-input {
   width: 100%;
   height: var(--input-height);
   font-size: 1rem;
@@ -37,17 +37,17 @@ input[type="text"].wq-input {
   font-family: var(--font-family);
 }
 
-input[type="text"].wq-input::placeholder {
+[type="text"].wq-input::placeholder {
   background: transparent;
   color: #999;
 }
-input[type="text"].wq-input.error {
+[type="text"].wq-input.error {
   color: var(--error-color);
   background-color: var(--error-background-color);
   border: 1px solid var(--error-color);
 }
 
-input[type="text"].wq-input.error::placeholder {
+[type="text"].wq-input.error::placeholder {
   color: var(--error-color);
 }
 
@@ -108,11 +108,11 @@ input[type="text"].wq-input.error::placeholder {
   margin: 0.5rem 0;
 }
 /* radio button element for wenqu */
-input[type="radio"].wq-radio {
+[type="radio"].wq-radio {
   display: none;
 }
 
-input[type="radio"].wq-radio + label {
+[type="radio"].wq-radio + label {
   display: inline-block;
   cursor: pointer;
   position: relative;
@@ -126,7 +126,7 @@ input[type="radio"].wq-radio + label {
   border: 1px solid var(--border-color);
 }
 
-input[type="radio"].wq-radio + label::before {
+[type="radio"].wq-radio + label::before {
   content: '';
   display: inline-block;
   width: 1.25em;
@@ -143,14 +143,20 @@ input[type="radio"].wq-radio + label::before {
   font-family: Arial;
 }
 
-input[type="radio"].wq-radio:checked + label {
+[type="radio"].wq-radio:checked + label {
   background-color: #deccf2;
 }
 
-input[type="radio"].wq-radio:checked + label::before {
+[type="radio"].wq-radio:checked + label::before {
   content: "•";
 }
-
+textarea {
+  resize: none;
+  height: 100px !important;
+}
+.wq-form textarea.wq-input + .wq-iconx {
+  top: -0.4rem !important;
+}
 /* drop-down element for wenqu */
 .wq-select {
   position: relative;
