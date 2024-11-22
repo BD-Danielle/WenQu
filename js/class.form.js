@@ -47,7 +47,7 @@ class wqForm {
       ...this.options,  // 使用構造函數中的默認選項
       ...options  // 允許在驗證時覆蓋選項
     };
-    
+
     // 添加详细的日志输出
     // console.group('ValidationOptions Details:');
     // console.log('Default options:', this.options);
@@ -143,15 +143,15 @@ class wqForm {
       group.querySelectorAll('.wq-input').forEach(input => {
         const type = input.getAttribute('data-type');
         const value = input.value.trim();
-        
+
         if (type === 'nickname') {
           data.nickname = value;
         } else {
           // 使用配置中的標籤或回退到預設值
-          const label = this.options.customFieldLabels[type] || 
-                       input.placeholder || 
-                       type;
-          
+          const label = this.options.customFieldLabels[type] ||
+            input.placeholder ||
+            type;
+
           data.custom.push([
             type,
             value,
