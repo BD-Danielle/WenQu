@@ -4,27 +4,27 @@
 tree
 project/
 ├── css/
-│ ├── reset.css (重置樣式)
-│ └── wenqu.css (主要樣式)
+│ ├── reset.css # 重置樣式
+│ └── wenqu.css # 主要樣式
 ├── js/
-│ ├── class.datetime.js (日期時間處理核心)
-│ ├── class.form.js (表單處理核心)
-│ ├── class.popup.js (彈窗組件)
-│ ├── class.input.js (輸入框組件)
-│ ├── class.sex.js (性別選擇組件)
-│ ├── class.radio.js (單選組件)
-│ ├── class.init.js (初始化腳本)
-│ ├── event.manager.js (事件管理)
-│ └── error.handler.js (錯誤處理)
+│ ├── class.datetime.js # 日期時間處理核心
+│ ├── class.form.js # 表單處理核心
+│ ├── class.popup.js # 彈窗組件
+│ ├── class.input.js # 輸入框組件
+│ ├── class.sex.js # 性別選擇組件
+│ ├── class.radio.js # 單選組件
+│ ├── class.init.js # 初始化腳本
+│ ├── event.manager.js # 事件管理
+│ └── error.handler.js # 錯誤處理
 ├── images/
-│ ├── x_icon.png (關閉圖標)
-│ ├── select_icon.png (選擇圖標)
-│ ├── popup-bem.png (彈窗背景)
-│ └── pop_x_icon.png (彈窗關閉圖標)
-├── index.html (示例頁面)
-├── gulpfile.js (構建配置)
-├── package.json (項目配置)
-└── README.md (項目文檔)
+│ ├── x_icon.png # 關閉圖標
+│ ├── select_icon.png # 選擇圖標
+│ ├── popup-bem.png # 彈窗背景
+│ └── pop_x_icon.png # 彈窗關閉圖標
+├── index.html # 示例頁面
+├── gulpfile.js # 構建配置
+├── package.json # 項目配置
+└── README.md # 項目文檔
 
 ## 核心功能
 
