@@ -149,12 +149,19 @@ popup.alert('警告訊息');
 
 ### 1. 開發環境設置
 
-```bash
+
 安裝依賴
+```bash
 npm install
+```
+
 啟動開發服務器
+```bash
 npm run dev
+```
+
 構建專案
+```bash
 npm run build
 ```
 
