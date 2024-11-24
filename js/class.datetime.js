@@ -4,73 +4,83 @@ class wqDateTime {
   #eventHandler = null;
 
   constructor(elem) {
-    this.#root = (typeof elem === 'string')
-      ? document.querySelector(elem)
-      : (elem instanceof Element ? elem : elem[0]);
+    try {
+      this.#root = (typeof elem === 'string')
+        ? document.querySelector(elem)
+        : (elem instanceof Element ? elem : elem[0]);
 
-    if (!this.#root) {
-      throw new Error('Invalid datetime element');
-    }
-
-    this.options = {
-      calendar: [
-        { value: 1, text: "西元生日" },
-        { value: 0, text: "農曆生日" }
-      ],
-      hour: [
-        { value: '00', text: "00:00~00:59 (早子)" },
-        { value: '01', text: "01:00~02:59 (丑)" },
-        { value: '03', text: "03:00~04:59 (寅)" },
-        { value: '05', text: "05:00~06:59 (卯)" },
-        { value: '07', text: "07:00~08:59 (辰)" },
-        { value: '09', text: "09:00~10:59 (巳)" },
-        { value: '11', text: "11:00~12:59 (午)" },
-        { value: '13', text: "13:00~14:59 (未)" },
-        { value: '15', text: "15:00~16:59 (申)" },
-        { value: '17', text: "17:00~18:59 (酉)" },
-        { value: '19', text: "19:00~20:59 (戌)" },
-        { value: '21', text: "21:00~22:59 (亥)" },
-        { value: '23', text: "23:00~23:59 (晚子)" }
-      ],
-      year: {
-        min: 1901,
-        max: new Date().getFullYear()
+      if (!this.#root) {
+        throw new Error('Invalid datetime element');
       }
-    };
 
-    this.data = {
-      lunarYear: [
-        0x04bd8, 0x04ae0, 0x0a570, 0x054d5, 0x0d260, 0x0d950, 0x16554, 0x056a0, 0x09ad0, 0x055d2,
-        0x04ae0, 0x0a5b6, 0x0a4d0, 0x0d250, 0x1d295, 0x0b540, 0x0d6a0, 0x0ada2, 0x095b0, 0x14977,
-        0x049b0, 0x0a4b0, 0x0b4b5, 0x06a50, 0x06d40, 0x1ab54, 0x02b60, 0x09570, 0x052f2, 0x04970,
-        0x06566, 0x0d4a0, 0x0ea50, 0x16a95, 0x05ad0, 0x02b60, 0x186e3, 0x092e0, 0x1c8d7, 0x0c950,
-        0x0d4a0, 0x1d8a6, 0x0b550, 0x056a0, 0x1a5b4, 0x025d0, 0x092d0, 0x0d2b2, 0x0a950, 0x0b557,
-        0x06ca0, 0x0b550, 0x15355, 0x04da0, 0x0a5b0, 0x14573, 0x052b0, 0x0a9a8, 0x0e950, 0x06aa0,
-        0x0aea6, 0x0ab50, 0x04b60, 0x0aae4, 0x0a570, 0x05260, 0x0f263, 0x0d950, 0x05b57, 0x056a0,
-        0x096d0, 0x04dd5, 0x04ad0, 0x0a4d0, 0x0d4d4, 0x0d250, 0x0d558, 0x0b540, 0x0b6a0, 0x195a6,
-        0x095b0, 0x049b0, 0x0a974, 0x0a4b0, 0x0b27a, 0x06a50, 0x06d40, 0x0af46, 0x0ab60, 0x09570,
-        0x04af5, 0x04970, 0x064b0, 0x074a3, 0x0ea50, 0x06b58, 0x05ac0, 0x0ab60, 0x096d5, 0x092e0,
-        0x0c960, 0x0d954, 0x0d4a0, 0x0da50, 0x07552, 0x056a0, 0x0abb7, 0x025d0, 0x092d0, 0x0cab5,
-        0x0a950, 0x0b4a0, 0x0baa4, 0x0ad50, 0x055d9, 0x04ba0, 0x0a5b0, 0x15176, 0x052b0, 0x0a930,
-        0x07954, 0x06aa0, 0x0ad50, 0x05b52, 0x04b60, 0x0a6e6, 0x0a4e0, 0x0d260, 0x0ea65, 0x0d530,
-        0x05aa0, 0x076a3, 0x096d0, 0x04afb, 0x04ad0, 0x0a4d0, 0x1d0b6, 0x0d250, 0x0d520, 0x0dd45,
-        0x0b5a0, 0x056d0, 0x055b2, 0x049b0, 0x0a577, 0x0a4b0, 0x0aa50, 0x1b255, 0x06d20, 0x0ada0,
-        0x14b63
-      ]
-    };
+      this.options = {
+        calendar: [
+          { value: 1, text: "西元生日" },
+          { value: 0, text: "農曆生日" }
+        ],
+        hour: [
+          { value: '00', text: "00:00~00:59 (早子)" },
+          { value: '01', text: "01:00~02:59 (丑)" },
+          { value: '03', text: "03:00~04:59 (寅)" },
+          { value: '05', text: "05:00~06:59 (卯)" },
+          { value: '07', text: "07:00~08:59 (辰)" },
+          { value: '09', text: "09:00~10:59 (巳)" },
+          { value: '11', text: "11:00~12:59 (午)" },
+          { value: '13', text: "13:00~14:59 (未)" },
+          { value: '15', text: "15:00~16:59 (申)" },
+          { value: '17', text: "17:00~18:59 (酉)" },
+          { value: '19', text: "19:00~20:59 (戌)" },
+          { value: '21', text: "21:00~22:59 (亥)" },
+          { value: '23', text: "23:00~23:59 (晚子)" }
+        ],
+        year: {
+          min: 1901,
+          max: new Date().getFullYear()
+        }
+      };
 
-    this.elem = {};
-    this.#initialize();
+      this.data = {
+        lunarYear: [
+          0x04bd8, 0x04ae0, 0x0a570, 0x054d5, 0x0d260, 0x0d950, 0x16554, 0x056a0, 0x09ad0, 0x055d2,
+          0x04ae0, 0x0a5b6, 0x0a4d0, 0x0d250, 0x1d295, 0x0b540, 0x0d6a0, 0x0ada2, 0x095b0, 0x14977,
+          0x049b0, 0x0a4b0, 0x0b4b5, 0x06a50, 0x06d40, 0x1ab54, 0x02b60, 0x09570, 0x052f2, 0x04970,
+          0x06566, 0x0d4a0, 0x0ea50, 0x16a95, 0x05ad0, 0x02b60, 0x186e3, 0x092e0, 0x1c8d7, 0x0c950,
+          0x0d4a0, 0x1d8a6, 0x0b550, 0x056a0, 0x1a5b4, 0x025d0, 0x092d0, 0x0d2b2, 0x0a950, 0x0b557,
+          0x06ca0, 0x0b550, 0x15355, 0x04da0, 0x0a5b0, 0x14573, 0x052b0, 0x0a9a8, 0x0e950, 0x06aa0,
+          0x0aea6, 0x0ab50, 0x04b60, 0x0aae4, 0x0a570, 0x05260, 0x0f263, 0x0d950, 0x05b57, 0x056a0,
+          0x096d0, 0x04dd5, 0x04ad0, 0x0a4d0, 0x0d4d4, 0x0d250, 0x0d558, 0x0b540, 0x0b6a0, 0x195a6,
+          0x095b0, 0x049b0, 0x0a974, 0x0a4b0, 0x0b27a, 0x06a50, 0x06d40, 0x0af46, 0x0ab60, 0x09570,
+          0x04af5, 0x04970, 0x064b0, 0x074a3, 0x0ea50, 0x06b58, 0x05ac0, 0x0ab60, 0x096d5, 0x092e0,
+          0x0c960, 0x0d954, 0x0d4a0, 0x0da50, 0x07552, 0x056a0, 0x0abb7, 0x025d0, 0x092d0, 0x0cab5,
+          0x0a950, 0x0b4a0, 0x0baa4, 0x0ad50, 0x055d9, 0x04ba0, 0x0a5b0, 0x15176, 0x052b0, 0x0a930,
+          0x07954, 0x06aa0, 0x0ad50, 0x05b52, 0x04b60, 0x0a6e6, 0x0a4e0, 0x0d260, 0x0ea65, 0x0d530,
+          0x05aa0, 0x076a3, 0x096d0, 0x04afb, 0x04ad0, 0x0a4d0, 0x1d0b6, 0x0d250, 0x0d520, 0x0dd45,
+          0x0b5a0, 0x056d0, 0x055b2, 0x049b0, 0x0a577, 0x0a4b0, 0x0aa50, 0x1b255, 0x06d20, 0x0ada0,
+          0x14b63
+        ]
+      };
+
+      this.elem = {};
+      this.#initialize();
+    } catch (error) {
+      ErrorHandler.handle(error, 'wqDateTime.constructor');
+      throw error;
+    }
   }
 
   #getElement(selector) {
-    if (!this.#domCache.has(selector)) {
-      const element = this.#root.querySelector(`.wq-select${selector}`);
-      if (element) {
-        this.#domCache.set(selector, element);
+    try {
+      if (!this.#domCache.has(selector)) {
+        const element = this.#root.querySelector(`.wq-select${selector}`);
+        if (element) {
+          this.#domCache.set(selector, element);
+        }
       }
+      return this.#domCache.get(selector);
+    } catch (error) {
+      ErrorHandler.handle(error, 'wqDateTime.getElement');
+      return null;
     }
-    return this.#domCache.get(selector);
   }
 
   #initialize() {
@@ -82,22 +92,29 @@ class wqDateTime {
       hour: this.#getElement('[data-type="hour"]')
     };
 
-    const initTask = () => {
-      this.buildCalendarOptions();
-      this.buildHourOptions();
-      this.buildYearOptions();
-      this.buildMonthOptions();
-      this.buildDayOptions();
-      this.buildLeapMonth();
-      this.defaultDateTime();
-      this.#bindEvents();
-    };
-
     requestAnimationFrame(() => {
       if (window.requestIdleCallback) {
-        requestIdleCallback(initTask);
+        requestIdleCallback(() => {
+          this.buildCalendarOptions();
+          this.buildHourOptions();
+          this.buildYearOptions();
+          this.buildMonthOptions();
+          this.buildDayOptions();
+          this.buildLeapMonth();
+          this.defaultDateTime();
+          this.#bindEvents();
+        });
       } else {
-        setTimeout(initTask, 0);
+        setTimeout(() => {
+          this.buildCalendarOptions();
+          this.buildHourOptions();
+          this.buildYearOptions();
+          this.buildMonthOptions();
+          this.buildDayOptions();
+          this.buildLeapMonth();
+          this.defaultDateTime();
+          this.#bindEvents();
+        }, 0);
       }
     });
   }
@@ -107,19 +124,10 @@ class wqDateTime {
 
     // 日曆類型改變
     this.elem.calendar.addEventListener('change', () => {
-      // 保存當前選中的值
       const currentYear = this.elem.year.value;
-
-      // 重建選項
       this.buildYearOptions();
-
-      // 恢復年份值
       if (currentYear) this.elem.year.value = currentYear;
-
-      // 重建月份選項 (不保留之前的值,因為農曆和西元的月份結構不同)
       this.buildMonthOptions();
-
-      // 重建日期選項 (使用新的月份)
       this.buildDayOptions();
     });
 
@@ -137,31 +145,12 @@ class wqDateTime {
     });
   }
 
-  #debounce(fn, delay) {
-    clearTimeout(this._timer);
-    this._timer = setTimeout(() => fn(), delay);
-  }
-
-  destroy() {
-    if (this.#eventHandler) {
-      this.#root.removeEventListener('change', this.#eventHandler);
-    }
-    this.#domCache.clear();
-    this.elem = null;
-    this.#root = null;
-    this.#eventHandler = null;
-  }
-
   #updateSelectOptions(select, options, defaultValue) {
     if (!select) return;
 
-    // 保存當前滾動位置
     const scrollTop = select.scrollTop;
-
-    // 清空現有選項
     select.innerHTML = '';
 
-    // 添加新選項
     const fragment = document.createDocumentFragment();
     options.forEach(option => {
       const optElement = document.createElement('option');
@@ -174,13 +163,25 @@ class wqDateTime {
     });
     select.appendChild(fragment);
 
-    // 設置默認值
     if (defaultValue !== undefined && defaultValue !== null) {
       select.value = defaultValue;
     }
 
-    // 恢復滾動位置
     select.scrollTop = scrollTop;
+  }
+
+  destroy() {
+    try {
+      if (this.#eventHandler) {
+        this.#root.removeEventListener('change', this.#eventHandler);
+      }
+      this.#domCache.clear();
+      this.elem = null;
+      this.#root = null;
+      this.#eventHandler = null;
+    } catch (error) {
+      ErrorHandler.handle(error, 'wqDateTime.destroy');
+    }
   }
 
   buildCalendarOptions() {
@@ -296,27 +297,12 @@ class wqDateTime {
     // 計算天數
     let daysInMonth;
     if (calendarType === '0') { // 農曆
-      // const actualMonth = Math.abs(monthValue);
       const actualMonth = monthValue;
       const isLeapMonth = monthValue < 0;
 
-      // 輸出計算參數
-      // console.log('Calculating lunar days:', {
-      //     year: yearValue,
-      //     month: actualMonth,
-      //     isLeap: isLeapMonth,
-      //     rawMonthValue: monthValue
-      // });
-
       daysInMonth = this.getLunarMonthDays(yearValue, actualMonth, isLeapMonth);
 
-      // 輸出結果
-      // console.log('Lunar days result:', {
-      //     year: yearValue,
-      //     month: actualMonth,
-      //     isLeap: isLeapMonth,
-      //     days: daysInMonth
-      // });
+      
     } else { // 陽曆
       daysInMonth = new Date(yearValue, Math.abs(monthValue), 0).getDate();
     }
@@ -368,17 +354,6 @@ class wqDateTime {
     const monthData = yearData >> 4;          // 月份數據
     const leapMonthDays = (yearData >> 16) & 0x1; // 閏月天數標誌
 
-    // 輸出調試信息
-    // console.log('Lunar data:', {
-    //     year,
-    //     month: Math.abs(month),
-    //     isLeap,
-    //     yearData: yearData.toString(16),
-    //     leapMonth,
-    //     monthData: monthData.toString(2),
-    //     leapMonthDays
-    // });
-
     // 處理閏月
     if (isLeap && Math.abs(month) === leapMonth) {
       return leapMonthDays ? 30 : 29;
@@ -421,12 +396,6 @@ class wqDateTime {
     if (calendarType === "0") {
       const leapMonth = this.checkLunarLeapYear(year);
 
-      // console.log('Leap month check:', {
-      //     year,
-      //     leapMonth,
-      //     yearData: this.data.lunarYear[year - 1900].toString(16)
-      // });
-
       if (leapMonth !== 0) {
         monthOptions.splice(leapMonth, 0, {
           value: -leapMonth,
@@ -459,7 +428,7 @@ class wqDateTime {
       defaultValue = validOptions[0];
     }
 
-    // 更新選項並設置值
+    // 新選項並設置值
     this.#updateSelectOptions(monthSelect, monthOptions, defaultValue);
 
     // 處理閏月相關邏輯
@@ -538,7 +507,7 @@ class wqDateTime {
         this.elem.year.value = this.#validateYearValue(yearValue, minYear, maxYear);
       }
 
-      // 重建月份選項並設置值
+      // 重建月份選項並設���值
       this.buildMonthOptions();
 
       // 重建日期選項並設置值
@@ -571,53 +540,6 @@ class wqDateTime {
     return validValue.toString();
   }
 
-  // 驗證月份值
-  #validateMonthValue(value, calendarType) {
-    let validValue = parseInt(value, 10);
-
-    // 檢查是否為閏月（負值）
-    if (validValue < 0) {
-      const absMonth = Math.abs(validValue);
-      // 檢查是否為有效的閏月
-      if (calendarType === "0" && this.#isValidLeapMonth(absMonth)) {
-        return validValue.toString();
-      }
-      // 如果不是有效的閏月，返回對應的正常月份
-      validValue = absMonth;
-    }
-
-    // 驗證月份範圍
-    if (isNaN(validValue) || validValue < 1 || validValue > 12) {
-      validValue = 1;
-    }
-    return validValue.toString();
-  }
-
-  // 驗證日期值
-  #validateDayValue(value) {
-    const yearValue = parseInt(this.elem.year.value, 10);
-    const monthValue = parseInt(this.elem.month.value, 10);
-    const calendarType = this.elem.calendar.value;
-
-    // 計算當月最大天數
-    let maxDays;
-    if (calendarType === "0") {
-      // 農曆
-      const isLeap = monthValue < 0;
-      const actualMonth = Math.abs(monthValue);
-      maxDays = this.getLunarMonthDays(yearValue, actualMonth, isLeap);
-    } else {
-      // 陽曆
-      maxDays = new Date(yearValue, monthValue, 0).getDate();
-    }
-
-    let validValue = parseInt(value, 10);
-    if (isNaN(validValue) || validValue < 1 || validValue > maxDays) {
-      validValue = 1;
-    }
-    return validValue.toString();
-  }
-
   // 驗證小時值
   #validateHourValue(value) {
     let validValue = parseInt(value, 10);
@@ -625,16 +547,6 @@ class wqDateTime {
       validValue = 0;
     }
     return validValue.toString().padStart(2, '0');
-  }
-
-  // 檢查是否為有效的閏月
-  #isValidLeapMonth(month) {
-    const yearValue = parseInt(this.elem.year.value, 10);
-    const yearData = this.data.lunarYear[yearValue - 1901];
-    if (!yearData) return false;
-
-    const leapMonth = yearData & 0xf;
-    return month === leapMonth;
   }
 
   // 新增方法：獲取格式化的日期字符串
@@ -662,3 +574,5 @@ class wqDateTime {
     };
   }
 }
+
+window.wqDateTime = wqDateTime;
