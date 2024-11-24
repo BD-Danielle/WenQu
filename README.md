@@ -1,3 +1,7 @@
+# WenQu Form System
+
+## 專案結構
+tree
 project/
 ├── css/
 │ ├── reset.css (重置樣式)
@@ -21,7 +25,6 @@ project/
 ├── gulpfile.js (構建配置)
 ├── package.json (項目配置)
 └── README.md (項目文檔)
-
 
 ## 核心功能
 
