@@ -1,7 +1,7 @@
 # WenQu Form System
 
 ## 專案結構
-tree
+```tree
 project/
 ├── css/
 │ ├── reset.css # 重置樣式
@@ -25,7 +25,7 @@ project/
 ├── gulpfile.js # 構建配置
 ├── package.json # 項目配置
 └── README.md # 項目文檔
-
+```
 ## 核心功能
 
 ### 1. 表單處理 (class.form.js)
@@ -59,13 +59,13 @@ project/
 
 ### 1. 安裝依賴
 
-bash
+```bash
 npm install
-
+```
 
 ### 2. 引入必要文件
 
-html
+```html
 <!-- CSS -->
 <link rel="stylesheet" href="css/reset.css">
 <link rel="stylesheet" href="css/wenqu.css">
@@ -79,11 +79,11 @@ html
 <script src="js/class.radio.js"></script>
 <script src="js/class.form.js"></script>
 <script src="js/class.init.js"></script>
-
+```
 
 ### 3. HTML 結構
 
-html
+```html
 <form class="wq-form" id="form2088">
 <!-- 基本信息 -->
 <div class="wq-group">
@@ -105,13 +105,14 @@ html
 <select class="wq-select" data-type="hour"></select>
 </div>
 </form>
+```
 
 
 ## API 文檔
 
 ### wqForm 類
 
-javascript
+```javascript
 const form = new wqForm('.wq-form', {
 submit_button: '#checkGo_free',
 popup_title: '請確認資料',
@@ -121,19 +122,19 @@ id: '身分證字號',
 textarea: '備註內容'
 }
 });
-
+```
 
 ### wqDateTime 類
 
-javascript
+```javascript
 const datetime = new wqDateTime('.wq-group');
 // 獲取日期數據
 const date = datetime.getFormattedDate();
-
+```
 
 ### wqPopup 類
 
-javascript
+```javascript
 const popup = new wqPopup();
 // 顯示確認框
 popup.confirm(data, callback, {
@@ -142,20 +143,20 @@ birth_title: '生辰'
 });
 // 顯示警告
 popup.alert('警告訊息');
-
+```
 
 ## 開發指南
 
 ### 1. 開發環境設置
 
-bash
+```bash
 安裝依賴
 npm install
 啟動開發服務器
 npm run dev
 構建專案
 npm run build
-
+```
 
 ### 2. 目錄結構說明
 - `css/`: 樣式文件
@@ -216,13 +217,3 @@ npm run build
 - [Gulp](https://gulpjs.com/)
 - [ESLint](https://eslint.org/)
 - [Jest](https://jestjs.io/)
-
-這個版本的 README.md：
-提供了更詳細的專案結構說明
-添加了完整的安裝和配置指南
-補充了詳細的 API 文檔
-增加了開發指南和代碼規範
-添加了常見問題解答
-完善了更新日誌和團隊信息
-提供了更多技術支持方式
-這樣的文檔能夠幫助開發者更好地理解和使用這個專案。
