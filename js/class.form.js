@@ -1,123 +1,215 @@
 class wqForm {
   constructor(elem, options = {}) {
-    this.form = (typeof elem === 'string') ?
-      document.querySelector(elem) :
-      (elem instanceof Element ? elem : null);
+    try {
+      this.form = (typeof elem === 'string') ?
+        document.querySelector(elem) :
+        (elem instanceof Element ? elem : null);
 
-    if (!this.form) {
-      throw new Error('Invalid form element');
+      if (!this.form) {
+        throw new Error('Invalid form element');
+      }
+
+      // 檢查必要的依賴
+      if (typeof window.wqInput !== 'function') {
+        throw new Error('wqInput is not defined. Please make sure class.input.js is loaded.');
+      }
+
+      // 設置默認選項
+      this.options = {
+        submit_button: '#checkGo_free',  // 提交按鈕選擇器
+        popup_title: '請確認您提供的資料是否正確',  // 彈窗標題
+        birth_title: '生辰',  // 生辰標題
+        customFieldLabels: {
+          // id: '身分證字號',
+          // textarea: '備註內容',
+        },
+        ...options  // 允許覆蓋默認選項
+      };
+
+      this.dateTimeInstances = new WeakMap();
+      this.eventManager = new EventManager();
+      this.domCache = new Map(); // 添加 DOM 緩存
+      
+      // 註冊表單事件
+      this.registerEvents();
+
+      this.init();
+    } catch (error) {
+      ErrorHandler.handle(error, 'wqForm.constructor');
+      throw error; // 重新拋出錯誤，阻止後續操作
     }
-
-    // 設置默認選項
-    this.options = {
-      submit_button: '#checkGo_free',  // 提交按鈕選擇器
-      popup_title: '請確認您提供的資料是否正確',  // 彈窗標題
-      birth_title: '生辰',  // 生辰標題
-      customFieldLabels: {
-        // id: '身分證字號',
-        // textarea: '備註內容',
-      },
-      ...options  // 允許覆蓋默認選項
-    };
-
-    this.dateTimeInstances = new WeakMap();
-    this.init();
   }
 
   init() {
-    // 初始化所有輸入框
-    this.form.querySelectorAll('.wq-input').forEach(input => {
-      if (!input.wqInput) {
-        input.wqInput = new wqInput(input);
+    // 使用 DocumentFragment 優化 DOM 操作
+    const fragment = document.createDocumentFragment();
+    
+    // 批量處理 DOM 操作
+    this.batchInitialize(fragment);
+    
+    // 只進行一次 DOM 插入
+    this.form.appendChild(fragment);
+    
+    // 初始化事件委派
+    this.initEventDelegation();
+  }
+
+  batchInitialize(fragment) {
+    try {
+      // 使用緩存存儲查詢結果
+      const inputs = this.form.querySelectorAll('.wq-input');
+      const groups = this.form.querySelectorAll('.wq-group');
+
+      // 批量初始化輸入框
+      inputs.forEach(input => {
+        if (!this.domCache.has(input)) {
+          // 使用 window.wqInput 而不是直接使用 wqInput
+          const inputInstance = new window.wqInput(input);
+          this.domCache.set(input, inputInstance);
+        }
+      });
+
+      // 批量初始化日期時間選擇器
+      groups.forEach(group => {
+        if (!this.dateTimeInstances.has(group)) {
+          const instance = new wqDateTime(group);
+          this.dateTimeInstances.set(group, instance);
+        }
+      });
+    } catch (error) {
+      ErrorHandler.handle(error, 'wqForm.batchInitialize');
+    }
+  }
+
+  initEventDelegation() {
+    // 使用事件委派優化事件監聽
+    this.form.addEventListener('input', (event) => {
+      const target = event.target;
+      if (target.classList.contains('wq-input')) {
+        this.handleInput(target);
       }
     });
 
-    // 初始化所有日期時間選擇器
-    this.form.querySelectorAll('.wq-group').forEach(group => {
-      if (!this.dateTimeInstances.has(group)) {
-        const instance = new wqDateTime(group);
-        this.dateTimeInstances.set(group, instance);
+    this.form.addEventListener('change', (event) => {
+      const target = event.target;
+      if (target.classList.contains('wq-select')) {
+        this.handleSelect(target);
       }
     });
   }
 
+  handleInput(input) {
+    const cachedInput = this.domCache.get(input);
+    if (cachedInput) {
+      const result = cachedInput.validation();
+      this.eventManager.emit('form:inputChange', { input, result });
+    }
+  }
+
+  handleSelect(select) {
+    const isValid = select.value !== '';
+    select.classList.toggle('error', !isValid);
+    this.eventManager.emit('form:selectChange', { select, isValid });
+  }
+
+  // 添加性能監控
+  measurePerformance(operation) {
+    const start = performance.now();
+    operation();
+    const end = performance.now();
+    console.log(`Operation took ${end - start}ms`);
+  }
+
+  // 清理資源
+  destroy() {
+    this.domCache.clear();
+    this.dateTimeInstances = new WeakMap();
+    this.eventManager.clear();
+    this.form = null;
+  }
+
   validation(options = {}) {
-    // 合併驗證時的選項
-    const validationOptions = {
-      ...this.options,  // 使用構造函數中的默認選項
-      ...options  // 允許在驗證時覆蓋選項
-    };
+    try {
+      // 合併驗證時的選項
+      const validationOptions = {
+        ...this.options,  // 使用構造函數中的默認選項
+        ...options  // 允許在驗證時覆蓋選項
+      };
 
-    // 添加详细的日志输出
-    // console.group('ValidationOptions Details:');
-    // console.log('Default options:', this.options);
-    // console.log('Incoming options:', options);
-    // console.log('Merged options:', validationOptions);
-    // console.log('Submit button selector:', validationOptions.submit_button);
-    // console.dir(document.querySelector(validationOptions.submit_button));
-    // console.groupEnd();
+      // 添加详细的日志输出
+      // console.group('ValidationOptions Details:');
+      // console.log('Default options:', this.options);
+      // console.log('Incoming options:', options);
+      // console.log('Merged options:', validationOptions);
+      // console.log('Submit button selector:', validationOptions.submit_button);
+      // console.dir(document.querySelector(validationOptions.submit_button));
+      // console.groupEnd();
 
-    let isValid = true;
+      let isValid = true;
 
-    // 使用 class.input.js 的驗證功能
-    this.form.querySelectorAll('.wq-input').forEach(input => {
-      if (input.wqInput) {
-        const result = input.wqInput.validation();
-        if (!result.valid) {
-          isValid = false;
+      // 使用 class.input.js 的驗證功能
+      this.form.querySelectorAll('.wq-input').forEach(input => {
+        if (input.wqInput) {
+          const result = input.wqInput.validation();
+          if (!result.valid) {
+            isValid = false;
+          }
         }
-      }
-    });
+      });
 
-    // 驗證選擇框
-    this.form.querySelectorAll('.wq-select').forEach(select => {
-      if (!select.value) {
-        isValid = false;
-        select.classList.add('error');
-      } else {
-        select.classList.remove('error');
-      }
-    });
+      // 驗證選擇框
+      this.form.querySelectorAll('.wq-select').forEach(select => {
+        if (!select.value) {
+          isValid = false;
+          select.classList.add('error');
+        } else {
+          select.classList.remove('error');
+        }
+      });
 
-    if (isValid) {
-      // 收集表單數據
-      const formData = this.#collectFormData();
+      if (isValid) {
+        // 收集表單數據
+        const formData = this.#collectFormData();
 
-      // 檢查 wqPopup 是否存在
-      if (typeof window.wqPopup !== 'function') {
-        console.error('wqPopup is not defined. Please make sure class.popup.js is loaded.');
+        // 檢查 wqPopup 是否存在
+        if (typeof window.wqPopup !== 'function') {
+          console.error('wqPopup is not defined. Please make sure class.popup.js is loaded.');
+          return false;
+        }
+
+        try {
+          // 創建彈窗實例
+          const popup = new window.wqPopup();
+          // 顯示確認視窗
+          popup.confirm(formData, () => {
+            const button = document.querySelector(validationOptions.submit_button);
+            console.log('button', button);
+            if (!button) {
+              console.error(`Submit button not found: ${validationOptions.submit_button}`);
+              return;
+            }
+            const href = button.getAttribute('data-href');
+            if (href) {
+              window.location.href = href;
+            }
+          }, {
+            pop_title: validationOptions.popup_title,
+            birth_title: validationOptions.birth_title,
+            ...validationOptions.popupOptions  // 允許添加其他彈窗選項
+          });
+        } catch (error) {
+          console.error('Error creating popup:', error);
+          return false;
+        }
+
         return false;
       }
 
-      try {
-        // 創建彈窗實例
-        const popup = new window.wqPopup();
-        // 顯示確認視窗
-        popup.confirm(formData, () => {
-          const button = document.querySelector(validationOptions.submit_button);
-          console.log('button', button);
-          if (!button) {
-            console.error(`Submit button not found: ${validationOptions.submit_button}`);
-            return;
-          }
-          const href = button.getAttribute('data-href');
-          if (href) {
-            window.location.href = href;
-          }
-        }, {
-          pop_title: validationOptions.popup_title,
-          birth_title: validationOptions.birth_title,
-          ...validationOptions.popupOptions  // 允許添加其他彈窗選項
-        });
-      } catch (error) {
-        console.error('Error creating popup:', error);
-        return false;
-      }
-
+      return isValid;
+    } catch (error) {
+      ErrorHandler.handle(error, 'wqForm.validation');
       return false;
     }
-
-    return isValid;
   }
 
   #collectFormData() {
@@ -200,20 +292,36 @@ class wqForm {
     parent.appendChild(errorDiv);
   }
 
-  destroy() {
-    // 清理所有實例
-    this.dateTimeInstances.forEach((instance, group) => {
-      if (instance && typeof instance.destroy === 'function') {
-        instance.destroy();
-      }
+  registerEvents() {
+    // 表單驗證事件
+    this.eventManager.on('form:validate', (data) => {
+      const isValid = this.validation(data);
+      this.eventManager.emit('form:validateComplete', { isValid });
     });
-    this.dateTimeInstances = new WeakMap();
 
-    // 移除所有錯誤提示
-    this.form.querySelectorAll('.error-message').forEach(msg => msg.remove());
+    // 表單數據變更事件
+    this.eventManager.on('form:change', (data) => {
+      this.handleFormChange(data);
+    });
 
-    // 清理引用
-    this.form = null;
+    // 表單提交事件
+    this.eventManager.on('form:submit', (data) => {
+      this.handleFormSubmit(data);
+    });
+  }
+
+  handleFormChange(data) {
+    // 處理表單變更
+    this.eventManager.emit('form:changed', data);
+  }
+
+  handleFormSubmit(data) {
+    // 處理表單提交
+    if (this.validation()) {
+      this.eventManager.emit('form:submitSuccess', data);
+    } else {
+      this.eventManager.emit('form:submitError', data);
+    }
   }
 }
 

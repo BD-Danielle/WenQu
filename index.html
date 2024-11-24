@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -78,45 +78,47 @@
       <button><a class="pq_BT_SROUND pq_BG_GRA_PINK01" id="checkGo_free" data-href="./free.php" type="button">免費體驗</a></button>
     </ul>
   </div>
-</body>
-<script src="./js/validation.rules.js"></script>
-<script src="./js/validation.config.js"></script>
-<script src="./js/class.popup.js"></script>
-<script src="./js/class.datetime.js"></script>
-<script src="./js/class.input.js"></script>
-<script src="./js/class.sex.js"></script>
-<script src="./js/class.form.js"></script>
-<script src="./js/class.radio.js"></script>
-<script src="./js/class.init.js"></script>
-<script type="text/javascript">
-  window.addEventListener('load', function() {
-    const formOptions = {
-      customFieldLabels: {
-        id: '身分證字號',
-        textarea: '備註內容',
-        // 可以添加更多自定義標籤
-        custom_field1: '自定義欄位1',
-        custom_field2: '自定義欄位2'
-      },
-      popup_title: '自定義標題',
-      birth_title: '生日'
-    };
+  <script src="./js/error.handler.js"></script>
+  <script src="./js/event.manager.js"></script>
+  <script src="./js/class.input.js"></script>
+  <script src="./js/validation.rules.js"></script>
+  <script src="./js/validation.config.js"></script>
+  <script src="./js/class.popup.js"></script>
+  <script src="./js/class.datetime.js"></script>
+  <script src="./js/class.sex.js"></script>
+  <script src="./js/class.form.js"></script>
+  <script src="./js/class.radio.js"></script>
+  <script src="./js/class.init.js"></script>
+  <script type="text/javascript">
+    window.addEventListener('load', function() {
+      const formOptions = {
+        customFieldLabels: {
+          id: '身分證字號',
+          textarea: '備註內容',
+          // 可以添加更多自定義標籤
+          custom_field1: '自定義欄位1',
+          custom_field2: '自定義欄位2'
+        },
+        popup_title: '自定義標題',
+        birth_title: '生日'
+      };
 
-    window.wq_form.form = new wqForm('.wq-form', formOptions);
-    
-    const button = document.querySelector("#checkGo_free");
-    if (button) {
-      button.addEventListener("click", function(event) {
-        event.preventDefault();
-        if (window.wq_form?.form) {
-          window.wq_form.form.validation({
-            popup_title: '自定義標題',
-            valid_action: this.getAttribute('data-href'),
-            birth_title: '生日'
-          });
-        }
-      });
-    }
-  });
-</script>
+      window.wq_form.form = new wqForm('.wq-form', formOptions);
+      
+      const button = document.querySelector("#checkGo_free");
+      if (button) {
+        button.addEventListener("click", function(event) {
+          event.preventDefault();
+          if (window.wq_form?.form) {
+            window.wq_form.form.validation({
+              popup_title: '自定義標題',
+              valid_action: this.getAttribute('data-href'),
+              birth_title: '生日'
+            });
+          }
+        });
+      }
+    });
+  </script>
+</body>
 </html>

@@ -233,7 +233,7 @@ class wqInput {
     return this; // 支持鏈式調用
   }
 
-  // ��改：在驗證方法中添加事件觸發，但保持原有邏輯
+  // 改：在驗證方法中添加事件觸發，但保持原有邏輯
   validation() {
     try {
       let result = {
@@ -340,3 +340,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+// 確保 wqInput 被正確導出到全局
+window.wqInput = wqInput;
