@@ -1,7 +1,8 @@
 @charset "UTF-8";
 
-/* Define CSS Variables */
+/* CSS Variables */
 :root {
+  /* Colors */
   --border-color: #999;
   --background-color: #fff;
   --text-color: #333;
@@ -9,23 +10,35 @@
   --error-background-color: #fc6;
   --icon-background-color: #727272;
   --hover-background-color: #727272dd;
+  --popup-border-color: #560891;
+  --popup-header-color: #6f25a7;
+  --popup-text-color: #6f25a7;
+  
+  /* Sizes */
   --input-height: 2.5rem;
   --border-radius: 5px;
+  --icon-size: 1.5rem;
+  --radio-size: 1.25rem;
+  
+  /* Timing */
   --transition-duration: 0.3s;
-  --font-family: var(--font-family);
+  
+  /* Others */
+  --font-family: inherit;
 }
 
-/* reset box-sizing */
+/* Reset Styles */
 .wq-input,
 .wq-radio,
-.wq-radio+label,
+.wq-radio + label,
 .wq-iconx,
 .wq-select {
   box-sizing: border-box;
 }
 
-/* input element for wenqu */
-[type="text"].wq-input {
+/* Input Elements */
+[type="text"].wq-input,
+textarea.wq-input {
   width: 100%;
   height: var(--input-height);
   font-size: 1rem;
@@ -37,12 +50,19 @@
   font-family: var(--font-family);
 }
 
+textarea.wq-input {
+  resize: none;
+  height: 100px !important;
+}
+
 [type="text"].wq-input::placeholder {
   background: transparent;
   color: #999;
 }
 
-[type="text"].wq-input.error {
+/* Error States */
+[type="text"].wq-input.error,
+.wq-select.error {
   color: var(--error-color);
   background-color: var(--error-background-color);
   border: 1px solid var(--error-color);
@@ -52,23 +72,24 @@
   color: var(--error-color);
 }
 
-/* CSS-only close icon */
+/* Close Icon */
 .wq-iconx {
   position: relative;
   right: 2rem;
   margin-right: -1.5rem;
   cursor: pointer;
   user-select: none;
-  width: 1.5rem;
-  height: 1.5rem;
-  max-width: 1.5rem;
-  max-height: 1.5rem;
-  min-width: 1.5rem;
-  min-height: 1.5rem;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  max-width: var(--icon-size);
+  max-height: var(--icon-size);
+  min-width: var(--icon-size);
+  min-height: var(--icon-size);
   background-color: var(--icon-background-color);
   border-radius: 50%;
   opacity: 0.9;
-  transition: opacity var(--transition-duration), background-color var(--transition-duration);
+  transition: opacity var(--transition-duration), 
+              background-color var(--transition-duration);
 }
 
 .wq-iconx:hover {
@@ -97,77 +118,46 @@
   transform: translate(-50%, -50%) rotate(-40deg);
 }
 
-/* iOS 17 fix */
-/* .wq-form li:has(> .wq-input) {
-  display: flex;
-} */
-
-.wq-form .wq-input+.wq-iconx {
-  top: 0.4rem !important;
-}
-
-.wq-form .wq-input~.error-message {
-  margin: 0.5rem 0;
-}
-
-/* radio button element for wenqu */
+/* Radio Buttons */
 [type="radio"].wq-radio {
   display: none;
 }
 
-[type="radio"].wq-radio+label {
+[type="radio"].wq-radio + label {
   display: flex;
-  justify-content: center;
   align-items: center;
-  cursor: pointer;
+  justify-content: center;
   position: relative;
-  width: 100%;
-  height: var(--input-height);
-  text-align: center;
-  background-color: var(--background-color);
-  border-radius: var(--border-radius);
-  color: var(--text-color);
-  line-height: calc(var(--input-height) - 10px);
-  border: 1px solid var(--border-color);
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all var(--transition-duration) ease;
 }
 
-[type="radio"].wq-radio+label::before {
+[type="radio"].wq-radio + label::before {
   content: '';
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 1.25rem;
-  height: 1.25rem;
+  display: inline-block;
+  width: var(--radio-size);
+  height: var(--radio-size);
+  max-width: var(--radio-size);
+  max-height: var(--radio-size);
+  min-width: var(--radio-size);
+  min-height: var(--radio-size);
   margin-right: 0.625rem;
   background-color: var(--background-color);
-  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.8);
-  border-radius: 50%;
   border: 1px solid #aaa;
+  border-radius: 50%;
+  vertical-align: middle;
+  position: relative;
+  transition: all var(--transition-duration) ease;
 }
 
-[type="radio"].wq-radio:checked+label {
-  background-color: #deccf2;
+[type="radio"].wq-radio:checked + label::before {
+  background-color: var(--color, #333);
+  border-color: var(--color, #333);
+  box-shadow: inset 0 0 0 0.15rem #fff;
 }
 
-[type="radio"].wq-radio:checked+label::after {
-  content: "•";
-  font-size: 2rem;
-  position: absolute;
-  left: 45%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-}
-
-textarea {
-  resize: none;
-  height: 100px !important;
-}
-
-.wq-form textarea.wq-input+.wq-iconx {
-  top: -0.4rem !important;
-}
-
-/* drop-down element for wenqu */
+/* Select Elements */
 .wq-select {
   position: relative;
   width: 100%;
@@ -183,22 +173,40 @@ textarea {
   cursor: pointer;
   background-color: var(--background-color);
   background-image: linear-gradient(45deg, transparent 45%, #333 45%),
-    linear-gradient(-45deg, transparent 45%, #333 45%);
-  background-position: calc(100% - 15px) calc(65% - 5px), calc(100% - 10px) calc(65% - 5px);
+                    linear-gradient(-45deg, transparent 45%, #333 45%);
+  background-position: calc(100% - 15px) calc(65% - 5px),
+                       calc(100% - 10px) calc(65% - 5px);
   background-size: 5px 5px, 5px 5px;
   background-repeat: no-repeat;
 }
 
-.wq-select option.leap-month {
-  color: var(--error-color);
+/* Form Layout */
+.wq-form .wq-input + .wq-iconx {
+  top: 0.4rem !important;
 }
 
-.wq-select.error {
-  color: var(--error-color);
-  background-color: var(--error-background-color);
-  border: 1px solid var(--error-color);
+.wq-form textarea.wq-input + .wq-iconx {
+  top: -0.4rem !important;
 }
 
+.wq-form .wq-input ~ .error-message {
+  margin: 0.5rem 0;
+}
+
+/* Radio Groups */
+.radio-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.radio-group label {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Popup Styles */
 .popup__modal {
   position: fixed;
   top: 0;
@@ -211,9 +219,9 @@ textarea {
 
 .popup {
   width: 370px;
-  background-color: #fff;
-  border: 1px solid #560891;
-  border-radius: 5px;
+  background-color: var(--background-color);
+  border: 1px solid var(--popup-border-color);
+  border-radius: var(--border-radius);
   box-shadow: 0 0 8px #333;
   position: fixed;
   top: 50%;
@@ -328,6 +336,11 @@ textarea {
 /* Mobile-responsive styling */
 @media only screen and (max-width: 420px) {
   .wqPOP {
+    width: 90vw;
+  }
+}
+@media only screen and (max-width: 420px) {
+  .popup {
     width: 90vw;
   }
 }
