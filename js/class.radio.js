@@ -2,18 +2,22 @@ class wqRadio {
     #root = null;
     #label = null;
     #styleSheet = null;
+    #options = null;
 
-    constructor(elem) {
-        // 初始化根元素，支援三種傳入方式：
-        // 1. CSS 選擇器字符串
-        // 2. DOM 元素
-        // 3. jQuery 物件
+    constructor(elem, options = null) {
         this.#root = (typeof elem === 'string')
             ? document.querySelector(elem)
             : (elem instanceof Element ? elem : elem[0]);
 
         if (!this.#root) {
             throw new Error('Invalid radio element');
+        }
+
+        try {
+            this.#options = options || (this.#root.dataset.options ? 
+                JSON.parse(this.#root.dataset.options) : null);
+        } catch (e) {
+            console.warn('Failed to parse radio options:', e);
         }
 
         if (this.#root.getAttribute('wq-init') !== '1' && 
@@ -32,23 +36,17 @@ class wqRadio {
         }
 
         // 設置屬性
-        try {
-            if (this.#root.dataset.type) {
-                this.#root.type = this.#root.dataset.type;
-            }
-        } catch(e) { }
-
-        if (this.#root.dataset.name) {
-            this.#root.name = this.#root.dataset.name;
+        if (this.#root.dataset.type) {
+            this.#root.type = this.#root.dataset.type;
         }
 
-        if (this.#root.dataset.value) {
-            this.#root.value = this.#root.dataset.value;
-        }
+        const name = this.#root.dataset.name || this.#options?.name;
+        const value = this.#root.dataset.value || this.#options?.value;
+        const checked = this.#root.dataset.checked === '1' || this.#options?.checked;
 
-        if (this.#root.dataset.checked === '1') {
-            this.#root.checked = true;
-        }
+        if (name) this.#root.name = name;
+        if (value) this.#root.value = value;
+        if (checked) this.#root.checked = true;
 
         this.#root.setAttribute('wq-init', '1');
     }
@@ -143,3 +141,49 @@ class wqRadio {
         this.#root.removeAttribute('wq-init');
     }
 }
+
+// 添加靜態方法來創建選項組
+wqRadio.createGroup = function(container, options) {
+    if (!container || !options?.items) return;
+
+    const fragment = document.createDocumentFragment();
+    const groupDiv = document.createElement('div');
+    groupDiv.className = 'radio-group';
+    groupDiv.setAttribute('data-type', options.type || 'custom');
+
+    // 添加標題（如果有）
+    if (options.title) {
+        const title = document.createElement('h3');
+        title.textContent = options.title;
+        groupDiv.appendChild(title);
+    }
+
+    // 創建選項
+    options.items.forEach((item, index) => {
+        const input = document.createElement('input');
+        input.className = 'wq-radio';
+        input.type = 'radio';
+        input.id = `${options.type}-${index}`;
+        input.name = options.type;
+        input.value = item.value;
+        input.setAttribute('data-title', item.text);
+        input.setAttribute('data-type', 'radio');
+        
+        const label = document.createElement('label');
+        label.setAttribute('for', input.id);
+        label.textContent = item.text;
+
+        groupDiv.appendChild(input);
+        groupDiv.appendChild(label);
+    });
+
+    fragment.appendChild(groupDiv);
+    container.appendChild(fragment);
+
+    // 初始化所有新創建的 radio 按鈕
+    groupDiv.querySelectorAll('.wq-radio').forEach(radio => {
+        new wqRadio(radio);
+    });
+
+    return groupDiv;
+};

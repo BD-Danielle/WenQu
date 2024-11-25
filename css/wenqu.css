@@ -302,6 +302,9 @@ textarea {
 .popup__confirm-btn,
 .popup__cancel-btn,
 .popup__alert-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 50%;
   height: 45px;
   font-size: 1.2rem;

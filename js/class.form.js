@@ -133,7 +133,7 @@ class wqForm {
       // 合併驗證時的選項
       const validationOptions = {
         ...this.options,  // 使用構造函數中的默認選項
-        ...options  // 允許在驗證時覆蓋選項
+        ...options  // 允許��驗證時覆蓋選項
       };
 
       // 添加详细的日志输出
@@ -216,7 +216,7 @@ class wqForm {
     const formData = [];
 
     this.form.querySelectorAll('.wq-group').forEach(group => {
-      const dateTimeInstance = this.dateTimeInstances.get(group);
+      const dateTimeInstance = this.dateTimeInstances.get(group);  // 從 WeakMap 中獲取實例
 
       const data = {
         nickname: '',
@@ -230,6 +230,26 @@ class wqForm {
         date_format: '',
         custom: []
       };
+
+      // 收集所有 radio 組的數據
+      group.querySelectorAll('.radio-group[data-type]').forEach(radioGroup => {
+        const type = radioGroup.getAttribute('data-type');
+        const checkedRadio = radioGroup.querySelector('input[type="radio"]:checked');
+        
+        if (checkedRadio) {
+          // 對於性別特殊處理
+          if (type === 'sex') {
+            data.sex = [checkedRadio.value, checkedRadio.value === '0' ? '女' : '男'];
+          } else {
+            // 其他 radio 組添加到 custom 數組
+            data.custom.push([
+              type,
+              checkedRadio.value,
+              checkedRadio.getAttribute('data-title') || checkedRadio.dataset.title || type
+            ]);
+          }
+        }
+      });
 
       // 收集所有 wq-input 輸入框的數據
       group.querySelectorAll('.wq-input').forEach(input => {
@@ -250,22 +270,6 @@ class wqForm {
           ]);
         }
       });
-
-      // 收集性別值 - 修改這部分來處理單選按鈕
-      const sexRadioGroup = group.querySelector('.radio-group[data-type="sex"]');
-      if (sexRadioGroup) {
-        const checkedRadio = sexRadioGroup.querySelector('input[type="radio"]:checked');
-        if (checkedRadio) {
-          const value = checkedRadio.value;
-          data.sex = [value, value === '0' ? '女' : '男'];
-        }
-      } else {
-        // 如果沒有找到單選按鈕組，則嘗試查找下拉選單（向後兼容）
-        const sexSelect = group.querySelector('.wq-select[data-type="sex"]');
-        if (sexSelect) {
-          data.sex = [sexSelect.value, sexSelect.value === '0' ? '女' : '男'];
-        }
-      }
 
       // 獲取日期時間
       if (dateTimeInstance) {

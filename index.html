@@ -128,6 +128,32 @@
           <div style="width: 50%; margin-bottom: 5px">
             <textarea type="text" class="wq-input" placeholder="請輸入內容" data-format="chi10" data-value="你他媽是個大美人" data-type="textarea" rows="4" cols="50" maxlength="200"></textarea>
           </div>
+          <div style="width: 50%">
+            <div class="radio-group" data-type="relationship">
+                <h3>感情狀態：</h3>
+                <input class="wq-radio" 
+                       id="radio-single"
+                       type="radio"
+                       data-name="relationship"
+                       name="relationship"
+                       data-value="single"
+                       value="單身中"
+                       data-title="戀愛狀態"
+                       data-validation="required">
+                <label for="radio-single">單身中</label>
+
+                <input class="wq-radio" 
+                       id="radio-dating"
+                       type="radio"
+                       data-name="relationship"
+                       name="relationship"
+                       data-value="dating"
+                       value="戀愛中"
+                       data-title="戀愛狀態"
+                       data-validation="required">
+                <label for="radio-dating">戀愛中</label>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -209,6 +235,22 @@
         });
       }
     });
+  </script>
+  <script>
+    // document.addEventListener('DOMContentLoaded', () => {
+    //     // 動態創建感情狀態選項組
+    //     const relationshipOptions = {
+    //         type: 'relationship',
+    //         title: '感情狀態：',
+    //         items: [
+    //             { value: 'single', text: '單身中' },
+    //             { value: 'dating', text: '戀愛中' }
+    //         ]
+    //     };
+
+    //     const container = document.querySelector('.FORM');
+    //     wqRadio.createGroup(container, relationshipOptions);
+    // });
   </script>
 </body>
 </html>
