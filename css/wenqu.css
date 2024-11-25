@@ -88,8 +88,6 @@ textarea.wq-input {
   background-color: var(--icon-background-color);
   border-radius: 50%;
   opacity: 0.9;
-  transition: opacity var(--transition-duration), 
-              background-color var(--transition-duration);
 }
 
 .wq-iconx:hover {
@@ -107,7 +105,6 @@ textarea.wq-input {
   height: 70%;
   border-radius: 2px;
   background-color: #fff;
-  transition: background-color var(--transition-duration);
 }
 
 .wq-iconx::before {
@@ -130,7 +127,6 @@ textarea.wq-input {
   position: relative;
   padding: 8px 16px;
   cursor: pointer;
-  transition: all var(--transition-duration) ease;
 }
 
 [type="radio"].wq-radio + label::before {
@@ -148,7 +144,7 @@ textarea.wq-input {
   border-radius: 50%;
   vertical-align: middle;
   position: relative;
-  transition: all var(--transition-duration) ease;
+  box-shadow: inset 0px 2px 3px 0px rgba(0, 0, 0, .3), 0px 1px 0px 0px rgba(255, 255, 255, .8);
 }
 
 [type="radio"].wq-radio:checked + label::before {
@@ -333,13 +329,18 @@ textarea.wq-input {
   height: 100%;
 }
 
+.popup__confirm-btn:hover,
+.popup__cancel-btn:hover,
+.popup__alert-btn:hover {
+  background-color: #bebebe;
+  box-shadow: inset 0 0 4px #fff;
+}
+
 /* Mobile-responsive styling */
 @media only screen and (max-width: 420px) {
   .wqPOP {
     width: 90vw;
   }
-}
-@media only screen and (max-width: 420px) {
   .popup {
     width: 90vw;
   }
