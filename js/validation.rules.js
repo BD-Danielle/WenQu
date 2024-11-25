@@ -26,6 +26,16 @@ Object.assign(window.WQ.ValidationRules, {
         valid: !!checkedRadio,
         errMsg: checkedRadio ? '' : '請選擇性別'
     };
+  },
+  validateRelationship: function(element) {
+    const group = element.closest('.radio-group[data-type="relationship"]');
+    if (!group) return { valid: false, errMsg: '無效的感情狀態選擇器' };
+    
+    const checkedRadio = group.querySelector('input[type="radio"]:checked');
+    return {
+        valid: !!checkedRadio,
+        errMsg: checkedRadio ? '' : '請選擇感情狀態'
+    };
   }
 });
 

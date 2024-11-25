@@ -37,4 +37,14 @@ WQ.addValidationRule(
     validate: 'validateRadioSex',
     errorMsg: '請選擇性別'
   }
+);
+
+WQ.addValidationRule(
+  'relationship',
+  {
+    type: 'radio',
+    name: 'relationship',
+    validate: 'validateRelationship',
+    errorMsg: '請選擇感情狀態'
+  }
 ); 

@@ -23,6 +23,12 @@ class wqForm {
           // id: '身分證字號',
           // textarea: '備註內容',
         },
+        errorMessages: {
+          sex: '請選擇性別',
+          relationship: '請選擇感情狀態',
+          default: '請選擇選項',
+          ...options.errorMessages // 允許覆蓋默認錯誤訊息
+        },
         ...options  // 允許覆蓋默認選項
       };
 
@@ -130,24 +136,14 @@ class wqForm {
 
   validation(options = {}) {
     try {
-      // 合併驗證時的選項
       const validationOptions = {
-        ...this.options,  // 使用構造函數中的默認選項
-        ...options  // 允許��驗證時覆蓋選項
+        ...this.options,
+        ...options
       };
-
-      // 添加详细的日志输出
-      // console.group('ValidationOptions Details:');
-      // console.log('Default options:', this.options);
-      // console.log('Incoming options:', options);
-      // console.log('Merged options:', validationOptions);
-      // console.log('Submit button selector:', validationOptions.submit_button);
-      // console.dir(document.querySelector(validationOptions.submit_button));
-      // console.groupEnd();
 
       let isValid = true;
 
-      // 使用 class.input.js 的驗證功能
+      // 驗證輸入框
       this.form.querySelectorAll('.wq-input').forEach(input => {
         if (input.wqInput) {
           const result = input.wqInput.validation();
@@ -167,6 +163,29 @@ class wqForm {
         }
       });
 
+      // 驗證單選按鈕組
+      this.form.querySelectorAll('.radio-group[data-type]').forEach(group => {
+        const type = group.getAttribute('data-type');
+        const checkedRadio = group.querySelector('input[type="radio"]:checked');
+        const errorMessages = {
+          ...this.options.errorMessages, // 從選項中獲取錯誤訊息
+          sex: '請選擇性別',
+          relationship: '請選擇感情狀態',
+          default: '請選擇選項'
+        };
+        
+        if (!checkedRadio && group.querySelector('input[data-validation="required"]')) {
+          isValid = false;
+          group.classList.add('error');
+          // 使用配置的錯誤訊息或默認訊息
+          const errorMessage = errorMessages[type] || errorMessages.default;
+          group.setAttribute('data-error', errorMessage);
+        } else {
+          group.classList.remove('error');
+          group.removeAttribute('data-error');
+        }
+      });
+
       if (isValid) {
         // 收集表單數據
         const formData = this.#collectFormData();
@@ -180,29 +199,25 @@ class wqForm {
         try {
           // 創建彈窗實例
           const popup = new window.wqPopup();
+          
           // 顯示確認視窗
           popup.confirm(formData, () => {
             const button = document.querySelector(validationOptions.submit_button);
-            console.log('button', button);
-            if (!button) {
-              console.error(`Submit button not found: ${validationOptions.submit_button}`);
-              return;
-            }
-            const href = button.getAttribute('data-href');
-            if (href) {
-              window.location.href = href;
+            if (button) {
+              const href = button.getAttribute('data-href');
+              if (href) {
+                window.location.href = href;
+              }
             }
           }, {
-            pop_title: validationOptions.popup_title,
-            birth_title: validationOptions.birth_title,
-            ...validationOptions.popupOptions  // 允許添加其他彈窗選項
+            pop_title: validationOptions.popup_title || '請確認您提供的資料是否正確',
+            birth_title: validationOptions.birth_title || '生日'
           });
         } catch (error) {
           console.error('Error creating popup:', error);
+          ErrorHandler.handle(error, 'Popup Creation');
           return false;
         }
-
-        return false;
       }
 
       return isValid;
@@ -216,7 +231,7 @@ class wqForm {
     const formData = [];
 
     this.form.querySelectorAll('.wq-group').forEach(group => {
-      const dateTimeInstance = this.dateTimeInstances.get(group);  // 從 WeakMap 中獲取實例
+      const dateTimeInstance = this.dateTimeInstances.get(group);
 
       const data = {
         nickname: '',
@@ -231,25 +246,20 @@ class wqForm {
         custom: []
       };
 
-      // 收集所有 radio 組的數據
-      group.querySelectorAll('.radio-group[data-type]').forEach(radioGroup => {
-        const type = radioGroup.getAttribute('data-type');
-        const checkedRadio = radioGroup.querySelector('input[type="radio"]:checked');
-        
+      // 先檢查是否有 radio 類型的性別選擇
+      const sexRadioGroup = group.querySelector('.radio-group[data-type="sex"]');
+      if (sexRadioGroup) {
+        const checkedRadio = sexRadioGroup.querySelector('input[type="radio"]:checked');
         if (checkedRadio) {
-          // 對於性別特殊處理
-          if (type === 'sex') {
-            data.sex = [checkedRadio.value, checkedRadio.value === '0' ? '女' : '男'];
-          } else {
-            // 其他 radio 組添加到 custom 數組
-            data.custom.push([
-              type,
-              checkedRadio.value,
-              checkedRadio.getAttribute('data-title') || checkedRadio.dataset.title || type
-            ]);
-          }
+          data.sex = [checkedRadio.value, checkedRadio.value === '0' ? '女' : '男'];
         }
-      });
+      } else {
+        // 如果沒有 radio，則檢查下拉選單
+        const sexSelect = group.querySelector('.wq-select[data-type="sex"]');
+        if (sexSelect && sexSelect.value !== '') {
+          data.sex = [sexSelect.value, sexSelect.value === '0' ? '女' : '男'];
+        }
+      }
 
       // 收集所有 wq-input 輸入框的數據
       group.querySelectorAll('.wq-input').forEach(input => {
@@ -271,6 +281,20 @@ class wqForm {
         }
       });
 
+      // 收集其他 radio 組的數據
+      group.querySelectorAll('.radio-group[data-type]:not([data-type="sex"])').forEach(radioGroup => {
+        const type = radioGroup.getAttribute('data-type');
+        const checkedRadio = radioGroup.querySelector('input[type="radio"]:checked');
+        
+        if (checkedRadio) {
+          data.custom.push([
+            type,
+            checkedRadio.value,
+            checkedRadio.getAttribute('data-title') || checkedRadio.dataset.title || type
+          ]);
+        }
+      });
+
       // 獲取日期時間
       if (dateTimeInstance) {
         const dateTimeData = dateTimeInstance.getFormattedDate();
@@ -282,9 +306,7 @@ class wqForm {
       formData.push(data);
     });
 
-    // 調試用
     console.log('Collected Form Data:', formData);
-
     return formData;
   }
 

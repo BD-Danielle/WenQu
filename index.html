@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
+
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,106 +9,113 @@
   <link rel="stylesheet" href="./css/wenqu.css">
   <style>
     .radio-group {
-        margin: 20px 0;
-        padding: 15px;
-        border-radius: 5px;
-        background-color: #f5f5f5;
+      margin: 20px 0;
+      padding: 15px;
+      border-radius: 5px;
+      background-color: #f5f5f5;
     }
 
     .radio-group h3 {
-        margin-bottom: 10px;
-        color: #333;
-        font-size: 16px;
+      margin-bottom: 10px;
+      color: #333;
+      font-size: 16px;
     }
 
-    .wq-radio + label:hover {
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    .wq-radio+label:hover {
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
 
-    .wq-radio:checked + label {
-        background-color: var(--bgcolor, #f0f0f0);
-        color: var(--color, #333);
-        border-color: var(--color, #ddd);
+    .wq-radio:checked+label {
+      background-color: var(--bgcolor, #f0f0f0);
+      color: var(--color, #333);
+      border-color: var(--color, #ddd);
     }
 
     .radio-group[data-type="sex"] {
-        margin: 0;
-        padding: 10px 0;
-        display: flex;
-        align-items: center;
+      margin: 0;
+      padding: 10px 0;
+      display: flex;
+      align-items: center;
     }
 
     .radio-group[data-type="sex"] h3 {
-        display: inline-block;
-        margin-right: 15px;
-        font-size: 14px;
-        color: #333;
+      display: inline-block;
+      margin-right: 15px;
+      font-size: 14px;
+      color: #333;
     }
 
-    .wq-radio + label::before {
-        content: '';
-        display: inline-block;
-        width: 8px;
-        height: 8px;
-        margin-right: 6px;
-        border-radius: 50%;
-        border: 1px solid var(--color, #ddd);
-        vertical-align: middle;
-        transition: all 0.3s ease;
+    .wq-radio+label::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      margin-right: 6px;
+      border-radius: 50%;
+      border: 1px solid var(--color, #ddd);
+      vertical-align: middle;
+      transition: all 0.3s ease;
     }
 
-    .wq-radio:checked + label::before {
-        background-color: var(--color, #333);
-        border-color: var(--color, #333);
+    .wq-radio:checked+label::before {
+      background-color: var(--color, #333);
+      border-color: var(--color, #333);
     }
 
-    .radio-group.error .wq-radio + label {
-        border-color: #ff4444;
+    .radio-group.error .wq-radio+label {
+      border-color: #ff4444;
     }
 
     .radio-group.error::after {
-        content: attr(data-error);
-        display: block;
-        color: #ff4444;
-        font-size: 12px;
-        margin-top: 4px;
+      content: attr(data-error);
+      display: block;
+      color: #ff4444;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .radio-group.error {
+      border: 1px solid #ff4444;
+      padding: 10px;
+      border-radius: 4px;
+    }
+
+    .radio-group.error::after {
+      content: attr(data-error);
+      color: #ff4444;
+      font-size: 12px;
+      margin-top: 4px;
+      display: block;
+    }
+
+    .radio-group.error .wq-radio+label {
+      border-color: #ff4444;
     }
   </style>
 </head>
+
 <body>
   <form action="" class="wq-form" id="form2088">
     <div class="DATA_BOX">
       <div class="wq-group">
         <div class="FORM">
           <div style="width: 50%">
-            <input type="text" class="wq-input" placeholder="請輸入姓名（最多10個中文字）" data-format="chi10" data-value="陳奕伶" data-type="nickname"/>
+            <input type="text" class="wq-input" placeholder="請輸入姓名（最多10個中文字）" data-format="chi10" data-value="陳奕伶"
+              data-type="nickname" />
           </div>
           <div style="width: 50%">
-            <input type="text" class="wq-input" placeholder="請輸入身分證字號" data-format="taiwanId" data-value="C123456789" data-type="id"/>
+            <input type="text" class="wq-input" placeholder="請輸入身分證字號" data-format="taiwanId" data-value="C123456789"
+              data-type="id" />
           </div>
           <div style="width: 50%">
             <div class="radio-group" data-type="sex">
-                <input class="wq-radio" 
-                       id="radio-female"
-                       type="radio"
-                       data-name="sex"
-                       name="sex"
-                       data-value="0"
-                       value="0"
-                       data-title="女"
-                       data-validation="required" checked>
-                <label for="radio-female">女</label>
+              <input class="wq-radio" id="radio-female" type="radio" data-name="sex" name="sex" data-value="0" value="0"
+                data-title="女" data-validation="required" checked>
+              <label for="radio-female">女</label>
 
-                <input class="wq-radio" 
-                       id="radio-male"
-                       type="radio"
-                       data-name="sex"
-                       name="sex"
-                       data-value="1"
-                       value="1"
-                       data-title="男"
-                       data-validation="required">
-                <label for="radio-male">男</label>
+              <input class="wq-radio" id="radio-male" type="radio" data-name="sex" name="sex" data-value="1" value="1"
+                data-title="男" data-validation="required">
+              <label for="radio-male">男</label>
             </div>
           </div>
           <div style="width: 50%">
@@ -126,32 +134,19 @@
             <select class="wq-select" data-type="hour"></select>
           </div>
           <div style="width: 50%; margin-bottom: 5px">
-            <textarea type="text" class="wq-input" placeholder="請輸入內容" data-format="chi10" data-value="你他媽是個大美人" data-type="textarea" rows="4" cols="50" maxlength="200"></textarea>
+            <textarea type="text" class="wq-input" placeholder="請輸入內容" data-format="chi10" data-value="你他媽是個大美人"
+              data-type="textarea" rows="4" cols="50" maxlength="200"></textarea>
           </div>
           <div style="width: 50%">
             <div class="radio-group" data-type="relationship">
-                <h3>感情狀態：</h3>
-                <input class="wq-radio" 
-                       id="radio-single"
-                       type="radio"
-                       data-name="relationship"
-                       name="relationship"
-                       data-value="single"
-                       value="單身中"
-                       data-title="戀愛狀態"
-                       data-validation="required">
-                <label for="radio-single">單身中</label>
+              <h3>感情狀態：</h3>
+              <input class="wq-radio" id="radio-single" type="radio" data-name="relationship" name="relationship"
+                data-value="single" value="單身中" data-title="戀愛狀態" data-validation="required">
+              <label for="radio-single">單身中</label>
 
-                <input class="wq-radio" 
-                       id="radio-dating"
-                       type="radio"
-                       data-name="relationship"
-                       name="relationship"
-                       data-value="dating"
-                       value="戀愛中"
-                       data-title="戀愛狀態"
-                       data-validation="required">
-                <label for="radio-dating">戀愛中</label>
+              <input class="wq-radio" id="radio-dating" type="radio" data-name="relationship" name="relationship"
+                data-value="dating" value="戀愛中" data-title="戀愛狀態" data-validation="required">
+              <label for="radio-dating">戀愛中</label>
             </div>
           </div>
         </div>
@@ -161,10 +156,12 @@
       <div class="wq-group">
         <div class="FORM">
           <div style="width: 50%">
-            <input type="text" class="wq-input" placeholder="請輸入姓名（最多10個中文字）" data-format="chi10" data-value="車銀優" data-type="nickname"/>
+            <input type="text" class="wq-input" placeholder="請輸入姓名（最多10個中文字）" data-format="chi10" data-value="車銀優"
+              data-type="nickname" />
           </div>
           <div style="width: 50%">
-            <input type="text" class="wq-input" placeholder="請輸入身分證字號" data-format="taiwanId" data-value="C123456789" data-type="id"/>
+            <input type="text" class="wq-input" placeholder="請輸入身分證字號" data-format="taiwanId" data-value="C123456789"
+              data-type="id" />
           </div>
           <div style="width: 50%">
             <select class="wq-select" data-type="calendar" data-value="0"></select>
@@ -190,7 +187,8 @@
   </form>
   <div class="pq_e_BT">
     <ul class="TWO">
-      <button><a class="pq_BT_SROUND pq_BG_GRA_PINK01" id="checkGo_free" data-href="./free.php" type="button">免費體驗</a></button>
+      <button><a class="pq_BT_SROUND pq_BG_GRA_PINK01" id="checkGo_free" data-href="./free.php"
+          type="button">免費體驗</a></button>
     </ul>
   </div>
   <script src="./js/error.handler.js"></script>
@@ -205,7 +203,7 @@
   <script src="./js/class.radio.js"></script>
   <script src="./js/class.init.js"></script>
   <script type="text/javascript">
-    window.addEventListener('load', function() {
+    window.addEventListener('load', function () {
       const formOptions = {
         customFieldLabels: {
           id: '身分證字號',
@@ -215,15 +213,21 @@
           custom_field1: '自定義欄位1',
           custom_field2: '自定義欄位2'
         },
+        errorMessages: {
+          sex: '請選擇您的性別',
+          relationship: '請選擇您的感情狀態',
+          custom_field: '請選擇自定義選項',
+          default: '此欄位為必填項目'
+        },
         popup_title: '自定義標題',
         birth_title: '生日'
       };
 
       window.wq_form.form = new wqForm('.wq-form', formOptions);
-      
+
       const button = document.querySelector("#checkGo_free");
       if (button) {
-        button.addEventListener("click", function(event) {
+        button.addEventListener("click", function (event) {
           event.preventDefault();
           if (window.wq_form?.form) {
             window.wq_form.form.validation({
@@ -236,21 +240,6 @@
       }
     });
   </script>
-  <script>
-    // document.addEventListener('DOMContentLoaded', () => {
-    //     // 動態創建感情狀態選項組
-    //     const relationshipOptions = {
-    //         type: 'relationship',
-    //         title: '感情狀態：',
-    //         items: [
-    //             { value: 'single', text: '單身中' },
-    //             { value: 'dating', text: '戀愛中' }
-    //         ]
-    //     };
-
-    //     const container = document.querySelector('.FORM');
-    //     wqRadio.createGroup(container, relationshipOptions);
-    // });
-  </script>
 </body>
+
 </html>
