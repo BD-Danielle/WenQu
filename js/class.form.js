@@ -239,7 +239,6 @@ class wqForm {
         if (type === 'nickname') {
           data.nickname = value;
         } else {
-          // 使用配置中的標籤或回退到預設值
           const label = this.options.customFieldLabels[type] ||
             input.placeholder ||
             type;
@@ -252,10 +251,20 @@ class wqForm {
         }
       });
 
-      // 獲取性別
-      const sexSelect = group.querySelector('.wq-select[data-type="sex"]');
-      if (sexSelect) {
-        data.sex = [sexSelect.value, sexSelect.value === '0' ? '女' : '男'];
+      // 收集性別值 - 修改這部分來處理單選按鈕
+      const sexRadioGroup = group.querySelector('.radio-group[data-type="sex"]');
+      if (sexRadioGroup) {
+        const checkedRadio = sexRadioGroup.querySelector('input[type="radio"]:checked');
+        if (checkedRadio) {
+          const value = checkedRadio.value;
+          data.sex = [value, value === '0' ? '女' : '男'];
+        }
+      } else {
+        // 如果沒有找到單選按鈕組，則嘗試查找下拉選單（向後兼容）
+        const sexSelect = group.querySelector('.wq-select[data-type="sex"]');
+        if (sexSelect) {
+          data.sex = [sexSelect.value, sexSelect.value === '0' ? '女' : '男'];
+        }
       }
 
       // 獲取日期時間

@@ -27,4 +27,14 @@ WQ.addValidationRule(
   'birthday',
   /^\d{4}\/\d{2}\/\d{2}$/,
   '請輸入正確的生日格式（YYYY/MM/DD）'
+);
+
+WQ.addValidationRule(
+  'sex',
+  {
+    type: 'radio',
+    name: 'sex',
+    validate: 'validateRadioSex',
+    errorMsg: '請選擇性別'
+  }
 ); 

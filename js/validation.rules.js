@@ -16,6 +16,16 @@ Object.assign(window.WQ.ValidationRules, {
   phone: {
     pattern: /^09\d{8}$/,
     message: '請輸入有效的手機號碼'
+  },
+  validateRadioSex: function(element) {
+    const group = element.closest('.radio-group[data-type="sex"]');
+    if (!group) return { valid: false, errMsg: '無效的性別選擇器' };
+    
+    const checkedRadio = group.querySelector('input[type="radio"]:checked');
+    return {
+        valid: !!checkedRadio,
+        errMsg: checkedRadio ? '' : '請選擇性別'
+    };
   }
 });
 

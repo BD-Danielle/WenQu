@@ -53,31 +53,54 @@ class wqSex {
 
     // 設置值
     setValue(value) {
-        if (this.#options.some(opt => opt.value === parseInt(value, 10))) {
-            this.#select.value = value;
+        if (value === null || value === undefined) {
+            throw new Error('性別值不能為空');
         }
+        const numValue = parseInt(value, 10);
+        if (isNaN(numValue) || !this.#options.some(opt => opt.value === numValue)) {
+            throw new Error('無效的性別值');
+        }
+        this.#select.value = value;
     }
 
     // 驗證
     validation() {
         const value = this.#select.value;
+        const numValue = parseInt(value, 10);
         return {
-            valid: value !== null && value !== undefined && value !== '',
-            errMsg: value === '' ? '請選擇性別' : ''
+            valid: value !== null && value !== undefined && value !== '' && 
+                   !isNaN(numValue) && this.#options.some(opt => opt.value === numValue),
+            errMsg: value === '' ? '請選擇性別' : 
+                    !this.#options.some(opt => opt.value === numValue) ? '無效的性別選項' : ''
         };
     }
 
     // 清理方法
     destroy() {
-        this.#select = null;
+        if (this.#select) {
+            // 清理所有可能的事件監聽器
+            this.#select.innerHTML = '';
+            // 移除實例引用
+            delete this.#select.wqSex;
+            this.#select = null;
+        }
     }
 }
 
 // 在 DOMContentLoaded 時初始化所有性別選擇器
 document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.wq-select[data-type="sex"]').forEach(select => {
-        if (!select.wqSex) {
-            select.wqSex = new wqSex(select);
+    try {
+        document.querySelectorAll('.wq-select[data-type="sex"]').forEach(select => {
+            if (!select.wqSex) {
+                select.wqSex = new wqSex(select);
+            }
+        });
+    } catch (error) {
+        // 使用錯誤處理器處理初始化錯誤
+        if (window.ErrorHandler) {
+            window.ErrorHandler.handle(error, 'wqSex Initialization');
+        } else {
+            console.error('性別選擇器初始化失敗:', error);
         }
-    });
+    }
 });

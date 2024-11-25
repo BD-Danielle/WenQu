@@ -18,7 +18,7 @@
 /* reset box-sizing */
 .wq-input,
 .wq-radio,
-.wq-radio + label,
+.wq-radio+label,
 .wq-iconx,
 .wq-select {
   box-sizing: border-box;
@@ -41,6 +41,7 @@
   background: transparent;
   color: #999;
 }
+
 [type="text"].wq-input.error {
   color: var(--error-color);
   background-color: var(--error-background-color);
@@ -101,19 +102,23 @@
   display: flex;
 } */
 
-.wq-form .wq-input + .wq-iconx {
+.wq-form .wq-input+.wq-iconx {
   top: 0.4rem !important;
 }
-.wq-form .wq-input ~ .error-message {
+
+.wq-form .wq-input~.error-message {
   margin: 0.5rem 0;
 }
+
 /* radio button element for wenqu */
 [type="radio"].wq-radio {
   display: none;
 }
 
-[type="radio"].wq-radio + label {
-  display: inline-block;
+[type="radio"].wq-radio+label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   cursor: pointer;
   position: relative;
   width: 100%;
@@ -126,37 +131,42 @@
   border: 1px solid var(--border-color);
 }
 
-[type="radio"].wq-radio + label::before {
+[type="radio"].wq-radio+label::before {
   content: '';
-  display: inline-block;
-  width: 1.25em;
-  height: 1.25em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
   margin-right: 0.625rem;
-  transform: translateY(0.375rem);
   background-color: var(--background-color);
   box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.8);
   border-radius: 50%;
   border: 1px solid #aaa;
-  font-size: 2rem;
-  text-align: center;
-  line-height: 1.25rem;
-  font-family: Arial;
 }
 
-[type="radio"].wq-radio:checked + label {
+[type="radio"].wq-radio:checked+label {
   background-color: #deccf2;
 }
 
-[type="radio"].wq-radio:checked + label::before {
+[type="radio"].wq-radio:checked+label::after {
   content: "•";
+  font-size: 2rem;
+  position: absolute;
+  left: 45%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
+
 textarea {
   resize: none;
   height: 100px !important;
 }
-.wq-form textarea.wq-input + .wq-iconx {
+
+.wq-form textarea.wq-input+.wq-iconx {
   top: -0.4rem !important;
 }
+
 /* drop-down element for wenqu */
 .wq-select {
   position: relative;
@@ -173,7 +183,7 @@ textarea {
   cursor: pointer;
   background-color: var(--background-color);
   background-image: linear-gradient(45deg, transparent 45%, #333 45%),
-                    linear-gradient(-45deg, transparent 45%, #333 45%);
+    linear-gradient(-45deg, transparent 45%, #333 45%);
   background-position: calc(100% - 15px) calc(65% - 5px), calc(100% - 10px) calc(65% - 5px);
   background-size: 5px 5px, 5px 5px;
   background-repeat: no-repeat;
@@ -188,6 +198,7 @@ textarea {
   background-color: var(--error-background-color);
   border: 1px solid var(--error-color);
 }
+
 .popup__modal {
   position: fixed;
   top: 0;
@@ -197,6 +208,7 @@ textarea {
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 3;
 }
+
 .popup {
   width: 370px;
   background-color: #fff;
@@ -216,10 +228,12 @@ textarea {
   align-items: center;
   background-color: #6f25a7;
 }
+
 .popup__content--header {
   padding: 10px;
   font-weight: bold;
 }
+
 .popup__close-btn {
   position: relative;
   width: 35px;
@@ -229,6 +243,7 @@ textarea {
   justify-content: center;
   align-items: center;
 }
+
 .popup__close-btn::before,
 .popup__close-btn::after {
   content: '';
@@ -238,10 +253,12 @@ textarea {
   background-color: #fff;
   border-radius: 2px;
 }
+
 .popup__close-btn:hover::before,
 .popup__close-btn:hover::after {
   background-color: #ffffffea;
 }
+
 .popup__close-btn::before {
   transform: rotate(50deg);
 }
@@ -249,6 +266,7 @@ textarea {
 .popup__close-btn::after {
   transform: rotate(-50deg);
 }
+
 .popup__content {
   padding: 0 10px 10px 10px;
 }
@@ -265,12 +283,14 @@ textarea {
 .popup__value {
   color: #6f25a7;
 }
+
 .popup__border-line {
   width: 100%;
   height: 1px;
   background-color: #ccc;
   margin: 0.5rem auto;
 }
+
 .popup__actions {
   width: 100%;
   display: flex;
@@ -293,6 +313,7 @@ textarea {
   box-shadow: inset 0 0 2px #fff;
   background-color: #cfcfcf;
 }
+
 .popup__button {
   display: flex;
   justify-content: center;
@@ -300,6 +321,7 @@ textarea {
   width: 100%;
   height: 100%;
 }
+
 /* Mobile-responsive styling */
 @media only screen and (max-width: 420px) {
   .wqPOP {

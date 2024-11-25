@@ -4,10 +4,13 @@ class wqRadio {
     #styleSheet = null;
 
     constructor(elem) {
-        // 初始化根元素
+        // 初始化根元素，支援三種傳入方式：
+        // 1. CSS 選擇器字符串
+        // 2. DOM 元素
+        // 3. jQuery 物件
         this.#root = (typeof elem === 'string')
             ? document.querySelector(elem)
-            : (elem instanceof Element ? elem : elem[0]); // 支援從 jQuery 物件轉換
+            : (elem instanceof Element ? elem : elem[0]);
 
         if (!this.#root) {
             throw new Error('Invalid radio element');
