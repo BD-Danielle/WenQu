@@ -301,8 +301,6 @@ class wqDateTime {
       const isLeapMonth = monthValue < 0;
 
       daysInMonth = this.getLunarMonthDays(yearValue, actualMonth, isLeapMonth);
-
-      
     } else { // 陽曆
       daysInMonth = new Date(yearValue, Math.abs(monthValue), 0).getDate();
     }
@@ -311,7 +309,7 @@ class wqDateTime {
     for (let i = 1; i <= daysInMonth; i++) {
       dayOptions.push({
         value: i,
-        text: `${i < 10 ? '0' + i : i}日`
+        text: `${String(i).padStart(2, '0')}日`
       });
     }
 
