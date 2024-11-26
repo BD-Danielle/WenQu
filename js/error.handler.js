@@ -1,20 +1,22 @@
 class ErrorHandler {
-  static handle(error, context) {
-    // 記錄錯誤
+  constructor() {
+    // 初始化實例屬性
+    this.isDevEnvironment = window.location.hostname === 'localhost' || 
+                           window.location.hostname === '127.0.0.1';
+  }
+
+  handle(error, context) {
+    // 使用實例方法而非靜態方法
     this.logError(error, context);
-    
-    // 顯示用戶友善的錯誤訊息
     this.showUserError(error);
     
     // 在開發環境輸出詳細錯誤信息
-    // 使用 window.location.hostname 來判斷環境
-    if (window.location.hostname === 'localhost' || 
-        window.location.hostname === '127.0.0.1') {
+    if (this.isDevEnvironment) {
       console.error(`[${context}]`, error);
     }
   }
 
-  static logError(error, context) {
+  logError(error, context) {
     const errorLog = {
       timestamp: new Date().toISOString(),
       context: context,
@@ -27,7 +29,7 @@ class ErrorHandler {
     console.error('Error logged:', errorLog);
   }
 
-  static showUserError(error) {
+  showUserError(error) {
     const message = this.getUserFriendlyMessage(error);
     
     // 如果有彈窗系統可用，使用彈窗顯示錯誤
@@ -40,7 +42,7 @@ class ErrorHandler {
     }
   }
 
-  static getUserFriendlyMessage(error) {
+  getUserFriendlyMessage(error) {
     // 錯誤訊息對照表
     const errorMessages = {
       'Invalid form element': '表單初始化失敗，請重新載入頁面',
@@ -54,5 +56,5 @@ class ErrorHandler {
   }
 }
 
-// 確保 ErrorHandler 被正確導出到全局
-window.ErrorHandler = ErrorHandler; 
+// 導出一個 ErrorHandler 實例而非類別
+window.errorHandler = new ErrorHandler(); 

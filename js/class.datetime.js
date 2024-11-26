@@ -388,7 +388,7 @@ class wqDateTime {
     for (let i = 1; i <= 12; i++) {
       monthOptions.push({
         value: i,
-        text: `${i < 10 ? '0' + i : i}月`
+        text: `${String(i).padStart(2, '0')}月`
       });
     }
 
@@ -399,7 +399,7 @@ class wqDateTime {
       if (leapMonth !== 0) {
         monthOptions.splice(leapMonth, 0, {
           value: -leapMonth,
-          text: `${leapMonth < 10 ? '0' + leapMonth : leapMonth}(閏)月`
+          text: `${String(leapMonth).padStart(2, '0')}(閏)月`
         });
       }
     }
@@ -507,7 +507,7 @@ class wqDateTime {
         this.elem.year.value = this.#validateYearValue(yearValue, minYear, maxYear);
       }
 
-      // 重建月份選項並設���值
+      // 重建月份選項並設置值
       this.buildMonthOptions();
 
       // 重建日期選項並設置值
