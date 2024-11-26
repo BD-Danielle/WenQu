@@ -1,12 +1,13 @@
 class WenQuInitializer {
   static #instance = null;
-  #instances = new WeakMap();
+  #formInstances = null;
   #observer = null;
 
   constructor() {
     if (WenQuInitializer.#instance) {
       return WenQuInitializer.#instance;
     }
+    this.#formInstances = new WeakMap();
     WenQuInitializer.#instance = this;
     this.#init();
   }
@@ -39,10 +40,10 @@ class WenQuInitializer {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             const form = entry.target;
-            if (!this.#instances.has(form)) {
+            if (!this.#formInstances.has(form)) {
               if (!form.hasAttribute('data-initialized')) {
                 form.setAttribute('data-initialized', 'true');
-                this.#instances.set(form, true);
+                this.#formInstances.set(form, true);
               }
             }
             this.#observer.unobserve(form);
@@ -63,7 +64,7 @@ class WenQuInitializer {
       this.#observer.disconnect();
       this.#observer = null;
     }
-    this.#instances = new WeakMap();
+    this.#formInstances = new WeakMap();
   }
 }
 
