@@ -143,7 +143,6 @@
         customFieldLabels: {
           id: '身分證字號',
           textarea: '備註內容',
-          sex: '性別',
           // 可以添加更多自定義標籤
           custom_field1: '自定義欄位1',
           custom_field2: '自定義欄位2'
@@ -166,9 +165,7 @@
           event.preventDefault();
           if (window.wq_form?.form) {
             window.wq_form.form.validation({
-              popup_title: '自定義標題',
               valid_action: this.getAttribute('data-href'),
-              birth_title: '生日'
             });
           }
         });
