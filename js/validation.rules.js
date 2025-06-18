@@ -17,24 +17,24 @@ Object.assign(window.WQ.ValidationRules, {
     pattern: /^09\d{8}$/,
     message: '請輸入有效的手機號碼'
   },
-  validateRadioSex: function(element) {
+  validateRadioSex: function (element) {
     const group = element.closest('.radio-group[data-type="sex"]');
     if (!group) return { valid: false, errMsg: '無效的性別選擇器' };
-    
+
     const checkedRadio = group.querySelector('input[type="radio"]:checked');
     return {
-        valid: !!checkedRadio,
-        errMsg: checkedRadio ? '' : '請選擇性別'
+      valid: !!checkedRadio,
+      errMsg: checkedRadio ? '' : '請選擇性別'
     };
   },
-  validateRelationship: function(element) {
+  validateRelationship: function (element) {
     const group = element.closest('.radio-group[data-type="relationship"]');
     if (!group) return { valid: false, errMsg: '無效的感情狀態選擇器' };
-    
+
     const checkedRadio = group.querySelector('input[type="radio"]:checked');
     return {
-        valid: !!checkedRadio,
-        errMsg: checkedRadio ? '' : '請選擇感情狀態'
+      valid: !!checkedRadio,
+      errMsg: checkedRadio ? '' : '請選擇感情狀態'
     };
   }
 });

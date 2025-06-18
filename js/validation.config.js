@@ -12,6 +12,16 @@ WQ.addValidationRule(
 );
 
 WQ.addValidationRule(
+  'mixedName',
+  // 限制條件：
+  // 1. (?!.*[\u4e00-\u9fa5\uF900-\uFA2D\u3400-\u4DB5]{6}) - 確保中文不超過5個
+  // 2. (?!.*[^\u4e00-\u9fa5\uF900-\uFA2D\u3400-\u4DB5]{11}) - 確保非中文不超過10個
+  // 3. 允許中文和非中文混合使用
+  /^(?=((?:[\u4e00-\u9fa5\uF900-\uFA2D\u3400-\u4DB5]){0,5}$)|(?:(?:[\u4e00-\u9fa5\uF900-\uFA2D\u3400-\u4DB5].*){0,5}[\u4e00-\u9fa5\uF900-\uFA2D\u3400-\u4DB5].*$))(?=((?:[^\u4e00-\u9fa5\uF900-\uFA2D\u3400-\u4DB5]){0,10}$))[^\s]{1,15}$/,
+  '姓名欄位格式錯誤，最多可輸入5個中文字或是10個非中文字'
+);
+
+WQ.addValidationRule(
   'nickname',
   /^[\u4e00-\u9fa5\u3400-\u4db5a-zA-Z0-9]{2,10}$/,
   '暱稱須為2-10個字元（可包含中文、英文、數字）'
@@ -47,4 +57,4 @@ WQ.addValidationRule(
     validate: 'validateRelationship',
     errorMsg: '請選擇感情狀態'
   }
-); 
+);

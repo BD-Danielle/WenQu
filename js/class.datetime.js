@@ -1,4 +1,4 @@
-class wqDateTime {
+export class wqDateTime {
   #domCache = new Map();
   #root = null;
   #eventHandler = null;
@@ -573,4 +573,7 @@ class wqDateTime {
   }
 }
 
-window.wqDateTime = wqDateTime;
+// 為了向後相容，也可以掛載到 window 對象
+if (typeof window !== 'undefined') {
+  window.wqDateTime = wqDateTime;
+}

@@ -19,7 +19,7 @@ if (typeof WQ === 'undefined') {
   };
 }
 
-class wqInput {
+export class wqInput {
   // 私有屬性聲明
   #input = null;
   #iconX = null;
@@ -341,5 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// 確保 wqInput 被正確導出到全局
-window.wqInput = wqInput;
+// 為了向後相容，也可以掛載到 window 對象
+if (typeof window !== 'undefined') {
+  window.wqInput = wqInput;
+}

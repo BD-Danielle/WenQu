@@ -1,4 +1,4 @@
-class wqForm {
+export class wqForm {
   constructor(elem, options = {}) {
     try {
       this.form = (typeof elem === 'string') ?
@@ -35,7 +35,7 @@ class wqForm {
       this.dateTimeInstances = new WeakMap();
       this.eventManager = new EventManager();
       this.domCache = new Map(); // 添加 DOM 緩存
-      
+
       // 註冊表單事件
       this.registerEvents();
 
@@ -49,13 +49,13 @@ class wqForm {
   init() {
     // 使用 DocumentFragment 優化 DOM 操作
     const fragment = document.createDocumentFragment();
-    
+
     // 批量處理 DOM 操作
     this.batchInitialize(fragment);
-    
+
     // 只進行一次 DOM 插入
     this.form.appendChild(fragment);
-    
+
     // 初始化事件委派
     this.initEventDelegation();
   }
@@ -173,7 +173,7 @@ class wqForm {
           relationship: '請選擇感情狀態',
           default: '請選擇選項'
         };
-        
+
         if (!checkedRadio && group.querySelector('input[data-validation="required"]')) {
           isValid = false;
           group.classList.add('error');
@@ -199,7 +199,7 @@ class wqForm {
         try {
           // 創建彈窗實例
           const popup = new window.wqPopup();
-          
+
           // 顯示確認視窗
           popup.confirm(formData, () => {
             const button = document.querySelector(validationOptions.submit_button);
@@ -285,7 +285,7 @@ class wqForm {
       group.querySelectorAll('.radio-group[data-type]:not([data-type="sex"])').forEach(radioGroup => {
         const type = radioGroup.getAttribute('data-type');
         const checkedRadio = radioGroup.querySelector('input[type="radio"]:checked');
-        
+
         if (checkedRadio) {
           data.custom.push([
             type,
@@ -361,7 +361,9 @@ class wqForm {
 }
 
 // 確保 wqForm 被正確導出到全局
-window.wqForm = wqForm;
+if (typeof window !== 'undefined') {
+  window.wqForm = wqForm;
+}
 
 // 只在全局範圍創建一次實例
 if (!window.wq_form) {
