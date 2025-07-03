@@ -3,7 +3,7 @@ export class wqDateTime {
   #root = null;
   #eventHandler = null;
 
-  constructor(elem) {
+  constructor(elem, userOptions = {}) {
     try {
       this.#root = (typeof elem === 'string')
         ? document.querySelector(elem)
@@ -13,7 +13,7 @@ export class wqDateTime {
         throw new Error('Invalid datetime element');
       }
 
-      this.options = {
+      const defaultOptions = {
         calendar: [
           { value: 1, text: "西元生日" },
           { value: 0, text: "農曆生日" }
@@ -38,7 +38,11 @@ export class wqDateTime {
           max: new Date().getFullYear()
         }
       };
-
+      // ✅ 合併預設與使用者自定義選項
+      this.options = {
+        ...defaultOptions,
+        ...userOptions
+      };
       this.data = {
         lunarYear: [
           0x04bd8, 0x04ae0, 0x0a570, 0x054d5, 0x0d260, 0x0d950, 0x16554, 0x056a0, 0x09ad0, 0x055d2,
@@ -67,7 +71,44 @@ export class wqDateTime {
       throw error;
     }
   }
+  // ✅ 公開方法：設定整包 options
+  setOptions(newOptions) {
+    this.options = {
+      ...this.options,
+      ...newOptions
+    };
+    // 自動重建所有相關 UI（可自行選擇是否立即更新）
+    this.buildCalendarOptions();
+    this.buildHourOptions();
+    this.buildYearOptions();
+  }
 
+  addOptionByIndex(type, option, index = null) {
+    if (!this.options[type] || !Array.isArray(this.options[type])) return;
+
+    if (index === null || index >= this.options[type].length) {
+      this.options[type].push(option);
+    } else {
+      this.options[type].splice(index, 0, option);
+    }
+
+    this.#rebuildOptions(type);
+  }
+
+  removeOptionByIndex(type, index) {
+    if (!this.options[type] || !Array.isArray(this.options[type])) return;
+    this.options[type].splice(index, 1);
+    this.#rebuildOptions(type);
+  }
+
+  #rebuildOptions(type) {
+    switch (type) {
+      case 'calendar': this.buildCalendarOptions(); break;
+      case 'hour': this.buildHourOptions(); break;
+      case 'year': this.buildYearOptions(); break;
+      // month/day 是由年份及日曆推導的，不建議直接從 options 控制
+    }
+  }
   #getElement(selector) {
     try {
       if (!this.#domCache.has(selector)) {

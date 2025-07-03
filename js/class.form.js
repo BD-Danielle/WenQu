@@ -13,7 +13,7 @@ export class wqForm {
       if (typeof window.wqInput !== 'function') {
         throw new Error('wqInput is not defined. Please make sure class.input.js is loaded.');
       }
-
+      this.popupHandler = options.popupHandler || new wqPopup();
       // 設置默認選項
       this.options = {
         submit_button: '#checkGo_free',  // 提交按鈕選擇器
@@ -187,37 +187,19 @@ export class wqForm {
       });
 
       if (isValid) {
-        // 收集表單數據
         const formData = this.#collectFormData();
-
-        // 檢查 wqPopup 是否存在
-        if (typeof window.wqPopup !== 'function') {
-          console.error('wqPopup is not defined. Please make sure class.popup.js is loaded.');
-          return false;
-        }
-
-        try {
-          // 創建彈窗實例
-          const popup = new window.wqPopup();
-
-          // 顯示確認視窗
-          popup.confirm(formData, () => {
-            const button = document.querySelector(validationOptions.submit_button);
-            if (button) {
-              const href = button.getAttribute('data-href');
-              if (href) {
-                window.location.href = href;
-              }
-            }
-          }, {
-            pop_title: validationOptions.popup_title || '請確認您提供的資料是否正確',
-            birth_title: validationOptions.birth_title || '生日'
-          });
-        } catch (error) {
-          console.error('Error creating popup:', error);
-          ErrorHandler.handle(error, 'Popup Creation');
-          return false;
-        }
+        this.popupHandler.confirm(formData, () => {
+          const button = document.querySelector(validationOptions.submit_button);
+          if (button) {
+            const href = button.getAttribute('data-href');
+            if (href) window.location.href = href;
+          }
+        }, {
+          pop_title: validationOptions.popup_title || '請確認您提供的資料是否正確',
+          birth_title: validationOptions.birth_title || '生日'
+        });
+      } else {
+        this.popupHandler.alert('表單驗證失敗，請檢查您的輸入。');
       }
 
       return isValid;

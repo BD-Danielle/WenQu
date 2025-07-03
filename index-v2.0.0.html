@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./css/reset.css">
+  <link rel="stylesheet" href="./css/wenqu.css">
+  <title>WenQu v2.0.0 表單</title>
+  <style>
+    .radio-group {
+      margin: 20px 0;
+      padding: 15px;
+      border-radius: 5px;
+      background-color: #f5f5f5;
+    }
+
+    .radio-group.error .wq-radio+label {
+      border-color: #ff4444;
+    }
+
+    .radio-group.error::after {
+      content: attr(data-error);
+      display: block;
+      color: #ff4444;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+
+<body>
+  <form action="" class="wq-form" id="form2088">
+    <div class="DATA_BOX">
+      <div class="wq-group">
+        <div class="FORM">
+          <div style="width: 50%">
+            <input type="text" class="wq-input" placeholder="請輸入您的姓名" data-format="mixedName" data-value="陳奕伶"
+              data-type="nickname" />
+          </div>
+          <div style="width: 50%">
+            <input type="text" class="wq-input" placeholder="請輸入身分證字號" data-format="taiwanId" data-value="C123456789"
+              data-type="id" />
+          </div>
+          <div style="width: 50%">
+            <div class="radio-group" data-type="sex">
+              <input class="wq-radio" id="radio-female" type="radio" data-name="sex" name="sex" data-value="0" value="0"
+                data-title="女" data-validation="required" checked>
+              <label for="radio-female">女</label>
+
+              <input class="wq-radio" id="radio-male" type="radio" data-name="sex" name="sex" data-value="1" value="1"
+                data-title="男" data-validation="required">
+              <label for="radio-male">男</label>
+            </div>
+          </div>
+          <div style="width: 50%">
+            <select class="wq-select" data-type="calendar" data-fixed="solar" data-value="1"></select>
+          </div>
+          <div style="width: 50%;">
+            <select class="wq-select" data-type="year" min="1998" max="2024" data-value="1998"></select>
+          </div>
+          <div style="width: 50%;">
+            <select class="wq-select" data-type="month" data-value="5"></select>
+          </div>
+          <div style="width: 50%">
+            <select class="wq-select" data-type="day" data-value="14"></select>
+          </div>
+          <div style="width: 50%; margin-bottom: 5px">
+            <select class="wq-select" data-type="hour"></select>
+          </div>
+          <div style="width: 50%; margin-bottom: 5px">
+            <textarea type="text" class="wq-input" placeholder="請輸入內容" data-format="chi10" data-value="你他媽是個大美人"
+              data-type="textarea" rows="4" cols="50" maxlength="200"></textarea>
+          </div>
+          <div style="width: 50%">
+            <div class="radio-group" data-type="relationship">
+              <h3>感情狀態：</h3>
+              <input class="wq-radio" id="radio-single" type="radio" data-name="relationship" name="relationship"
+                data-value="single" value="單身中" data-title="戀愛狀態" data-validation="required">
+              <label for="radio-single">單身中</label>
+
+              <input class="wq-radio" id="radio-dating" type="radio" data-name="relationship" name="relationship"
+                data-value="dating" value="戀愛中" data-title="戀愛狀態" data-validation="required">
+              <label for="radio-dating">戀愛中</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="DATA_BOX" style="margin: 20px auto">
+      <div class="wq-group">
+        <div class="FORM">
+          <div style="width: 50%">
+            <input type="text" class="wq-input" placeholder="請輸入姓名（最多10個中文字）" data-format="chi10" data-value="車銀優"
+              data-type="nickname" />
+          </div>
+          <div style="width: 50%">
+            <input type="text" class="wq-input" placeholder="請輸入身分證字號" data-format="taiwanId" data-value="C123456789"
+              data-type="id" />
+          </div>
+          <div style="width: 50%">
+            <select class="wq-select" data-type="calendar" data-fixed="solar" data-value="1"></select>
+          </div>
+          <div style="width: 50%">
+            <select class="wq-select" data-type="sex" data-value="1"></select>
+          </div>
+          <div style="width: 50%;">
+            <select class="wq-select" data-type="year" data-value="1979" min="1900" max="2010"></select>
+          </div>
+          <div style="width: 50%;">
+            <select class="wq-select" data-type="month" data-value="6"></select>
+          </div>
+          <div style="width: 50%">
+            <select class="wq-select" data-type="day" data-value="30"></select>
+          </div>
+          <div style="width: 50%; margin-bottom: 5px">
+            <select class="wq-select" data-type="hour"></select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+  <div class="pq_e_BT">
+    <ul class="TWO">
+      <button><a class="pq_BT_SROUND pq_BG_GRA_PINK01" id="checkGo_free" data-href="./free.php"
+          type="button">免費體驗</a></button>
+    </ul>
+  </div>
+  <script type="module">
+    import { EventManager } from "./js/event.manager.js";
+    import { wqInput } from "./js/class.input.js";
+    import { wqPopup } from "./js/class.popup.js";
+    import { wqDateTime } from "./js/class.datetime.js";
+    import { wqSex } from "./js/class.sex.js";
+    import { wqRadio } from "./js/class.radio.js";
+    import { wqForm } from "./js/class.form.js";
+    // import "./js/validation.rules.js";
+    // import "./js/validation.config.js";
+    // import "./dist/wenqu.bundle.v2.0.0.js";
+
+    window.addEventListener('load', function () {
+      const formOptions = {
+        customFieldLabels: {
+          id: '身分證字號',
+          textarea: '備註內容',
+          // 可以添加更多自定義標籤
+          custom_field1: '自定義欄位1',
+          custom_field2: '自定義欄位2'
+        },
+        errorMessages: {
+          sex: '請選擇您的性別',
+          relationship: '請選擇您的感情狀態',
+          custom_field: '請選擇自定義選項',
+          default: '此欄位為必填項目'
+        },
+        popup_title: '自定義標題',
+        birth_title: '生日',
+        // popupHandler: new anyCustomPopup()
+      };
+
+      // 初始化 wqForm 時注入 handler
+      window.wq_form.form = new wqForm('.wq-form', formOptions);
+      // 等待 DOM 元件建構完成再修改 options
+      setTimeout(() => {
+        const groupElems = document.querySelectorAll('.wq-group');
+        groupElems.forEach(group => {
+          const datetimeInstance = window.wq_form.form.dateTimeInstances.get(group);
+          if (datetimeInstance) {
+            // ✅ 新增時辰選項（插入第 1 項）
+            datetimeInstance.addOptionByIndex('hour', { value: '99', text: '未知時辰' }, 0);
+            datetimeInstance.setOptions({
+              calendar: [{ value: 1, text: '只允許陽曆' }]
+            });
+          }
+        });
+      }, 100); // 等待 wqForm 初始化後確保 DOM 掛載完成
+      const button = document.querySelector("#checkGo_free");
+      if (button) {
+        button.addEventListener("click", function (event) {
+          event.preventDefault();
+          if (window.wq_form?.form) {
+            window.wq_form.form.validation({
+              valid_action: this.getAttribute('data-href'),
+            });
+          }
+        });
+      }
+    });
+  </script>
+</body>
+
+</html>

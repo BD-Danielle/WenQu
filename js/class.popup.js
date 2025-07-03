@@ -35,19 +35,23 @@ export class wqPopup {
     this.popupAlert = document.createElement('div');
     this.popupAlert.className = `popup__modal alert-${this.guid}`;
     this.popupAlert.innerHTML = `
-                <div class="popup">
-                    <div class="popup__header">
-                    <span class="popup__close-btn"></span>
-                </div>
-                <div class="popup__content">${msg}</div>
-                <div class="popup__actions">
-                    <div class="popup__alert-btn"></div>
-                </div>
-                </div>
+         <div class="popup">
+            <div class="popup__header">
+              <span class="popup__close-btn"></span>
+            </div>
+            <div class="popup__content">${msg}</div>
+            <div class="popup__actions">
+              <div class="popup__alert-btn"></div>
+            </div>
+          </div>
         `;
 
     this.popupAlert.querySelector('.popup__alert-btn').appendChild(this.btn_close);
     document.body.appendChild(this.popupAlert);
+
+    // 為 innerHTML 中創建的關閉按鈕添加事件監聽器
+    this.btn_close = this.popupAlert.querySelector('.popup__close-btn');
+    this.btn_close.addEventListener('click', () => self.closeAlert(self.guid));
   }
 
   closeConfirm() {
@@ -66,12 +70,7 @@ export class wqPopup {
     this.btn_cancel.textContent = '取消';
     this.btn_cancel.addEventListener('click', () => self.closeConfirm());
 
-    this.close_btn = document.createElement('span');
-    this.close_btn.className = 'popup__close-btn';
-    this.close_btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      self.closeConfirm();
-    });
+
 
     this.btn_confirm = document.createElement('a');
     this.btn_confirm.className = 'popup__button';
@@ -102,6 +101,9 @@ export class wqPopup {
 				</div>
 			</div>
 		`;
+    // 為 innerHTML 中創建的關閉按鈕添加事件監聽器
+    this.btn_close = this.popupConfirm.querySelector('.popup__close-btn');
+    this.btn_close.addEventListener('click', () => self.closeConfirm());
 
     const clonePopupConfirm = (i) => {
       const dateString = [];
@@ -148,7 +150,6 @@ export class wqPopup {
 
     this.popupConfirm.querySelector('.popup__confirm-btn').appendChild(this.btn_confirm);
     this.popupConfirm.querySelector('.popup__cancel-btn').appendChild(this.btn_cancel);
-    this.popupConfirm.querySelector('.popup__close-btn').appendChild(this.close_btn);
     this.popupConfirm.querySelector('.popup__content')
       .insertAdjacentHTML('beforeend', clone.join(''));
 
@@ -178,13 +179,6 @@ export class wqPopup {
     this.btn_cancel.textContent = '取消';
     this.btn_cancel.className = 'popup__button popup__cancel';
     this.btn_cancel.addEventListener('click', () => self.closeConfirm());
-
-    this.close_btn = document.createElement('span');
-    this.close_btn.className = 'popup__close-btn';
-    this.close_btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      self.closeConfirm();
-    });
 
     this.btn_confirm = document.createElement('a');
     this.btn_confirm.textContent = '確定';
@@ -234,11 +228,13 @@ export class wqPopup {
 
     this.popupConfirm.querySelector('.popup__confirm-btn').appendChild(this.btn_confirm);
     this.popupConfirm.querySelector('.popup__cancel-btn').appendChild(this.btn_cancel);
-    this.popupConfirm.querySelector('.popup__close-btn').appendChild(this.close_btn);
     this.popupConfirm.querySelector('.popup__content')
       .insertAdjacentHTML('beforeend', clone.join(''));
 
     document.body.appendChild(this.popupConfirm);
+    // 為 innerHTML 中創建的關閉按鈕添加事件監聽器
+    this.btn_close = this.popupConfirm.querySelector('.popup__close-btn');
+    this.btn_close.addEventListener('click', () => self.closeConfirm());
   }
 
   #generateConfirmContent(msgElems) {
