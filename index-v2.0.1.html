@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WenQu - 客製化表單 - confirmCustom</title>
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/wenqu.css">
+</head>
+
+<body>
+  <form id="userForm" method="post">
+    <div class="form-group">
+      <label for="name">姓名</label>
+      <input type="text" id="name" name="name" required>
+    </div>
+    <div class="form-group">
+      <label for="email">電子郵件</label>
+      <input type="email" id="email" name="email" required>
+    </div>
+    <div class="form-group">
+      <label for="phone">電話</label>
+      <input type="tel" id="phone" name="phone" required>
+    </div>
+    <button type="button" id="submitBtn">提交</button>
+  </form>
+
+  <script type="module">
+    import { wqPopup } from './js/class.popup.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const popup = new wqPopup();
+
+      document.getElementById('submitBtn').addEventListener('click', () => {
+        // 獲取表單數據
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const phone = document.getElementById('phone').value;
+
+        // 驗證表單數據
+        if (!name || !email || !phone) {
+          popup.alert('請填寫所有必填欄位');
+          return;
+        }
+
+        // 建立確認訊息元素
+        const confirmMsgElements = [
+          [
+            { title: '姓名', value: name },
+            { title: '電子郵件', value: email },
+            { title: '電話', value: phone }
+          ]
+        ];
+
+        // 設置選項
+        const options = {
+          pop_title: '請確認您的個人資料',
+          form_id: 'userForm',
+          valid_action: 'https://example.com/submit'  // 提交的目標 URL
+        };
+
+        // 設置提交前後的回調函數
+        const beforeSubmit = () => {
+          console.log('表單提交前執行的操作');
+          // 可以在此處添加額外的資料處理邏輯
+        };
+
+        const afterSubmit = () => {
+          console.log('表單提交後執行的操作');
+          // 可以在此處添加表單提交後的邏輯，如顯示成功訊息等
+        };
+
+        // 調用 confirmCustom 方法
+        popup.confirmCustom(confirmMsgElements, options, beforeSubmit, afterSubmit);
+      });
+    });
+  </script>
+</body>
+
+</html>
