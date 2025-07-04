@@ -25,15 +25,10 @@ export class wqPopup {
   }
 
   alert(msg) {
-    const self = this;
-    this.guid = this.generateGuid();
-
-    this.btn_close = document.createElement('a');
-    this.btn_close.textContent = '確定';
-    this.btn_close.addEventListener('click', () => self.closeAlert(self.guid));
+    const guid = this.generateGuid();
 
     this.popupAlert = document.createElement('div');
-    this.popupAlert.className = `popup__modal alert-${this.guid}`;
+    this.popupAlert.className = `popup__modal alert-${guid}`;
     this.popupAlert.innerHTML = `
          <div class="popup">
             <div class="popup__header">
@@ -41,17 +36,21 @@ export class wqPopup {
             </div>
             <div class="popup__content">${msg}</div>
             <div class="popup__actions">
-              <div class="popup__alert-btn"></div>
+              <div class="popup__alert-btn">
+                <a class="popup__button">確定</a>
+              </div>
             </div>
           </div>
         `;
 
-    this.popupAlert.querySelector('.popup__alert-btn').appendChild(this.btn_close);
-    document.body.appendChild(this.popupAlert);
+    // 添加事件監聽器到確定按鈕
+    this.popupAlert.querySelector('.popup__alert-btn .popup__button').addEventListener('click', () => this.closeAlert(guid));
 
-    // 為 innerHTML 中創建的關閉按鈕添加事件監聽器
-    this.btn_close = this.popupAlert.querySelector('.popup__close-btn');
-    this.btn_close.addEventListener('click', () => self.closeAlert(self.guid));
+    // 為關閉按鈕添加事件監聽器
+    this.popupAlert.querySelector('.popup__close-btn').addEventListener('click', () => this.closeAlert(guid));
+
+    // 將彈窗添加到頁面
+    document.body.appendChild(this.popupAlert);
   }
 
   closeConfirm() {
@@ -62,13 +61,12 @@ export class wqPopup {
   }
 
   confirm(form_data, submit, options) {
-    const self = this;
     const num = form_data.length;
 
     this.btn_cancel = document.createElement('a');
     this.btn_cancel.className = 'popup__button';
     this.btn_cancel.textContent = '取消';
-    this.btn_cancel.addEventListener('click', () => self.closeConfirm());
+    this.btn_cancel.addEventListener('click', () => this.closeConfirm());
 
 
 
@@ -77,7 +75,7 @@ export class wqPopup {
     this.btn_confirm.textContent = '確定';
     this.btn_confirm.addEventListener('click', () => {
       submit();
-      self.closeConfirm();
+      this.closeConfirm();
     });
 
     const pop_title = options.pop_title || '請確認您提供的資料是否正確';
@@ -103,7 +101,7 @@ export class wqPopup {
 		`;
     // 為 innerHTML 中創建的關閉按鈕添加事件監聽器
     this.btn_close = this.popupConfirm.querySelector('.popup__close-btn');
-    this.btn_close.addEventListener('click', () => self.closeConfirm());
+    this.btn_close.addEventListener('click', () => this.closeConfirm());
 
     const clonePopupConfirm = (i) => {
       const dateString = [];
@@ -172,13 +170,12 @@ export class wqPopup {
   }
 
   confirmCustom(confirmMsgElements, options, ...beforeAndAfterSubmit) {
-    const self = this;
     const num = confirmMsgElements.length;
 
     this.btn_cancel = document.createElement('a');
     this.btn_cancel.textContent = '取消';
     this.btn_cancel.className = 'popup__button popup__cancel';
-    this.btn_cancel.addEventListener('click', () => self.closeConfirm());
+    this.btn_cancel.addEventListener('click', () => this.closeConfirm());
 
     this.btn_confirm = document.createElement('a');
     this.btn_confirm.textContent = '確定';
@@ -197,7 +194,7 @@ export class wqPopup {
       if (beforeAndAfterSubmit.length > 1 && typeof beforeAndAfterSubmit[1] === 'function') {
         beforeAndAfterSubmit[1]();
       }
-      self.closeConfirm();
+      this.closeConfirm();
     });
 
     const pop_title = options.pop_title || '請確認您提供的資料是否正確';
@@ -234,7 +231,7 @@ export class wqPopup {
     document.body.appendChild(this.popupConfirm);
     // 為 innerHTML 中創建的關閉按鈕添加事件監聽器
     this.btn_close = this.popupConfirm.querySelector('.popup__close-btn');
-    this.btn_close.addEventListener('click', () => self.closeConfirm());
+    this.btn_close.addEventListener('click', () => this.closeConfirm());
   }
 
   #generateConfirmContent(msgElems) {

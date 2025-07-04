@@ -280,6 +280,10 @@ textarea.wq-input {
   font-weight: var(--font-weight);
 }
 
+.popup__content:not(:has(.popup__item)) {
+  padding: 10px;
+}
+
 .popup__item {
   display: flex;
   justify-content: left;

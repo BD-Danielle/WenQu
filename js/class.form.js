@@ -199,7 +199,7 @@ export class wqForm {
           birth_title: validationOptions.birth_title || '生日'
         });
       } else {
-        this.popupHandler.alert('表單驗證失敗，請檢查您的輸入。');
+        this.popupHandler.alert(this.options.msg || '表單驗證失敗');
       }
 
       return isValid;
