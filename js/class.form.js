@@ -31,7 +31,6 @@ export class wqForm {
         },
         ...options  // 允許覆蓋默認選項
       };
-
       this.dateTimeInstances = new WeakMap();
       this.eventManager = new EventManager();
       this.domCache = new Map(); // 添加 DOM 緩存
@@ -41,7 +40,7 @@ export class wqForm {
 
       this.init();
     } catch (error) {
-      ErrorHandler.handle(error, 'wqForm.constructor');
+      console.log(error, 'wqForm.constructor');
       throw error; // 重新拋出錯誤，阻止後續操作
     }
   }
@@ -69,8 +68,8 @@ export class wqForm {
       // 批量初始化輸入框
       inputs.forEach(input => {
         if (!this.domCache.has(input)) {
-          // 使用 window.wqInput 而不是直接使用 wqInput
-          const inputInstance = new window.wqInput(input);
+          // 關鍵修改：傳遞選項到 wqInput
+          const inputInstance = new window.wqInput(input, this.options);
           this.domCache.set(input, inputInstance);
         }
       });
@@ -83,7 +82,7 @@ export class wqForm {
         }
       });
     } catch (error) {
-      ErrorHandler.handle(error, 'wqForm.batchInitialize');
+      console.log(error, 'wqForm.batchInitialize');
     }
   }
 
@@ -142,13 +141,17 @@ export class wqForm {
       };
 
       let isValid = true;
-
+      let errorMessages = []; // 用於收集錯誤訊息
       // 驗證輸入框
       this.form.querySelectorAll('.wq-input').forEach(input => {
         if (input.wqInput) {
           const result = input.wqInput.validation();
           if (!result.valid) {
             isValid = false;
+            // 收集錯誤訊息
+            if (result.errMsg) {
+              errorMessages.push(result.errMsg);
+            }
           }
         }
       });
@@ -199,12 +202,17 @@ export class wqForm {
           birth_title: validationOptions.birth_title || '生日'
         });
       } else {
-        this.popupHandler.alert(this.options.msg || '表單驗證失敗');
+        // 使用收集到的錯誤訊息
+        const errorMsg = errorMessages.length > 0
+          ? errorMessages.map(msg => `<p class="error-message">${msg}</p>`).join('') // 將每個錯誤訊息用 <p> 標籤包裹
+          : (this.options.msg || '表單驗證失敗');
+
+        this.popupHandler.alert(errorMsg);
       }
 
       return isValid;
     } catch (error) {
-      ErrorHandler.handle(error, 'wqForm.validation');
+      console.log(error, 'wqForm.validation');
       return false;
     }
   }

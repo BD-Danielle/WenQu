@@ -284,6 +284,14 @@ textarea.wq-input {
   padding: 10px;
 }
 
+.popup__content .error-message {
+  line-height: 1.2rem;
+}
+
+.popup__content .error-message:not(:last-child) {
+  padding-bottom: 10px;
+}
+
 .popup__item {
   display: flex;
   justify-content: left;

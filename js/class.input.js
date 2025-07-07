@@ -62,41 +62,55 @@ export class wqInput {
     };
 
     this.#bindEvents = () => {
-      // 原有的 bindEvents 邏輯
-      this.#input.addEventListener('focus', () => {
-        this.#input.classList.remove('error');
-        if (this.#input.value.length > 0) {
-          this.showIconX();
-        }
+      // 添加標記變量，用於追踪是否正在進行輸入法輸入
+      let isComposing = false;
+
+      // 輸入法事件處理
+      this.#input.addEventListener('compositionstart', () => {
+        isComposing = true;
       });
 
-      this.#input.addEventListener('click', () => {
-        this.#input.classList.remove('error');
-        if (this.#input.value.length > 0) {
-          this.showIconX();
-        }
+      this.#input.addEventListener('compositionend', () => {
+        isComposing = false;
+        // 在輸入法結束後再處理空白字符
+        this.#input.value = this.#input.value.replace(/\s+/g, '');
+        this.#input.value.length > 0 ? this.showIconX() : this.hideIconX();
+      });
+
+      // 其他事件保持不變
+      ['focus', 'click'].forEach(event => {
+        this.#input.addEventListener(event, () => {
+          this.#input.classList.remove('error');
+          this.#input.value.length > 0 ? this.showIconX() : this.hideIconX();
+        });
       });
 
       this.#input.addEventListener('blur', () => {
         this.hideIconX();
-        if (this.#input.value.length === 0) {
-          this.#input.classList.add('error');
-        }
+        this.#input.value.length === 0 && this.#input.classList.add('error');
       });
 
+      // 修改 input 事件，考慮輸入法狀態
       this.#input.addEventListener('input', () => {
-        if (this.#input.value.length > 0) {
-          this.showIconX();
-        } else {
-          this.hideIconX();
+        // 只有在非輸入法輸入狀態才處理空白字符
+        if (!isComposing) {
+          this.#input.value = this.#input.value.replace(/\s+/g, '');
+          this.#input.value.length > 0 ? this.showIconX() : this.hideIconX();
         }
       });
 
-      this.#input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          return false;
+      // keyup 事件也需要考慮輸入法狀態
+      this.#input.addEventListener('keyup', () => {
+        // 只有在非輸入法輸入狀態才處理
+        if (!isComposing) {
+          this.#input.value = this.#input.value.replace(/\s+/g, '');
+          this.#input.value.length > 0 ? this.showIconX() : this.hideIconX();
         }
+      });
+
+      // 簡化 keydown 事件處理
+      this.#input.addEventListener('keydown', (e) => {
+        e.key === 'Enter' && (e.preventDefault(), false);
       });
     };
 
@@ -113,10 +127,17 @@ export class wqInput {
     };
 
     this.#handleEmptyValue = (result) => {
-      result.valid = false;
-      result.errMsg = '';
-      this.#input.value = '';
-      this.#input.classList.add('error');
+      result.valid = false;  // 確保設為 false
+      // 獲取輸入框的格式和類型
+      const format = this.#input.dataset.format;
+
+      // 嘗試從驗證規則中獲取錯誤訊息
+      if (format && WQ.ValidationRules[format]) {
+        const ruleMessage = WQ.ValidationRules[format].message;
+        if (ruleMessage) {
+          result.errMsg = ruleMessage;
+        }
+      }
       return result;
     };
 
@@ -127,7 +148,9 @@ export class wqInput {
           result.valid = false;
           result.errMsg = message || '格式錯誤';
           this.#input.classList.add('error');
-          this.showError(result.errMsg);
+
+          // if (this.options.errorDisplay === 'popup') return;
+          // this.showError(result.errMsg);
         } else {
           this.#clearErrorState();
         }
@@ -142,9 +165,20 @@ export class wqInput {
       if (rule) {
         if (!rule.pattern.test(value)) {
           result.valid = false;
-          result.errMsg = rule.message;
+          // 確保錯誤訊息被正確賦值
+          result.errMsg = rule.message || `${format}格式錯誤`;
+
+          // 添加調試日誌
+          console.log(`驗證失敗 ${format}:`, {
+            value,
+            rule,
+            message: rule.message,
+            resultErrMsg: result.errMsg
+          });
           this.#input.classList.add('error');
-          this.showError(result.errMsg);
+          // if (this.options.errorDisplay === 'popup') return;
+          // console.log("errorDisplay", this.options.errorDisplay);
+          // this.showError(result.errMsg);
         } else {
           this.#clearErrorState();
         }
@@ -245,7 +279,6 @@ export class wqInput {
       const format = this.#input.dataset.format;
       const customPattern = this.#input.dataset.pattern;
       const customMessage = this.#input.dataset.message;
-
       // 觸發驗證開始事件
       this.#triggerEvent('validationStart', { value });
 
@@ -253,6 +286,7 @@ export class wqInput {
       if (!value) {
         result = this.#handleEmptyValue(result);
         this.#triggerEvent('validationComplete', result);
+        console.log('Empty value validation result:', result);
         return result;
       }
 
@@ -266,6 +300,7 @@ export class wqInput {
       // 預設格式檢查
       if (format) {
         result = this.#validateFormat(value, format, result);
+        console.log(result);
         this.#triggerEvent('validationComplete', result);
         return result;
       }
@@ -308,8 +343,6 @@ export class wqInput {
   getValue() {
     return this.#input.value;
   }
-
-  // 其餘原有方法保持不變...
 
   // 修改：銷毀方法增加事件清理
   destroy() {

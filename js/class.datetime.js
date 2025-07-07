@@ -67,7 +67,7 @@ export class wqDateTime {
       this.elem = {};
       this.#initialize();
     } catch (error) {
-      ErrorHandler.handle(error, 'wqDateTime.constructor');
+      console.log(error, 'wqDateTime.constructor');
       throw error;
     }
   }
@@ -119,7 +119,7 @@ export class wqDateTime {
       }
       return this.#domCache.get(selector);
     } catch (error) {
-      ErrorHandler.handle(error, 'wqDateTime.getElement');
+      console.log(error, 'wqDateTime.getElement');
       return null;
     }
   }
@@ -221,7 +221,7 @@ export class wqDateTime {
       this.#root = null;
       this.#eventHandler = null;
     } catch (error) {
-      ErrorHandler.handle(error, 'wqDateTime.destroy');
+      console.log(error, 'wqDateTime.destroy');
     }
   }
 

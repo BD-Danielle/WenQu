@@ -30,27 +30,30 @@ export class wqPopup {
     this.popupAlert = document.createElement('div');
     this.popupAlert.className = `popup__modal alert-${guid}`;
     this.popupAlert.innerHTML = `
-         <div class="popup">
-            <div class="popup__header">
-              <span class="popup__close-btn"></span>
-            </div>
-            <div class="popup__content">${msg}</div>
-            <div class="popup__actions">
-              <div class="popup__alert-btn">
-                <a class="popup__button">確定</a>
-              </div>
-            </div>
+      <div class="popup">
+        <div class="popup__header">
+          <span class="popup__close-btn"></span>
+        </div>
+        <div class="popup__content">${msg}</div>
+        <div class="popup__actions">
+          <div class="popup__alert-btn">
+            <a class="popup__button">確定</a>
           </div>
-        `;
-
-    // 添加事件監聽器到確定按鈕
-    this.popupAlert.querySelector('.popup__alert-btn .popup__button').addEventListener('click', () => this.closeAlert(guid));
-
-    // 為關閉按鈕添加事件監聽器
-    this.popupAlert.querySelector('.popup__close-btn').addEventListener('click', () => this.closeAlert(guid));
+        </div>
+      </div>
+    `;
 
     // 將彈窗添加到頁面
     document.body.appendChild(this.popupAlert);
+
+    // 使用事件委託綁定所有關閉相關的事件
+    this.popupAlert.addEventListener('click', (e) => {
+      // 使用 closest 來檢查點擊的是否是按鈕或其容器
+      if (e.target.matches('.popup__close-btn') ||
+        e.target.closest('.popup__alert-btn')) {
+        this.closeAlert(guid);
+      }
+    });
   }
 
   closeConfirm() {
@@ -83,15 +86,18 @@ export class wqPopup {
 				</div>
 			</div>
 		`;
-    // 添加事件監聽器到關閉按鈕
-    this.popupConfirm.querySelector('.popup__close-btn').addEventListener('click', () => this.closeConfirm());
-    // 添加事件監聽器到確定按鈕
-    this.popupConfirm.querySelector('.popup__confirm-btn .popup__button').addEventListener('click', () => {
-      submit();
-      this.closeConfirm();
-    });
-    this.popupConfirm.querySelector('.popup__cancel-btn .popup__button').addEventListener('click', () => this.closeConfirm());
 
+    // 使用事件委託綁定所有關閉相關的事件
+    this.popupConfirm.addEventListener('click', (e) => {
+      // 使用 closest 來檢查點擊的是否是按鈕或其容器
+      if (e.target.matches('.popup__close-btn') ||
+        e.target.closest('.popup__cancel-btn')) {
+        this.closeConfirm();
+      } else if (e.target.closest('.popup__confirm-btn')) {
+        submit();
+        this.closeConfirm();
+      }
+    });
 
     const clonePopupConfirm = (i) => {
       const dateString = [];

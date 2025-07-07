@@ -36,7 +36,7 @@
       <div class="wq-group">
         <div class="FORM">
           <div style="width: 50%">
-            <input type="text" class="wq-input" placeholder="請輸入您的姓名" data-format="mixedName" data-value="陳奕伶"
+            <input type="text" class="wq-input" placeholder="請輸入您的姓名" data-format="chi10" data-value="陳奕伶"
               data-type="nickname" />
           </div>
           <div style="width: 50%">
@@ -128,6 +128,9 @@
     </ul>
   </div>
   <script type="module">
+    // import "./js/error.handler.js";
+    import "./js/validation.rules.js";
+    import "./js/validation.config.js";
     import { EventManager } from "./js/event.manager.js";
     import { wqInput } from "./js/class.input.js";
     import { wqPopup } from "./js/class.popup.js";
@@ -135,19 +138,14 @@
     import { wqSex } from "./js/class.sex.js";
     import { wqRadio } from "./js/class.radio.js";
     import { wqForm } from "./js/class.form.js";
-    // import "./js/validation.rules.js";
-    // import "./js/validation.config.js";
     // import "./dist/wenqu.bundle.v2.0.0.js";
 
     window.addEventListener('load', function () {
       const formOptions = {
-        msg: "表單驗證失敗2",
         customFieldLabels: {
           id: '身分證字號',
           textarea: '備註內容',
           // 可以添加更多自定義標籤
-          custom_field1: '自定義欄位1',
-          custom_field2: '自定義欄位2'
         },
         errorMessages: {
           sex: '請選擇您的性別',
@@ -155,11 +153,12 @@
           custom_field: '請選擇自定義選項',
           default: '此欄位為必填項目'
         },
+        errorDisplay: 'popup', // 錯誤顯示方式
         popup_title: '自定義標題',
         birth_title: '生日',
         // popupHandler: new anyCustomPopup()
+        msg: "表單驗證失敗2",
       };
-
       // 初始化 wqForm 時注入 handler
       window.wq_form.form = new wqForm('.wq-form', formOptions);
       // 等待 DOM 元件建構完成再修改 options
