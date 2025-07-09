@@ -36,7 +36,7 @@
       <div class="wq-group">
         <div class="FORM">
           <div style="width: 50%">
-            <input type="text" class="wq-input" placeholder="請輸入您的姓名" data-format="chi10" data-value="陳奕伶"
+            <input type="text" class="wq-input" placeholder="請輸入您的姓名" data-format="mixedName" data-value="陳奕伶"
               data-type="nickname" />
           </div>
           <div style="width: 50%">
@@ -136,7 +136,7 @@
     import { wqPopup } from "./js/class.popup.js";
     import { wqDateTime } from "./js/class.datetime.js";
     import { wqSex } from "./js/class.sex.js";
-    import { wqRadio } from "./js/class.radio.js";
+    // import { wqRadio } from "./js/class.radio.js";
     import { wqForm } from "./js/class.form.js";
     // import "./dist/wenqu.bundle.v2.0.0.js";
 
@@ -150,14 +150,14 @@
         errorMessages: {
           sex: '請選擇您的性別',
           relationship: '請選擇您的感情狀態',
+          mixedName: '姓名欄位格式錯誤，最多可輸入5個中文字或是10個非中文字',
           custom_field: '請選擇自定義選項',
           default: '此欄位為必填項目'
         },
         errorDisplay: 'popup', // 錯誤顯示方式
         popup_title: '自定義標題',
         birth_title: '生日',
-        // popupHandler: new anyCustomPopup()
-        msg: "表單驗證失敗2",
+        // popupHandler: new anyCustomPopup(),
       };
       // 初始化 wqForm 時注入 handler
       window.wq_form.form = new wqForm('.wq-form', formOptions);

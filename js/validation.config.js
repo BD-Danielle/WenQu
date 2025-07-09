@@ -11,15 +11,13 @@ WQ.addValidationRule(
   '格式錯誤，最多可輸入10個中文字'
 );
 
-WQ.addValidationRule(
-  'mixedName',
-  // 限制條件：
-  // 1. (?!.*[\u4e00-\u9fa5\uF900-\uFA2D\u3400-\u4DB5]{6}) - 確保中文不超過5個
-  // 2. (?!.*[^\u4e00-\u9fa5\uF900-\uFA2D\u3400-\u4DB5]{11}) - 確保非中文不超過10個
-  // 3. 允許中文和非中文混合使用
-  /^(?=((?:[\u4e00-\u9fa5\uF900-\uFA2D\u3400-\u4DB5]){0,5}$)|(?:(?:[\u4e00-\u9fa5\uF900-\uFA2D\u3400-\u4DB5].*){0,5}[\u4e00-\u9fa5\uF900-\uFA2D\u3400-\u4DB5].*$))(?=((?:[^\u4e00-\u9fa5\uF900-\uFA2D\u3400-\u4DB5]){0,10}$))[^\s]{1,15}$/,
-  '姓名欄位格式錯誤，最多可輸入5個中文字或是10個非中文字'
-);
+
+WQ.addValidationRule('mixedName', {
+  type: 'input',
+  name: 'mixedName',
+  validate: 'validateMixedName',
+  errorMsg: '姓名欄位格式錯誤，最多可輸入5個中文字或是10個非中文字'
+});
 
 WQ.addValidationRule(
   'nickname',

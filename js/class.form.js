@@ -67,13 +67,12 @@ export class wqForm {
 
       // 批量初始化輸入框
       inputs.forEach(input => {
-        if (!this.domCache.has(input)) {
-          // 關鍵修改：傳遞選項到 wqInput
+        if (!input.wqInput) {  // 直接檢查 DOM 元素屬性
           const inputInstance = new window.wqInput(input, this.options);
-          this.domCache.set(input, inputInstance);
+          input.wqInput = inputInstance;  // 掛載到 DOM 元素
+          this.domCache.set(input, inputInstance);  // 同時緩存
         }
       });
-
       // 批量初始化日期時間選擇器
       groups.forEach(group => {
         if (!this.dateTimeInstances.has(group)) {
@@ -167,25 +166,22 @@ export class wqForm {
       });
 
       // 驗證單選按鈕組
+      // 🔥 簡化後的 radio 驗證邏輯
       this.form.querySelectorAll('.radio-group[data-type]').forEach(group => {
         const type = group.getAttribute('data-type');
         const checkedRadio = group.querySelector('input[type="radio"]:checked');
-        const errorMessages = {
-          ...this.options.errorMessages, // 從選項中獲取錯誤訊息
-          sex: '請選擇性別',
-          relationship: '請選擇感情狀態',
-          default: '請選擇選項'
-        };
 
-        if (!checkedRadio && group.querySelector('input[data-validation="required"]')) {
+        // console.log(`處理 ${type} radio group`);
+
+        // 🔥 統一的驗證結果獲取
+        const validationResult = this.#getRadioValidationResult(group, type, checkedRadio);
+
+        // 🔥 統一的結果處理
+        this.#handleRadioValidationResult(group, type, validationResult, errorMessages);
+
+        // 更新總體驗證狀態
+        if (!validationResult.isValid) {
           isValid = false;
-          group.classList.add('error');
-          // 使用配置的錯誤訊息或默認訊息
-          const errorMessage = errorMessages[type] || errorMessages.default;
-          group.setAttribute('data-error', errorMessage);
-        } else {
-          group.classList.remove('error');
-          group.removeAttribute('data-error');
         }
       });
 
@@ -216,7 +212,97 @@ export class wqForm {
       return false;
     }
   }
+  // 🔥 提取方法：獲取驗證結果
+  #getRadioValidationResult(group, type, checkedRadio) {
+    const rule = window.WQ?.ValidationRules?.[type];
 
+    // 使用 ValidationRules callback 驗證
+    if (rule?.validate) {
+      return this.#executeCallbackValidation(rule, group, type, checkedRadio);
+    }
+
+    // 使用基本驗證
+    return this.#executeBasicValidation(group, type, checkedRadio);
+  }
+
+  // 🔥 執行 callback 驗證
+  #executeCallbackValidation(rule, group, type, checkedRadio) {
+    // 驗證函數不存在的情況
+    if (typeof window[rule.validate] !== 'function') {
+      return this.#getBasicValidationResult(group, checkedRadio, rule.errorMsg || '請選擇選項');
+    }
+
+    // 執行驗證函數
+    try {
+      const result = window[rule.validate](group);
+
+      const isValid = result?.valid !== false;
+      const errorMessage = isValid ? '' : (result?.errMsg || result?.message || rule.errorMsg || '請選擇選項');
+
+      return { isValid, errorMessage };
+    } catch (error) {
+      console.error(`${type} 驗證函數執行錯誤:`, error);
+      return { isValid: false, errorMessage: rule.errorMsg || '驗證過程發生錯誤' };
+    }
+  }
+
+  // 🔥 執行基本驗證
+  #executeBasicValidation(group, type, checkedRadio) {
+    const fallbackErrorMessages = {
+      ...this.options.errorMessages,
+      sex: '請選擇性別',
+      relationship: '請選擇感情狀態',
+      default: '請選擇選項'
+    };
+
+    const errorMessage = fallbackErrorMessages[type] || fallbackErrorMessages.default;
+    return this.#getBasicValidationResult(group, checkedRadio, errorMessage);
+  }
+
+  // 🔥 獲取基本驗證結果
+  #getBasicValidationResult(group, checkedRadio, errorMessage) {
+    const hasRequiredField = group.querySelector('input[data-validation="required"]');
+    const isValid = !!checkedRadio || !hasRequiredField;
+
+    return {
+      isValid,
+      errorMessage: isValid ? '' : errorMessage
+    };
+  }
+
+  // 🔥 處理驗證結果
+  #handleRadioValidationResult(group, type, validationResult, errorMessages) {
+    const { isValid, errorMessage } = validationResult;
+
+    if (isValid) {
+      this.#clearRadioError(group);
+      return;
+    }
+
+    // 驗證失敗的處理
+    this.#setRadioError(group, errorMessage);
+
+    // 只在 popup 模式下收集錯誤訊息
+    if (this.options.errorDisplay === 'popup' && errorMessage) {
+      errorMessages.push(errorMessage);
+    }
+  }
+
+  // 🔥 清除錯誤狀態
+  #clearRadioError(group) {
+    if (this.options.errorDisplay === 'inline') {
+      group.classList.remove('error');
+    }
+    group.removeAttribute('data-error');
+  }
+
+  // 🔥 設置錯誤狀態
+  #setRadioError(group, errorMessage) {
+    if (this.options.errorDisplay === 'inline') {
+      group.classList.add('error');
+    }
+    group.setAttribute('data-error', errorMessage);
+  }
   #collectFormData() {
     const formData = [];
 

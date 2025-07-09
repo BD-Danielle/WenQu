@@ -160,29 +160,70 @@ export class wqInput {
       return result;
     };
 
+    // 在 class.input.js 中修改 #validateFormat 方法
     this.#validateFormat = (value, format, result) => {
-      const rule = WQ.ValidationRules[format];
-      if (rule) {
-        if (!rule.pattern.test(value)) {
-          result.valid = false;
-          // 確保錯誤訊息被正確賦值
-          result.errMsg = rule.message || `${format}格式錯誤`;
+      const rule = window.WQ?.ValidationRules?.[format];
+      if (!rule) {
+        return result;
+      }
 
-          // 添加調試日誌
-          console.log(`驗證失敗 ${format}:`, {
-            value,
-            rule,
-            message: rule.message,
-            resultErrMsg: result.errMsg
-          });
+      // 🔥 處理對象格式的規則（包含 validate 屬性）
+      if (typeof rule === 'object' && rule.validate) {
+
+        // 查找驗證函數
+        if (typeof window[rule.validate] === 'function') {
+          try {
+
+            const customResult = window[rule.validate](this.#input, value);
+
+            // 🔥 統一處理返回值格式
+            if (customResult && customResult.valid === false) {
+              result.valid = false;
+              result.errMsg = customResult.message || customResult.errMsg || rule.errorMsg || `${format}驗證失敗`;
+              this.#input.classList.add('error');
+
+            } else {
+
+              this.#clearErrorState();
+            }
+          } catch (error) {
+            console.error('❌ Callback 執行錯誤:', error);
+            result.valid = false;
+            result.errMsg = rule.errorMsg || '驗證函數執行錯誤';
+            this.#input.classList.add('error');
+          }
+        } else {
+          console.error('❌ 找不到驗證函數:', rule.validate);
+          result.valid = false;
+          result.errMsg = rule.errorMsg || `驗證函數 ${rule.validate} 未定義`;
           this.#input.classList.add('error');
-          // if (this.options.errorDisplay === 'popup') return;
-          // console.log("errorDisplay", this.options.errorDisplay);
-          // this.showError(result.errMsg);
+        }
+      }
+      // 🔥 處理包含 pattern 屬性的對象格式規則
+      else if (typeof rule === 'object' && rule.pattern) {
+        if (rule.pattern instanceof RegExp) {
+          if (!rule.pattern.test(value)) {
+            result.valid = false;
+            result.errMsg = rule.message || rule.errorMsg || `${format}格式錯誤`;
+            this.#input.classList.add('error');
+
+          } else {
+
+            this.#clearErrorState();
+          }
+        }
+      }
+      // 🔥 處理直接的正則表達式規則
+      else if (rule instanceof RegExp) {
+        if (!rule.test(value)) {
+          result.valid = false;
+          result.errMsg = `${format}格式錯誤`;
+          this.#input.classList.add('error');
         } else {
           this.#clearErrorState();
         }
       }
+
       return result;
     };
 
@@ -284,9 +325,17 @@ export class wqInput {
 
       // 空值檢查
       if (!value) {
-        result = this.#handleEmptyValue(result);
+        const format = this.#input.dataset.format;
+        // 如果有格式且有 callback 驗證，則呼叫 callback
+        const rule = window.WQ?.ValidationRules?.[format];
+        if (rule && typeof rule.validate === 'string' && typeof window[rule.validate] === 'function') {
+          const customResult = window[rule.validate](this.#input, value, rule);
+          result.valid = customResult?.valid ?? false;
+          result.errMsg = customResult?.message || customResult?.errMsg || rule.errorMsg || '此欄位為必填';
+        } else {
+          result = this.#handleEmptyValue(result);
+        }
         this.#triggerEvent('validationComplete', result);
-        console.log('Empty value validation result:', result);
         return result;
       }
 
@@ -300,9 +349,6 @@ export class wqInput {
       // 預設格式檢查
       if (format) {
         result = this.#validateFormat(value, format, result);
-        console.log(result);
-        this.#triggerEvent('validationComplete', result);
-        return result;
       }
 
       this.#triggerEvent('validationComplete', result);
@@ -364,15 +410,6 @@ export class wqInput {
     this.#fadeTimer = null;
   }
 }
-
-// 保持原有的初始化邏輯
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.wq-input').forEach(input => {
-    if (!input.wqInput) {
-      input.wqInput = new wqInput(input);
-    }
-  });
-});
 
 // 為了向後相容，也可以掛載到 window 對象
 if (typeof window !== 'undefined') {
