@@ -46,13 +46,22 @@ window.validateMixedName = function (element, value, rule) {
   const chineseChars = value.match(/[\u4e00-\u9fa5\uF900-\uFA2D\u3400-\u4DB5]/g) || [];
   const chineseCount = chineseChars.length;
 
-  // 計算非中文字符數量（排除空白字符）
-  const nonChineseChars = value.match(/[^\u4e00-\u9fa5\uF900-\uFA2D\u3400-\u4DB5\s]/g) || [];
+  // 計算非中文字符數量（排除空白字符和全形英文字母）
+  const nonChineseChars = value.match(/[^\u4e00-\u9fa5\uF900-\uFA2D\u3400-\u4DB5\s\uFF21-\uFF3A\uFF41-\uFF5A]/g) || [];
   const nonChineseCount = nonChineseChars.length;
 
   // 檢查是否包含空白字符
   if (/\s/.test(value)) {
     console.log('❌ 姓名不能包含空白字符');
+    return {
+      valid: false,
+      message: rule?.errorMsg || '預設錯誤訊息'
+    };
+  }
+
+  // 檢查是否包含全形英文字母
+  if (/[\uFF21-\uFF3A\uFF41-\uFF5A]/.test(value)) {
+    console.log('❌ 姓名不能包含全形英文字母');
     return {
       valid: false,
       message: rule?.errorMsg || '預設錯誤訊息'
