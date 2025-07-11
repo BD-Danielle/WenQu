@@ -49,6 +49,32 @@ window.validateMixedName = function (element, value, rule) {
   // 計算非中文字符數量（排除空白字符和全形英文字母）
   const nonChineseChars = value.match(/[^\u4e00-\u9fa5\uF900-\uFA2D\u3400-\u4DB5\s\uFF21-\uFF3A\uFF41-\uFF5A]/g) || [];
   const nonChineseCount = nonChineseChars.length;
+  // 檢查危險字符（HTML/Script 注入）
+  if (/[<>'"&\x00-\x1f\x7f-\x9f]/.test(value)) {
+    console.log('❌ 輸入包含不安全字符');
+    return {
+      valid: false,
+      message: rule?.errorMsg || '輸入包含不安全字符'
+    };
+  }
+
+  // 檢查 SQL 注入風險字符
+  if (/[';\/\*-]/.test(value)) {
+    console.log('❌ 輸入包含潛在危險字符');
+    return {
+      valid: false,
+      message: rule?.errorMsg || '輸入包含不允許的字符'
+    };
+  }
+
+  // 檢查控制字符
+  if (/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/.test(value)) {
+    console.log('❌ 輸入包含控制字符');
+    return {
+      valid: false,
+      message: rule?.errorMsg || '輸入包含無效字符'
+    };
+  }
 
   // 檢查是否包含空白字符
   if (/\s/.test(value)) {
@@ -101,6 +127,37 @@ window.validateMixedName = function (element, value, rule) {
   };
 };
 
+// 安全輸入驗證函數
+window.validateSecureInput = function (element, value, rule) {
+  // 檢查危險字符（HTML/Script 注入）
+  if (/[<>'"&\x00-\x1f\x7f-\x9f]/.test(value)) {
+    console.log('❌ 輸入包含不安全字符');
+    return {
+      valid: false,
+      message: rule?.errorMsg || '輸入包含不安全字符'
+    };
+  }
+
+  // 檢查 SQL 注入風險字符
+  if (/[';\/\*-]/.test(value)) {
+    console.log('❌ 輸入包含潛在危險字符');
+    return {
+      valid: false,
+      message: rule?.errorMsg || '輸入包含不允許的字符'
+    };
+  }
+
+  // 檢查控制字符
+  if (/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/.test(value)) {
+    console.log('❌ 輸入包含控制字符');
+    return {
+      valid: false,
+      message: rule?.errorMsg || '輸入包含無效字符'
+    };
+  }
+
+  return { valid: true, message: '' };
+};
 // 安全地添加新規則的方法
 if (typeof window.WQ.addValidationRule !== 'function') {
   window.WQ.addValidationRule = function (name, pattern, message) {
