@@ -33,11 +33,11 @@ window.validateRadioSex = function (element) {
 window.validateRelationship = function (element) {
   const group = element.closest('.radio-group[data-type="relationship"]');
   if (!group) return { valid: false, errMsg: '無效的感情狀態選擇器' };
+  const checkedRadios = group.querySelectorAll('input[type="radio"]:checked');
 
-  const checkedRadio = group.querySelector('input[type="radio"]:checked');
   return {
-    valid: !!checkedRadio,
-    errMsg: checkedRadio ? '' : '請選擇感情狀態'
+    valid: checkedRadios.length > 0,
+    errMsg: checkedRadios.length > 0 ? '' : '請選擇感情狀態'
   };
 };
 
@@ -54,7 +54,7 @@ window.validateMixedName = function (element, value, rule) {
     console.log('❌ 輸入包含不安全字符');
     return {
       valid: false,
-      message: rule?.errorMsg || '輸入包含不安全字符'
+      errMsg: rule?.errMsg || '輸入包含不安全字符'
     };
   }
 
@@ -63,7 +63,7 @@ window.validateMixedName = function (element, value, rule) {
     console.log('❌ 輸入包含潛在危險字符');
     return {
       valid: false,
-      message: rule?.errorMsg || '輸入包含不允許的字符'
+      errMsg: rule?.errMsg || '輸入包含不允許的字符'
     };
   }
 
@@ -72,7 +72,7 @@ window.validateMixedName = function (element, value, rule) {
     console.log('❌ 輸入包含控制字符');
     return {
       valid: false,
-      message: rule?.errorMsg || '輸入包含無效字符'
+      errMsg: rule?.errMsg || '輸入包含無效字符'
     };
   }
 
@@ -81,7 +81,7 @@ window.validateMixedName = function (element, value, rule) {
     console.log('❌ 姓名不能包含空白字符');
     return {
       valid: false,
-      message: rule?.errorMsg || '預設錯誤訊息'
+      errMsg: rule?.errMsg || '預設錯誤訊息'
     };
   }
 
@@ -90,16 +90,16 @@ window.validateMixedName = function (element, value, rule) {
     console.log('❌ 姓名不能包含全形英文字母');
     return {
       valid: false,
-      message: rule?.errorMsg || '預設錯誤訊息'
+      errMsg: rule?.errMsg || '預設錯誤訊息'
     };
   }
 
   // 檢查總長度（1-15個字符）
   if (value.length < 1 || value.length > 15) {
-    console.log('❌ 姓名長度超出範圍:', value.length);
+    console.log('❌ 姓名長度不在充許範圍內:', value.length);
     return {
       valid: false,
-      message: rule?.errorMsg || '預設錯誤訊息'
+      errMsg: rule?.errMsg || '預設錯誤訊息'
     };
   }
 
@@ -108,7 +108,7 @@ window.validateMixedName = function (element, value, rule) {
     console.log('❌ 中文字數量超出限制:', chineseCount);
     return {
       valid: false,
-      message: rule?.errorMsg || '預設錯誤訊息'
+      errMsg: rule?.errMsg || '預設錯誤訊息'
     };
   }
 
@@ -117,13 +117,13 @@ window.validateMixedName = function (element, value, rule) {
     console.log('❌ 非中文字數量超出限制:', nonChineseCount);
     return {
       valid: false,
-      message: rule?.errorMsg || '預設錯誤訊息'
+      errMsg: rule?.errMsg || '預設錯誤訊息'
     };
   }
 
   return {
     valid: true,
-    message: ''
+    errMsg: ''
   };
 };
 
@@ -134,7 +134,7 @@ window.validateSecureInput = function (element, value, rule) {
     console.log('❌ 輸入包含不安全字符');
     return {
       valid: false,
-      message: rule?.errorMsg || '輸入包含不安全字符'
+      message: rule?.errMsg || '輸入包含不安全字符'
     };
   }
 
@@ -143,7 +143,7 @@ window.validateSecureInput = function (element, value, rule) {
     console.log('❌ 輸入包含潛在危險字符');
     return {
       valid: false,
-      message: rule?.errorMsg || '輸入包含不允許的字符'
+      message: rule?.errMsg || '輸入包含不允許的字符'
     };
   }
 
@@ -152,7 +152,7 @@ window.validateSecureInput = function (element, value, rule) {
     console.log('❌ 輸入包含控制字符');
     return {
       valid: false,
-      message: rule?.errorMsg || '輸入包含無效字符'
+      message: rule?.errMsg || '輸入包含無效字符'
     };
   }
 

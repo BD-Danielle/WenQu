@@ -292,7 +292,7 @@ textarea.wq-input {
 }
 
 .popup__content .error-message:not(:last-child) {
-  padding-bottom: 10px;
+  padding-bottom: 0.5rem;
 }
 
 .popup__item {

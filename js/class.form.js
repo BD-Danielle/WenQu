@@ -10,10 +10,10 @@ export class wqForm {
       }
 
       // 檢查必要的依賴
-      if (typeof window.wqInput !== 'function') {
-        throw new Error('wqInput is not defined. Please make sure class.input.js is loaded.');
+      if (typeof window.wqInput !== 'function' || !window.wqInput.prototype.validation) {
+        throw new Error('wqInput is not defined or invalid. Please make sure class.input.js is loaded and wqInput is implemented correctly.');
       }
-      this.popupHandler = options.popupHandler || new wqPopup();
+      this.popupHandler = typeof options.popupHandler === 'object' ? options.popupHandler : new wqPopup();
       // 設置默認選項
       this.options = {
         submit_button: '#checkGo_free',  // 提交按鈕選擇器
@@ -33,7 +33,7 @@ export class wqForm {
       };
       this.dateTimeInstances = new WeakMap();
       this.eventManager = new EventManager();
-      this.domCache = new Map(); // 添加 DOM 緩存
+      this.inputInstances = new Map(); // 添加 DOM 緩存
 
       // 註冊表單事件
       this.registerEvents();
@@ -41,7 +41,7 @@ export class wqForm {
       this.init();
     } catch (error) {
       console.log(error, 'wqForm.constructor');
-      throw error; // 重新拋出錯誤，阻止後續操作
+      // throw error; // 重新拋出錯誤，阻止後續操作
     }
   }
 
@@ -70,7 +70,7 @@ export class wqForm {
         if (!input.wqInput) {  // 直接檢查 DOM 元素屬性
           const inputInstance = new window.wqInput(input, this.options);
           input.wqInput = inputInstance;  // 掛載到 DOM 元素
-          this.domCache.set(input, inputInstance);  // 同時緩存
+          this.inputInstances.set(input, inputInstance);  // 同時緩存
         }
       });
       // 批量初始化日期時間選擇器
@@ -103,7 +103,7 @@ export class wqForm {
   }
 
   handleInput(input) {
-    const cachedInput = this.domCache.get(input);
+    const cachedInput = this.inputInstances.get(input);
     if (cachedInput) {
       const result = cachedInput.validation();
       this.eventManager.emit('form:inputChange', { input, result });
@@ -126,7 +126,7 @@ export class wqForm {
 
   // 清理資源
   destroy() {
-    this.domCache.clear();
+    this.inputInstances.clear();
     this.dateTimeInstances = new WeakMap();
     this.eventManager.clear();
     this.form = null;
@@ -170,18 +170,17 @@ export class wqForm {
       this.form.querySelectorAll('.radio-group[data-type]').forEach(group => {
         const type = group.getAttribute('data-type');
         const checkedRadio = group.querySelector('input[type="radio"]:checked');
-
-        // console.log(`處理 ${type} radio group`);
-
         // 🔥 統一的驗證結果獲取
         const validationResult = this.#getRadioValidationResult(group, type, checkedRadio);
 
         // 🔥 統一的結果處理
-        this.#handleRadioValidationResult(group, type, validationResult, errorMessages);
-
+        this.#handleRadioValidationResult(group, validationResult);
         // 更新總體驗證狀態
         if (!validationResult.isValid) {
           isValid = false;
+          if (validationResult.errMsg) {
+            errorMessages.push(validationResult.errMsg);
+          }
         }
       });
 
@@ -201,7 +200,7 @@ export class wqForm {
         // 使用收集到的錯誤訊息
         const errorMsg = errorMessages.length > 0
           ? errorMessages.map(msg => `<p class="error-message">${msg}</p>`).join('') // 將每個錯誤訊息用 <p> 標籤包裹
-          : (this.options.msg || '表單驗證失敗');
+          : (this.options.msg || '');
 
         this.popupHandler.alert(errorMsg);
       }
@@ -229,7 +228,7 @@ export class wqForm {
   #executeCallbackValidation(rule, group, type, checkedRadio) {
     // 驗證函數不存在的情況
     if (typeof window[rule.validate] !== 'function') {
-      return this.#getBasicValidationResult(group, checkedRadio, rule.errorMsg || '請選擇選項');
+      return this.#getBasicValidationResult(group, checkedRadio, rule.errMsg || '錯誤訊息未定義');
     }
 
     // 執行驗證函數
@@ -237,12 +236,12 @@ export class wqForm {
       const result = window[rule.validate](group);
 
       const isValid = result?.valid !== false;
-      const errorMessage = isValid ? '' : (result?.errMsg || result?.message || rule.errorMsg || '請選擇選項');
+      const errMsg = isValid ? '' : (result?.errMsg || result?.message || rule.errMsg || '錯誤訊息未定義');
 
-      return { isValid, errorMessage };
+      return { isValid, errMsg };
     } catch (error) {
       console.error(`${type} 驗證函數執行錯誤:`, error);
-      return { isValid: false, errorMessage: rule.errorMsg || '驗證過程發生錯誤' };
+      return { isValid: false, errMsg: rule.errMsg || '驗證過程發生錯誤' };
     }
   }
 
@@ -266,13 +265,13 @@ export class wqForm {
 
     return {
       isValid,
-      errorMessage: isValid ? '' : errorMessage
+      errMsg: isValid ? '' : errorMessage
     };
   }
 
   // 🔥 處理驗證結果
-  #handleRadioValidationResult(group, type, validationResult, errorMessages) {
-    const { isValid, errorMessage } = validationResult;
+  #handleRadioValidationResult(group, validationResult) {
+    const { isValid, errMsg } = validationResult;
 
     if (isValid) {
       this.#clearRadioError(group);
@@ -280,11 +279,11 @@ export class wqForm {
     }
 
     // 驗證失敗的處理
-    this.#setRadioError(group, errorMessage);
+    this.#setRadioError(group, errMsg);
 
     // 只在 popup 模式下收集錯誤訊息
-    if (this.options.errorDisplay === 'popup' && errorMessage) {
-      errorMessages.push(errorMessage);
+    if (this.options.errorDisplay === 'popup' && errMsg) {
+      errorMessages.push(errMsg);
     }
   }
 
@@ -436,22 +435,12 @@ export class wqForm {
   }
 }
 
-// 確保 wqForm 被正確導出到全局
 if (typeof window !== 'undefined') {
-  window.wqForm = wqForm;
-}
-
-// 只在全局範圍創建一次實例
-if (!window.wq_form) {
-  window.wq_form = {
-    form: null
-  };
-}
-
-// 在 DOMContentLoaded 時初始化
-document.addEventListener('DOMContentLoaded', () => {
-  if (!window.wq_form.form) {
+  window.wqForm = wqForm; // 確保 wqForm 被正確導出到全局
+  window.wq_form = window.wq_form || {}; // 只在全局範圍創建一次實例
+  document.addEventListener('DOMContentLoaded', () => { // 在 DOMContentLoaded 時初始化
+    if (window.wq_form.form) window.wq_form.form.destroy();
     window.wq_form.form = new wqForm('.wq-form');
-  }
-}, { once: true }); // 使用 once 選項確保事件監聽器只執行一次
+  }, { once: true }); // 使用 once 選項確保事件監聽器只執行一次
+}
 

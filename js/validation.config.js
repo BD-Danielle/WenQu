@@ -16,7 +16,7 @@ WQ.addValidationRule('mixedName', {
   type: 'input',
   name: 'mixedName',
   validate: 'validateMixedName',
-  errorMsg: '姓名欄位格式錯誤，最多可輸入5個中文字或是10個非中文字'
+  errMsg: '姓名欄位格式錯誤，最多可輸入5個中文字或是10個非中文字'
 });
 
 WQ.addValidationRule(
@@ -43,7 +43,7 @@ WQ.addValidationRule(
     type: 'radio',
     name: 'sex',
     validate: 'validateRadioSex',
-    errorMsg: '請選擇性別'
+    errMsg: '請選擇性別'
   }
 );
 
@@ -53,6 +53,6 @@ WQ.addValidationRule(
     type: 'radio',
     name: 'relationship',
     validate: 'validateRelationship',
-    errorMsg: '請選擇感情狀態'
+    errMsg: '請選擇感情狀態'
   }
 );
