@@ -1,40 +1,29 @@
+/**
+ * wqPopup 彈窗處理類別
+ * 提供 alert 和 confirm 兩種彈窗功能
+ */
 export class wqPopup {
   constructor() {
-    this.guid = null;
-    this.popupAlert = null;
-    this.popupConfirm = null;
-    this.btn_close = null;
-    this.btn_cancel = null;
-    this.btn_confirm = null;
-    this.close_btn = null;
+    // 只保留必要的屬性
+    this.currentPopup = null;
   }
 
-  generateGuid() {
-    const s4 = () => Math.floor((1 + Math.random()) * 0x10000)
-      .toString(16)
-      .substring(1);
+  /**
+   * 顯示警告彈窗
+   */
+  alert(message) {
+    // 關閉現有彈窗
+    this.closePopup();
 
-    return `${s4()}${s4()}-${s4()}-${s4()}-${s4()}-${s4()}${s4()}${s4()}`;
-  }
-
-  closeAlert(guid) {
-    const alert = document.querySelector(`.popup__modal.alert-${guid}`);
-    if (alert) {
-      alert.remove();
-    }
-  }
-
-  alert(msg) {
-    const guid = this.generateGuid();
-
-    this.popupAlert = document.createElement('div');
-    this.popupAlert.className = `popup__modal alert-${guid}`;
-    this.popupAlert.innerHTML = `
+    // 創建警告彈窗
+    this.currentPopup = document.createElement('div');
+    this.currentPopup.className = 'popup__modal popup__alert';
+    this.currentPopup.innerHTML = `
       <div class="popup">
         <div class="popup__header">
           <span class="popup__close-btn"></span>
         </div>
-        <div class="popup__content">${msg}</div>
+        <div class="popup__content">${message}</div>
         <div class="popup__actions">
           <div class="popup__alert-btn">
             <a class="popup__button">確定</a>
@@ -43,198 +32,240 @@ export class wqPopup {
       </div>
     `;
 
-    // 將彈窗添加到頁面
-    document.body.appendChild(this.popupAlert);
+    // 添加到頁面
+    document.body.appendChild(this.currentPopup);
 
-    // 使用事件委託綁定所有關閉相關的事件
-    this.popupAlert.addEventListener('click', (e) => {
-      // 使用 closest 來檢查點擊的是否是按鈕或其容器
-      if (e.target.matches('.popup__close-btn') ||
-        e.target.closest('.popup__alert-btn')) {
-        this.closeAlert(guid);
-      }
-    });
+    // 綁定關閉事件
+    this.bindCloseEvents();
   }
 
-  closeConfirm() {
-    const confirm = document.querySelector('.popup__modal');
-    if (confirm) {
-      confirm.remove();
-    }
-  }
+  /**
+   * 顯示確認彈窗（支援表單數據和自定義數據）
+   */
+  confirm(data, onConfirm, options = {}) {
+    // 關閉現有彈窗
+    this.closePopup();
 
-  confirm(form_data, submit, options) {
-    const num = form_data.length;
-    const pop_title = options.pop_title || '請確認您提供的資料是否正確';
-    const name_title = options.name_title || '姓名';
-    const sex_title = options.sex_title || '性別';
-    const birth_title = options.birth_title || '生辰';
-    const hour_title = options.hour_title || '時辰';
+    const {
+      pop_title = '請確認您提供的資料是否正確',
+      name_title = '姓名',
+      sex_title = '性別',
+      birth_title = '生辰',
+      hour_title = '時辰'
+    } = options;
 
-    this.popupConfirm = document.createElement('div');
-    this.popupConfirm.className = 'popup__modal';
-    this.popupConfirm.innerHTML = `
-			<div class="popup">
-				<div class="popup__header">
-					<span class="popup__close-btn"></span>
-				</div>
-				<div class="popup__content--header">${pop_title}：</div>
-				<div class="popup__content"></div>
-				<div class="popup__actions">
-					<div class="popup__confirm-btn"><a class="popup__button">確定</a></div>
-					<div class="popup__cancel-btn"><a class="popup__button">取消</a></div>
-				</div>
-			</div>
-		`;
+    // 創建確認彈窗
+    this.currentPopup = document.createElement('div');
+    this.currentPopup.className = 'popup__modal popup__confirm';
+    this.currentPopup.innerHTML = `
+      <div class="popup">
+        <div class="popup__header">
+          <span class="popup__close-btn"></span>
+        </div>
+        <div class="popup__content--header">${pop_title}：</div>
+        <div class="popup__content"></div>
+        <div class="popup__actions">
+          <div class="popup__confirm-btn">
+            <a class="popup__button">確定</a>
+          </div>
+          <div class="popup__cancel-btn">
+            <a class="popup__button">取消</a>
+          </div>
+        </div>
+      </div>
+    `;
 
-    // 使用事件委託綁定所有關閉相關的事件
-    this.popupConfirm.addEventListener('click', (e) => {
-      // 使用 closest 來檢查點擊的是否是按鈕或其容器
-      if (e.target.matches('.popup__close-btn') ||
-        e.target.closest('.popup__cancel-btn')) {
-        this.closeConfirm();
-      } else if (e.target.closest('.popup__confirm-btn')) {
-        submit();
-        this.closeConfirm();
-      }
+    // 生成內容
+    const contentHTML = this.generateContent(data, {
+      name_title,
+      sex_title,
+      birth_title,
+      hour_title
     });
 
-    const clonePopupConfirm = (i) => {
-      const dateString = [];
-      dateString.push(form_data[i - 1].datetime.calendar[0] == 1 ?
-        `西元${form_data[i - 1].datetime.solarString}` : `農曆${form_data[i - 1].datetime.lunarString}`);
-      dateString.push((form_data[i - 1].datetime.hour[0] === false ? '' :
-        form_data[i - 1].datetime.hour[1]));
-      let html = `
-				<div class="popup__item">
-					<span class="popup__label">${name_title}：</span>
-					<span class="popup__value">${form_data[i - 1].nickname}</span>
-				</div>
-				<div class="popup__item">
-					<span class="popup__label">${sex_title}：</span>
-					<span class="popup__value">${form_data[i - 1].sex[1]}</span>
-				</div>
-				<div class="popup__item">
-					<span class="popup__label">${birth_title}：</span>
-					<span class="popup__value">${dateString[0]}</span>
-				</div>`;
+    this.currentPopup.querySelector('.popup__content').innerHTML = contentHTML;
 
-      if (dateString[1]) {
-        html += `
-				<div class="popup__item">
-					<span class="popup__label" style="color: #fff;">${hour_title}：</span>
-					<span class="popup__value">${dateString[1]}</span>
-				</div>`;
+    // 添加到頁面
+    document.body.appendChild(this.currentPopup);
+
+    // 綁定事件
+    this.bindConfirmEvents(onConfirm);
+  }
+
+  /**
+   * 生成彈窗內容（統一處理表單數據和自定義數據）
+   */
+  generateContent(data, titles) {
+    if (!Array.isArray(data)) return '';
+
+    return data.map((item, index) => {
+      let html = '';
+
+      // 添加分隔線（除了第一個）
+      if (index > 0) {
+        html += '<div class="popup__border-line"></div>';
       }
 
-      if (form_data[i - 1].custom && form_data[i - 1].custom.length > 0) {
-        html += this.#generateCustomFields(form_data[i - 1].custom);
+      // 判斷是表單數據還是自定義數據
+      if (this.isFormData(item)) {
+        html += this.generateFormDataHTML(item, titles);
+      } else if (this.isCustomData(item)) {
+        html += this.generateCustomDataHTML(item);
       }
 
       return html;
-    };
-
-    const clone = [];
-    for (let i = 1; i <= num; i++) {
-      if (i > 1) {
-        clone.push('<div class="popup__border-line"></div>');
-      }
-      clone.push(clonePopupConfirm(i));
-    }
-
-    this.popupConfirm.querySelector('.popup__content')
-      .insertAdjacentHTML('beforeend', clone.join(''));
-
-    document.body.appendChild(this.popupConfirm);
-  }
-
-  #generateCustomFields(custom) {
-    if (!custom || !Array.isArray(custom)) return '';
-
-    return custom.map(field => {
-      if (!field || !Array.isArray(field) || field.length < 3) return '';
-
-      return `
-				<div class="popup__item">
-					<span class="popup__label">${field[2]}：</span>
-					<span class="popup__value">${field[1]}</span>
-				</div>
-			`;
     }).join('');
   }
 
-  confirmCustom(confirmMsgElements, options, ...beforeAndAfterSubmit) {
-    const num = confirmMsgElements.length;
+  /**
+   * 判斷是否為表單數據格式
+   */
+  isFormData(item) {
+    return item && typeof item === 'object' &&
+      (item.nickname !== undefined || item.sex !== undefined || item.datetime !== undefined);
+  }
 
-    const pop_title = options.pop_title || '請確認您提供的資料是否正確';
+  /**
+   * 判斷是否為自定義數據格式
+   */
+  isCustomData(item) {
+    return Array.isArray(item) && item.length > 0 &&
+      item.every(field => field && field.title && field.value);
+  }
 
-    this.popupConfirm = document.createElement('div');
-    this.popupConfirm.className = 'popup__modal';
-    this.popupConfirm.innerHTML = `
-    <div class="popup">
-      <div class="popup__header">
-        <span class="popup__close-btn"></span>
-      </div>
-      <div class="popup__content--header">${pop_title}：</div>
-      <div class="popup__content"></div>
-      <div class="popup__actions">
-        <div class="popup__confirm-btn"><a class="popup__button">確定</a></div>
-        <div class="popup__cancel-btn"><a class="popup__button">取消</a></div>
-      </div>
-    </div>
-  `;
+  /**
+   * 生成表單數據 HTML
+   */
+  generateFormDataHTML(data, titles) {
+    let html = '';
 
-    const clone = [];
-    for (let i = 1; i <= num; i++) {
-      if (i > 1) {
-        clone.push('<div class="popup__border-line"></div>');
-      }
-      clone.push(this.#generateConfirmContent(confirmMsgElements[i - 1]));
+    // 姓名
+    if (data.nickname) {
+      html += `
+        <div class="popup__item">
+          <span class="popup__label">${titles.name_title}：</span>
+          <span class="popup__value">${data.nickname}</span>
+        </div>
+      `;
     }
 
+    // 性別
+    if (data.sex && data.sex[1]) {
+      html += `
+        <div class="popup__item">
+          <span class="popup__label">${titles.sex_title}：</span>
+          <span class="popup__value">${data.sex[1]}</span>
+        </div>
+      `;
+    }
 
-    this.popupConfirm.querySelector('.popup__content')
-      .insertAdjacentHTML('beforeend', clone.join(''));
+    // 生辰
+    if (data.datetime) {
+      const dateString = data.datetime.calendar[0] == 1 ?
+        `西元${data.datetime.solarString}` :
+        `農曆${data.datetime.lunarString}`;
 
-    document.body.appendChild(this.popupConfirm);
+      html += `
+        <div class="popup__item">
+          <span class="popup__label">${titles.birth_title}：</span>
+          <span class="popup__value">${dateString}</span>
+        </div>
+      `;
 
-    // 使用事件委託綁定所有關閉相關的事件
-    this.popupConfirm.addEventListener('click', (e) => {
-      // 使用 closest 來檢查點擊的是否是按鈕或其容器
+      // 時辰
+      if (data.datetime.hour[0] && data.datetime.hour[1]) {
+        html += `
+          <div class="popup__item">
+            <span class="popup__label">${titles.hour_title}：</span>
+            <span class="popup__value">${data.datetime.hour[1]}</span>
+          </div>
+        `;
+      }
+    }
+
+    // 自定義欄位
+    if (data.custom && Array.isArray(data.custom)) {
+      data.custom.forEach(field => {
+        if (field && Array.isArray(field) && field.length >= 3) {
+          html += `
+            <div class="popup__item">
+              <span class="popup__label">${field[2]}：</span>
+              <span class="popup__value">${field[1]}</span>
+            </div>
+          `;
+        }
+      });
+    }
+
+    return html;
+  }
+
+  /**
+   * 生成自定義數據 HTML
+   */
+  generateCustomDataHTML(customFields) {
+    return customFields.map(field => `
+      <div class="popup__item">
+        <span class="popup__label">${field.title}：</span>
+        <span class="popup__value">${field.value}</span>
+      </div>
+    `).join('');
+  }
+
+  /**
+   * 綁定關閉事件（alert 用）
+   */
+  bindCloseEvents() {
+    if (!this.currentPopup) return;
+
+    this.currentPopup.addEventListener('click', (e) => {
       if (e.target.matches('.popup__close-btn') ||
-        e.target.closest('.popup__cancel-btn')) {
-        this.closeConfirm();
-      } else if (e.target.closest('.popup__confirm-btn')) {
-        if (beforeAndAfterSubmit.length > 0 && typeof beforeAndAfterSubmit[0] === 'function') {
-          beforeAndAfterSubmit[0]();
-        }
-
-        const form = document.getElementById(options.form_id);
-        if (form) {
-          form.action = options.valid_action;
-          form.submit();
-        }
-
-        if (beforeAndAfterSubmit.length > 1 && typeof beforeAndAfterSubmit[1] === 'function') {
-          beforeAndAfterSubmit[1]();
-        }
-        this.closeConfirm();
+        e.target.closest('.popup__alert-btn') ||
+        e.target === this.currentPopup) {
+        this.closePopup();
       }
     });
   }
 
-  #generateConfirmContent(msgElems) {
-    return msgElems.map(elem =>
-      `<div class="popup__item">
-					<span class="popup__label">${elem.title}：</span>
-					<span class="popup__value">${elem.value}</span>
-			</div>
-			`
-    ).join('');
+  /**
+   * 綁定確認事件（confirm 用）
+   */
+  bindConfirmEvents(onConfirm) {
+    if (!this.currentPopup) return;
+
+    this.currentPopup.addEventListener('click', (e) => {
+      if (e.target.matches('.popup__close-btn') ||
+        e.target.closest('.popup__cancel-btn') ||
+        e.target === this.currentPopup) {
+        this.closePopup();
+      } else if (e.target.closest('.popup__confirm-btn')) {
+        if (typeof onConfirm === 'function') {
+          onConfirm();
+        }
+        this.closePopup();
+      }
+    });
+  }
+
+  /**
+   * 關閉彈窗（統一方法）
+   */
+  closePopup() {
+    if (this.currentPopup && this.currentPopup.parentNode) {
+      this.currentPopup.remove();
+      this.currentPopup = null;
+    }
+  }
+
+  /**
+   * 銷毀組件
+   */
+  destroy() {
+    this.closePopup();
   }
 }
 
-// 為了向後相容，也可以掛載到 window 對象
+// 全域掛載
 if (typeof window !== 'undefined') {
   window.wqPopup = wqPopup;
 }

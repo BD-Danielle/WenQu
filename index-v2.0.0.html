@@ -41,7 +41,7 @@
           </div>
           <div style="width: 50%">
             <input type="text" class="wq-input" placeholder="請輸入身分證字號" data-format="taiwanId" data-value="C123456789"
-              data-type="id" />
+              data-type="id" data-validation="required" />
           </div>
           <div style="width: 50%">
             <div class="radio-group" data-type="sex">
@@ -71,7 +71,7 @@
           </div>
           <div style="width: 50%; margin-bottom: 5px">
             <textarea type="text" class="wq-input" placeholder="請輸入內容" data-format="chi10" data-value="你他媽是個大美人"
-              data-type="textarea" rows="4" cols="50" maxlength="200"></textarea>
+              data-type="textarea" rows="4" cols="50" maxlength="200" data-validation="required"></textarea>
           </div>
           <div style="width: 50%">
             <div class="radio-group" data-type="relationship">
@@ -154,7 +154,7 @@
           custom_field: '請選擇自定義選項123',
           // default: '此欄位為必填項目'
         },
-        errorDisplay: 'inline', // 錯誤顯示方式
+        // errorDisplay: 'inline', // 錯誤顯示方式
         popup_title: '自定義標題123',
         birth_title: '生日',
         // popupHandler: new anyCustomPopup(),

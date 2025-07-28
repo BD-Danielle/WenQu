@@ -1,6 +1,11 @@
+/**
+ * wqForm 表單驗證與處理類別
+ * 提供表單輸入驗證、資料收集、錯誤處理等核心功能
+ */
 export class wqForm {
   constructor(elem, options = {}) {
     try {
+      // 核心：獲取表單元素
       this.form = (typeof elem === 'string') ?
         document.querySelector(elem) :
         (elem instanceof Element ? elem : null);
@@ -10,83 +15,72 @@ export class wqForm {
       }
 
       // 檢查必要的依賴
-      if (typeof window.wqInput !== 'function' || !window.wqInput.prototype.validation) {
-        throw new Error('wqInput is not defined or invalid. Please make sure class.input.js is loaded and wqInput is implemented correctly.');
+      if (typeof window.wqInput !== 'function') {
+        throw new Error('wqInput is required. Please load class.input.js first.');
       }
-      this.popupHandler = typeof options.popupHandler === 'object' ? options.popupHandler : new wqPopup();
-      // 設置默認選項
+
+      // 初始化配置
       this.options = {
-        submit_button: '#checkGo_free',  // 提交按鈕選擇器
-        popup_title: '請確認您提供的資料是否正確',  // 彈窗標題
-        birth_title: '生辰',  // 生辰標題
-        customFieldLabels: {
-          // id: '身分證字號',
-          // textarea: '備註內容',
-        },
-        errorMessages: {
-          sex: '請選擇性別',
-          relationship: '請選擇感情狀態',
-          default: '請選擇選項',
-          ...options.errorMessages // 允許覆蓋默認錯誤訊息
-        },
-        ...options  // 允許覆蓋默認選項
+        submit_button: '#checkGo_free',
+        popup_title: '請確認您提供的資料是否正確',
+        birth_title: '生辰',
+        errorDisplay: 'popup', // 'popup' | 'inline'
+        customFieldLabels: {},
+        errorMessages: {},
+        ...options
       };
-      this.dateTimeInstances = new WeakMap();
-      this.eventManager = new EventManager();
-      this.inputInstances = new Map(); // 添加 DOM 緩存
 
-      // 註冊表單事件
-      this.registerEvents();
+      // 初始化彈窗處理器
+      this.popupHandler = (typeof options.popupHandler === 'object') ?
+        options.popupHandler : new wqPopup();
 
+      // 初始化實例管理
+      this.inputInstances = new Map(); // input 元素與 wqInput 實例緩存
+      this.dateTimeInstances = new WeakMap(); // group 元素與 wqDateTime 實例緩存
+
+      // 初始化表單
       this.init();
     } catch (error) {
-      console.log(error, 'wqForm.constructor');
-      // throw error; // 重新拋出錯誤，阻止後續操作
+      console.error('wqForm constructor error:', error);
     }
   }
 
+  /**
+   * 初始化表單組件
+   */
   init() {
-    // 使用 DocumentFragment 優化 DOM 操作
-    const fragment = document.createDocumentFragment();
-
-    // 批量處理 DOM 操作
-    this.batchInitialize(fragment);
-
-    // 只進行一次 DOM 插入
-    this.form.appendChild(fragment);
-
-    // 初始化事件委派
-    this.initEventDelegation();
-  }
-
-  batchInitialize(fragment) {
     try {
-      // 使用緩存存儲查詢結果
-      const inputs = this.form.querySelectorAll('.wq-input');
-      const groups = this.form.querySelectorAll('.wq-group');
-
-      // 批量初始化輸入框
-      inputs.forEach(input => {
-        if (!input.wqInput) {  // 直接檢查 DOM 元素屬性
+      // 初始化輸入框
+      this.form.querySelectorAll('.wq-input').forEach(input => {
+        if (!input.wqInput) {
           const inputInstance = new window.wqInput(input, this.options);
-          input.wqInput = inputInstance;  // 掛載到 DOM 元素
-          this.inputInstances.set(input, inputInstance);  // 同時緩存
+          input.wqInput = inputInstance;
+          this.inputInstances.set(input, inputInstance);
         }
       });
-      // 批量初始化日期時間選擇器
-      groups.forEach(group => {
+
+      // 初始化日期時間選擇器
+      this.form.querySelectorAll('.wq-group').forEach(group => {
         if (!this.dateTimeInstances.has(group)) {
-          const instance = new wqDateTime(group);
-          this.dateTimeInstances.set(group, instance);
+          if (typeof wqDateTime !== 'undefined') {
+            const instance = new wqDateTime(group);
+            this.dateTimeInstances.set(group, instance);
+          }
         }
       });
+
+      // 初始化事件監聽
+      this.initEventDelegation();
     } catch (error) {
-      console.log(error, 'wqForm.batchInitialize');
+      console.error('wqForm init error:', error);
     }
   }
 
+  /**
+   * 初始化事件委派
+   */
   initEventDelegation() {
-    // 使用事件委派優化事件監聽
+    // 輸入框事件
     this.form.addEventListener('input', (event) => {
       const target = event.target;
       if (target.classList.contains('wq-input')) {
@@ -94,6 +88,7 @@ export class wqForm {
       }
     });
 
+    // 選擇框事件
     this.form.addEventListener('change', (event) => {
       const target = event.target;
       if (target.classList.contains('wq-select')) {
@@ -102,36 +97,27 @@ export class wqForm {
     });
   }
 
+  /**
+   * 處理輸入框事件
+   */
   handleInput(input) {
     const cachedInput = this.inputInstances.get(input);
     if (cachedInput) {
-      const result = cachedInput.validation();
-      this.eventManager.emit('form:inputChange', { input, result });
+      cachedInput.validation();
     }
   }
 
+  /**
+   * 處理選擇框事件
+   */
   handleSelect(select) {
     const isValid = select.value !== '';
     select.classList.toggle('error', !isValid);
-    this.eventManager.emit('form:selectChange', { select, isValid });
   }
 
-  // 添加性能監控
-  measurePerformance(operation) {
-    const start = performance.now();
-    operation();
-    const end = performance.now();
-    console.log(`Operation took ${end - start}ms`);
-  }
-
-  // 清理資源
-  destroy() {
-    this.inputInstances.clear();
-    this.dateTimeInstances = new WeakMap();
-    this.eventManager.clear();
-    this.form = null;
-  }
-
+  /**
+   * 表單驗證主方法
+   */
   validation(options = {}) {
     try {
       const validationOptions = {
@@ -140,15 +126,15 @@ export class wqForm {
       };
 
       let isValid = true;
-      let errorMessages = []; // 用於收集錯誤訊息
+      const errorMessages = [];
+
       // 驗證輸入框
       this.form.querySelectorAll('.wq-input').forEach(input => {
         if (input.wqInput) {
           const result = input.wqInput.validation();
           if (!result.valid) {
             isValid = false;
-            // 收集錯誤訊息
-            if (result.errMsg) {
+            if (this.options.errorDisplay === 'popup' && result.errMsg) {
               errorMessages.push(result.errMsg);
             }
           }
@@ -160,32 +146,35 @@ export class wqForm {
         if (!select.value) {
           isValid = false;
           select.classList.add('error');
+          if (this.options.errorDisplay === 'popup') {
+            errorMessages.push('請選擇選項');
+          }
         } else {
           select.classList.remove('error');
         }
       });
 
       // 驗證單選按鈕組
-      // 🔥 簡化後的 radio 驗證邏輯
       this.form.querySelectorAll('.radio-group[data-type]').forEach(group => {
         const type = group.getAttribute('data-type');
         const checkedRadio = group.querySelector('input[type="radio"]:checked');
-        // 🔥 統一的驗證結果獲取
-        const validationResult = this.#getRadioValidationResult(group, type, checkedRadio);
+        const validationResult = this.validateRadio(group, type, checkedRadio);
 
-        // 🔥 統一的結果處理
-        this.#handleRadioValidationResult(group, validationResult);
-        // 更新總體驗證狀態
         if (!validationResult.isValid) {
           isValid = false;
-          if (validationResult.errMsg) {
+          this.setRadioError(group, validationResult.errMsg);
+
+          if (this.options.errorDisplay === 'popup' && validationResult.errMsg) {
             errorMessages.push(validationResult.errMsg);
           }
+        } else {
+          this.clearRadioError(group);
         }
       });
 
+      // 處理驗證結果
       if (isValid) {
-        const formData = this.#collectFormData();
+        const formData = this.collectFormData();
         this.popupHandler.confirm(formData, () => {
           const button = document.querySelector(validationOptions.submit_button);
           if (button) {
@@ -193,121 +182,90 @@ export class wqForm {
             if (href) window.location.href = href;
           }
         }, {
-          pop_title: validationOptions.popup_title || '請確認您提供的資料是否正確',
-          birth_title: validationOptions.birth_title || '生日'
+          pop_title: validationOptions.popup_title,
+          birth_title: validationOptions.birth_title
         });
       } else {
-        // 使用收集到的錯誤訊息
         const errorMsg = errorMessages.length > 0
-          ? errorMessages.map(msg => `<p class="error-message">${msg}</p>`).join('') // 將每個錯誤訊息用 <p> 標籤包裹
+          ? errorMessages.map(msg => `<p class="error-message">${msg}</p>`).join('')
           : (this.options.msg || '');
 
-        this.popupHandler.alert(errorMsg);
+        if (errorMsg) this.popupHandler.alert(errorMsg);
       }
 
       return isValid;
     } catch (error) {
-      console.log(error, 'wqForm.validation');
+      console.error('wqForm validation error:', error);
       return false;
     }
   }
-  // 🔥 提取方法：獲取驗證結果
-  #getRadioValidationResult(group, type, checkedRadio) {
+
+  /**
+   * 驗證單選按鈕組
+   */
+  validateRadio(group, type, checkedRadio) {
     const rule = window.WQ?.ValidationRules?.[type];
 
-    // 使用 ValidationRules callback 驗證
-    if (rule?.validate) {
-      return this.#executeCallbackValidation(rule, group, type, checkedRadio);
+    // 使用自定義驗證函數
+    if (rule?.validate && typeof window[rule.validate] === 'function') {
+      try {
+        const result = window[rule.validate](group);
+        return {
+          isValid: result?.valid !== false,
+          errMsg: result?.errMsg || result?.message || rule.errMsg || '驗證失敗'
+        };
+      } catch (error) {
+        console.error(`${type} 驗證函數執行錯誤:`, error);
+        return {
+          isValid: false,
+          errMsg: rule.errMsg || '驗證過程發生錯誤'
+        };
+      }
     }
 
-    // 使用基本驗證
-    return this.#executeBasicValidation(group, type, checkedRadio);
-  }
+    // 基本驗證：檢查是否必填且已選擇
+    const hasRequiredField = group.querySelector('input[data-validation="required"]');
+    const isValid = !!checkedRadio || !hasRequiredField;
 
-  // 🔥 執行 callback 驗證
-  #executeCallbackValidation(rule, group, type, checkedRadio) {
-    // 驗證函數不存在的情況
-    if (typeof window[rule.validate] !== 'function') {
-      return this.#getBasicValidationResult(group, checkedRadio, rule.errMsg || '錯誤訊息未定義');
-    }
-
-    // 執行驗證函數
-    try {
-      const result = window[rule.validate](group);
-
-      const isValid = result?.valid !== false;
-      const errMsg = isValid ? '' : (result?.errMsg || result?.message || rule.errMsg || '錯誤訊息未定義');
-
-      return { isValid, errMsg };
-    } catch (error) {
-      console.error(`${type} 驗證函數執行錯誤:`, error);
-      return { isValid: false, errMsg: rule.errMsg || '驗證過程發生錯誤' };
-    }
-  }
-
-  // 🔥 執行基本驗證
-  #executeBasicValidation(group, type, checkedRadio) {
-    const fallbackErrorMessages = {
-      ...this.options.errorMessages,
+    const defaultMessages = {
       sex: '請選擇性別',
       relationship: '請選擇感情狀態',
       default: '請選擇選項'
     };
 
-    const errorMessage = fallbackErrorMessages[type] || fallbackErrorMessages.default;
-    return this.#getBasicValidationResult(group, checkedRadio, errorMessage);
-  }
-
-  // 🔥 獲取基本驗證結果
-  #getBasicValidationResult(group, checkedRadio, errorMessage) {
-    const hasRequiredField = group.querySelector('input[data-validation="required"]');
-    const isValid = !!checkedRadio || !hasRequiredField;
-
     return {
       isValid,
-      errMsg: isValid ? '' : errorMessage
+      errMsg: isValid ? '' : (this.options.errorMessages?.[type] || defaultMessages[type] || defaultMessages.default)
     };
   }
 
-  // 🔥 處理驗證結果
-  #handleRadioValidationResult(group, validationResult) {
-    const { isValid, errMsg } = validationResult;
-
-    if (isValid) {
-      this.#clearRadioError(group);
-      return;
+  /**
+   * 設置單選按鈕組錯誤狀態
+   */
+  setRadioError(group, errorMessage) {
+    if (this.options.errorDisplay === 'inline') {
+      group.classList.add('error');
     }
-
-    // 驗證失敗的處理
-    this.#setRadioError(group, errMsg);
-
-    // 只在 popup 模式下收集錯誤訊息
-    if (this.options.errorDisplay === 'popup' && errMsg) {
-      errorMessages.push(errMsg);
-    }
+    group.setAttribute('data-error', errorMessage);
   }
 
-  // 🔥 清除錯誤狀態
-  #clearRadioError(group) {
+  /**
+   * 清除單選按鈕組錯誤狀態
+   */
+  clearRadioError(group) {
     if (this.options.errorDisplay === 'inline') {
       group.classList.remove('error');
     }
     group.removeAttribute('data-error');
   }
 
-  // 🔥 設置錯誤狀態
-  #setRadioError(group, errorMessage) {
-    if (this.options.errorDisplay === 'inline') {
-      group.classList.add('error');
-    }
-    group.setAttribute('data-error', errorMessage);
-  }
-  #collectFormData() {
+  /**
+   * 收集表單資料
+   */
+  collectFormData() {
     const formData = [];
 
     this.form.querySelectorAll('.wq-group').forEach(group => {
-      const dateTimeInstance = this.dateTimeInstances.get(group);
-
       const data = {
         nickname: '',
         sex: ['', ''],
@@ -321,7 +279,7 @@ export class wqForm {
         custom: []
       };
 
-      // 先檢查是否有 radio 類型的性別選擇
+      // 收集性別資料
       const sexRadioGroup = group.querySelector('.radio-group[data-type="sex"]');
       if (sexRadioGroup) {
         const checkedRadio = sexRadioGroup.querySelector('input[type="radio"]:checked');
@@ -329,34 +287,27 @@ export class wqForm {
           data.sex = [checkedRadio.value, checkedRadio.value === '0' ? '女' : '男'];
         }
       } else {
-        // 如果沒有 radio，則檢查下拉選單
         const sexSelect = group.querySelector('.wq-select[data-type="sex"]');
         if (sexSelect && sexSelect.value !== '') {
           data.sex = [sexSelect.value, sexSelect.value === '0' ? '女' : '男'];
         }
       }
 
-      // 收集所有 wq-input 輸入框的數據
+      // 收集輸入框資料
       group.querySelectorAll('.wq-input').forEach(input => {
         const type = input.getAttribute('data-type');
         const value = input.value.trim();
 
         if (type === 'nickname') {
           data.nickname = value;
-        } else {
-          const label = this.options.customFieldLabels[type] ||
-            input.placeholder ||
-            type;
-
-          data.custom.push([
-            type,
-            value,
-            label
-          ]);
+        } else if (value) {
+          const label = this.options.customFieldLabels?.[type] ||
+            input.placeholder || type;
+          data.custom.push([type, value, label]);
         }
       });
 
-      // 收集其他 radio 組的數據
+      // 收集其他單選按鈕組資料
       group.querySelectorAll('.radio-group[data-type]:not([data-type="sex"])').forEach(radioGroup => {
         const type = radioGroup.getAttribute('data-type');
         const checkedRadio = radioGroup.querySelector('input[type="radio"]:checked');
@@ -365,13 +316,15 @@ export class wqForm {
           data.custom.push([
             type,
             checkedRadio.value,
-            checkedRadio.getAttribute('data-title') || checkedRadio.dataset.title || type
+            checkedRadio.getAttribute('data-title') ||
+            checkedRadio.dataset.title || type
           ]);
         }
       });
 
-      // 獲取日期時間
-      if (dateTimeInstance) {
+      // 收集日期時間資料
+      const dateTimeInstance = this.dateTimeInstances.get(group);
+      if (dateTimeInstance && typeof dateTimeInstance.getFormattedDate === 'function') {
         const dateTimeData = dateTimeInstance.getFormattedDate();
         if (dateTimeData) {
           data.datetime = dateTimeData;
@@ -385,62 +338,36 @@ export class wqForm {
     return formData;
   }
 
-  showError(input, message) {
-    const parent = input.parentElement;
-    if (!parent) return;
+  /**
+   * 清理資源
+   */
+  destroy() {
+    // 移除事件監聽器
+    this.form?.removeEventListener?.('input', this.handleInput);
+    this.form?.removeEventListener?.('change', this.handleSelect);
 
-    // 移除已存在的錯誤提示
-    const existingError = parent.querySelector('.error-message');
-    if (existingError) {
-      existingError.remove();
-    }
-
-    // 創建新的錯誤提示
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'error-message';
-    errorDiv.textContent = message;
-    parent.appendChild(errorDiv);
-  }
-
-  registerEvents() {
-    // 表單驗證事件
-    this.eventManager.on('form:validate', (data) => {
-      const isValid = this.validation(data);
-      this.eventManager.emit('form:validateComplete', { isValid });
+    // 清理 input 實例
+    this.inputInstances.forEach((instance, input) => {
+      if (input.wqInput) {
+        delete input.wqInput;
+      }
     });
+    this.inputInstances.clear();
 
-    // 表單數據變更事件
-    this.eventManager.on('form:change', (data) => {
-      this.handleFormChange(data);
-    });
+    // 清理 dateTime 實例
+    this.dateTimeInstances = new WeakMap();
 
-    // 表單提交事件
-    this.eventManager.on('form:submit', (data) => {
-      this.handleFormSubmit(data);
-    });
-  }
-
-  handleFormChange(data) {
-    // 處理表單變更
-    this.eventManager.emit('form:changed', data);
-  }
-
-  handleFormSubmit(data) {
-    // 處理表單提交
-    if (this.validation()) {
-      this.eventManager.emit('form:submitSuccess', data);
-    } else {
-      this.eventManager.emit('form:submitError', data);
-    }
+    // 清理 DOM 參考
+    this.form = null;
   }
 }
 
+// 全域初始化
 if (typeof window !== 'undefined') {
   window.wqForm = wqForm; // 確保 wqForm 被正確導出到全局
   window.wq_form = window.wq_form || {}; // 只在全局範圍創建一次實例
-  document.addEventListener('DOMContentLoaded', () => { // 在 DOMContentLoaded 時初始化
-    if (window.wq_form.form) window.wq_form.form.destroy();
-    window.wq_form.form = new wqForm('.wq-form');
-  }, { once: true }); // 使用 once 選項確保事件監聽器只執行一次
+  // document.addEventListener('DOMContentLoaded', () => { // 在 DOMContentLoaded 時初始化
+  //   if (window.wq_form.form) window.wq_form.form.destroy();
+  //   window.wq_form.form = new wqForm('.wq-form');
+  // }, { once: true }); // 使用 once 選項確保事件監聽器只執行一次
 }
-

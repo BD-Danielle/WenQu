@@ -81,7 +81,7 @@ window.validateMixedName = function (element, value, rule) {
     console.log('❌ 姓名不能包含空白字符');
     return {
       valid: false,
-      errMsg: rule?.errMsg || '預設錯誤訊息'
+      errMsg: rule?.errMsg || '姓名欄位格式錯誤，最多可輸入5個中文字或是10個非中文字'
     };
   }
 
@@ -90,7 +90,7 @@ window.validateMixedName = function (element, value, rule) {
     console.log('❌ 姓名不能包含全形英文字母');
     return {
       valid: false,
-      errMsg: rule?.errMsg || '預設錯誤訊息'
+      errMsg: rule?.errMsg || '姓名欄位格式錯誤，最多可輸入5個中文字或是10個非中文字'
     };
   }
 
@@ -99,7 +99,7 @@ window.validateMixedName = function (element, value, rule) {
     console.log('❌ 姓名長度不在充許範圍內:', value.length);
     return {
       valid: false,
-      errMsg: rule?.errMsg || '預設錯誤訊息'
+      errMsg: rule?.errMsg || '姓名欄位格式錯誤，最多可輸入5個中文字或是10個非中文字'
     };
   }
 
@@ -108,7 +108,7 @@ window.validateMixedName = function (element, value, rule) {
     console.log('❌ 中文字數量超出限制:', chineseCount);
     return {
       valid: false,
-      errMsg: rule?.errMsg || '預設錯誤訊息'
+      errMsg: rule?.errMsg || '姓名欄位格式錯誤，最多可輸入5個中文字或是10個非中文字'
     };
   }
 
@@ -117,7 +117,7 @@ window.validateMixedName = function (element, value, rule) {
     console.log('❌ 非中文字數量超出限制:', nonChineseCount);
     return {
       valid: false,
-      errMsg: rule?.errMsg || '預設錯誤訊息'
+      errMsg: rule?.errMsg || '姓名欄位格式錯誤，最多可輸入5個中文字或是10個非中文字'
     };
   }
 
