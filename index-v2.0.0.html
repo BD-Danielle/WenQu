@@ -37,7 +37,7 @@
         <div class="FORM">
           <div style="width: 50%">
             <input type="text" class="wq-input" placeholder="請輸入您的姓名" data-format="mixedName" data-value="陳奕伶"
-              data-type="nickname" />
+              data-type="nickname" data-validation="required" />
           </div>
           <div style="width: 50%">
             <input type="text" class="wq-input" placeholder="請輸入身分證字號" data-format="taiwanId" data-value="C123456789"
@@ -46,11 +46,11 @@
           <div style="width: 50%">
             <div class="radio-group" data-type="sex">
               <input class="wq-radio" id="radio-female" type="radio" data-name="sex" name="sex" data-value="0" value="0"
-                data-title="女" data-validation="required" checked>
+                data-validation="required" checked>
               <label for="radio-female">女</label>
 
               <input class="wq-radio" id="radio-male" type="radio" data-name="sex" name="sex" data-value="1" value="1"
-                data-title="男" data-validation="required">
+                data-validation="required">
               <label for="radio-male">男</label>
             </div>
           </div>
@@ -77,11 +77,11 @@
             <div class="radio-group" data-type="relationship">
               <h3>感情狀態：</h3>
               <input class="wq-radio" id="radio-single" type="radio" data-name="relationship" name="relationship"
-                data-value="single" value="單身中" data-title="戀愛狀態" data-validation="required">
+                data-value="single" value="單身中" data-validation="required">
               <label for="radio-single">單身中</label>
 
               <input class="wq-radio" id="radio-dating" type="radio" data-name="relationship" name="relationship"
-                data-value="dating" value="戀愛中" data-title="戀愛狀態" data-validation="required">
+                data-value="dating" value="戀愛中" data-validation="required">
               <label for="radio-dating">戀愛中</label>
             </div>
           </div>
@@ -148,15 +148,13 @@
           // 可以添加更多自定義標籤
         },
         errorMessages: {
-          // sex: '請選擇您的性別',
-          // relationship: '請選擇您的感情狀態',
-          mixedName: '姓名欄位格式錯誤，最多可輸入5個中文字或是10個非中文字',
           custom_field: '請選擇自定義選項123',
           // default: '此欄位為必填項目'
         },
         // errorDisplay: 'inline', // 錯誤顯示方式
         popup_title: '自定義標題123',
         birth_title: '生日',
+        hour_title: '',
         // popupHandler: new anyCustomPopup(),
       };
       // 初始化 wqForm 時注入 handler

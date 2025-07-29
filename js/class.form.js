@@ -120,7 +120,7 @@ export class wqForm {
    */
   validation(options = {}) {
     try {
-      const validationOptions = {
+      const formOptions = {
         ...this.options,
         ...options
       };
@@ -156,10 +156,8 @@ export class wqForm {
 
       // 驗證單選按鈕組
       this.form.querySelectorAll('.radio-group[data-type]').forEach(group => {
-        const type = group.getAttribute('data-type');
-        const checkedRadio = group.querySelector('input[type="radio"]:checked');
-        const validationResult = this.validateRadio(group, type, checkedRadio);
-
+        const type = group.dataset.type;
+        const validationResult = this.validateRadio(group, type);
         if (!validationResult.isValid) {
           isValid = false;
           this.setRadioError(group, validationResult.errMsg);
@@ -176,15 +174,12 @@ export class wqForm {
       if (isValid) {
         const formData = this.collectFormData();
         this.popupHandler.confirm(formData, () => {
-          const button = document.querySelector(validationOptions.submit_button);
+          const button = document.querySelector(formOptions.submit_button);
           if (button) {
-            const href = button.getAttribute('data-href');
+            const href = button.dataset.href;
             if (href) window.location.href = href;
           }
-        }, {
-          pop_title: validationOptions.popup_title,
-          birth_title: validationOptions.birth_title
-        });
+        }, formOptions);
       } else {
         const errorMsg = errorMessages.length > 0
           ? errorMessages.map(msg => `<p class="error-message">${msg}</p>`).join('')
@@ -203,9 +198,8 @@ export class wqForm {
   /**
    * 驗證單選按鈕組
    */
-  validateRadio(group, type, checkedRadio) {
+  validateRadio(group, type) {
     const rule = window.WQ?.ValidationRules?.[type];
-
     // 使用自定義驗證函數
     if (rule?.validate && typeof window[rule.validate] === 'function') {
       try {
@@ -222,21 +216,6 @@ export class wqForm {
         };
       }
     }
-
-    // 基本驗證：檢查是否必填且已選擇
-    const hasRequiredField = group.querySelector('input[data-validation="required"]');
-    const isValid = !!checkedRadio || !hasRequiredField;
-
-    const defaultMessages = {
-      sex: '請選擇性別',
-      relationship: '請選擇感情狀態',
-      default: '請選擇選項'
-    };
-
-    return {
-      isValid,
-      errMsg: isValid ? '' : (this.options.errorMessages?.[type] || defaultMessages[type] || defaultMessages.default)
-    };
   }
 
   /**
@@ -295,29 +274,27 @@ export class wqForm {
 
       // 收集輸入框資料
       group.querySelectorAll('.wq-input').forEach(input => {
-        const type = input.getAttribute('data-type');
+        const type = input.dataset.type;
         const value = input.value.trim();
 
         if (type === 'nickname') {
           data.nickname = value;
-        } else if (value) {
-          const label = this.options.customFieldLabels?.[type] ||
-            input.placeholder || type;
+        } else {
+          const label = this.options.customFieldLabels?.[type] || input.placeholder || type;
           data.custom.push([type, value, label]);
         }
       });
 
       // 收集其他單選按鈕組資料
       group.querySelectorAll('.radio-group[data-type]:not([data-type="sex"])').forEach(radioGroup => {
-        const type = radioGroup.getAttribute('data-type');
+        const type = radioGroup.dataset.type;
         const checkedRadio = radioGroup.querySelector('input[type="radio"]:checked');
 
         if (checkedRadio) {
           data.custom.push([
             type,
             checkedRadio.value,
-            checkedRadio.getAttribute('data-title') ||
-            checkedRadio.dataset.title || type
+            WQ.ValidationRules?.[type]?.title || checkedRadio.dataset.title || type
           ]);
         }
       });

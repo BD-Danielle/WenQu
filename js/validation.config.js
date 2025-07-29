@@ -10,15 +10,6 @@ WQ.addValidationRule(
   /^[\u4e00-\u9fa5\u3400-\u4db5]{1,10}$/,
   '格式錯誤，最多可輸入10個中文字'
 );
-
-
-WQ.addValidationRule('mixedName', {
-  type: 'input',
-  name: 'mixedName',
-  validate: 'validateMixedName',
-  errMsg: '姓名欄位格式錯誤，最多可輸入5個中文字或是10個非中文字'
-});
-
 WQ.addValidationRule(
   'nickname',
   /^[\u4e00-\u9fa5\u3400-\u4db5a-zA-Z0-9]{2,10}$/,
@@ -37,9 +28,18 @@ WQ.addValidationRule(
   '請輸入正確的生日格式（YYYY/MM/DD）'
 );
 
+WQ.addValidationRule('mixedName',
+  {
+    validate: window.validateMixedName,
+    message: '姓名欄位格式錯誤，最多可輸入5個中文字或是10個非中文字'
+  }
+);
+
 WQ.addValidationRule(
   'sex',
   {
+    required: true,
+    title: '性別',
     type: 'radio',
     name: 'sex',
     validate: 'validateRadioSex',
@@ -50,6 +50,8 @@ WQ.addValidationRule(
 WQ.addValidationRule(
   'relationship',
   {
+    required: true,
+    title: '感情狀態',
     type: 'radio',
     name: 'relationship',
     validate: 'validateRelationship',

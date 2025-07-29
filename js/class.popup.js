@@ -47,11 +47,11 @@ export class wqPopup {
     this.closePopup();
 
     const {
-      pop_title = '請確認您提供的資料是否正確',
-      name_title = '姓名',
-      sex_title = '性別',
-      birth_title = '生辰',
-      hour_title = '時辰'
+      pop_title = options.popup_title || '請確認您提供的資料是否正確',
+      name_title = options.name_title || '姓名',
+      sex_title = options.sex_title || '性別',
+      birth_title = options.birth_title || '生辰',
+      hour_title = options.hour_title || '時辰'
     } = options;
 
     // 創建確認彈窗
@@ -76,12 +76,7 @@ export class wqPopup {
     `;
 
     // 生成內容
-    const contentHTML = this.generateContent(data, {
-      name_title,
-      sex_title,
-      birth_title,
-      hour_title
-    });
+    const contentHTML = this.generateContent(data, { name_title, sex_title, birth_title, hour_title });
 
     this.currentPopup.querySelector('.popup__content').innerHTML = contentHTML;
 
@@ -176,7 +171,7 @@ export class wqPopup {
       if (data.datetime.hour[0] && data.datetime.hour[1]) {
         html += `
           <div class="popup__item">
-            <span class="popup__label">${titles.hour_title}：</span>
+            <span class="popup__label">${titles.hour_title ? `${titles.hour_title}：` : ''}</span>
             <span class="popup__value">${data.datetime.hour[1]}</span>
           </div>
         `;

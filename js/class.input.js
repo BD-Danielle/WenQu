@@ -204,7 +204,7 @@ export class wqInput {
 
       // 格式驗證
       if (format) {
-        result = this.validateFormat(value, format, result);
+        return this.validateFormat(result, format, value);
       }
 
       return result;
@@ -223,11 +223,10 @@ export class wqInput {
    */
   handleEmptyValue(result, format) {
     const rule = window.WQ?.ValidationRules?.[format];
-
     // 使用自定義驗證函數
-    if (rule?.validate && typeof window[rule.validate] === 'function') {
+    if (rule?.validate && typeof rule?.validate === 'function') {
       try {
-        const customResult = window[rule.validate](this.input, '', rule);
+        const customResult = rule.validate(this.input, '', rule);
         result.valid = customResult?.valid ?? false;
         result.errMsg = customResult?.message || customResult?.errMsg || rule.errMsg || '此欄位為必填';
       } catch (error) {
@@ -236,6 +235,7 @@ export class wqInput {
       }
     } else {
       // 檢查是否為必填
+
       const isRequired = this.input.hasAttribute('required') ||
         this.input.dataset.validation === 'required';
 
@@ -251,17 +251,16 @@ export class wqInput {
   /**
    * 格式驗證
    */
-  validateFormat(value, format, result) {
+  validateFormat(result, format, value) {
     const rule = window.WQ?.ValidationRules?.[format];
 
     if (!rule) {
       return result;
     }
-
     // 使用自定義驗證函數
-    if (rule.validate && typeof window[rule.validate] === 'function') {
+    if (rule?.validate && typeof rule?.validate === 'function') {
       try {
-        const customResult = window[rule.validate](this.input, value, rule);
+        const customResult = rule.validate(this.input, value, rule);
         if (customResult && customResult.valid === false) {
           result.valid = false;
           result.errMsg = customResult.message || customResult.errMsg || rule.errMsg || `${format}驗證失敗`;

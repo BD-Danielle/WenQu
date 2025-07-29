@@ -305,7 +305,9 @@ textarea.wq-input {
   margin-bottom: 10px;
 }
 
-.popup__label {}
+.popup__label {
+  min-width: 3rem;
+}
 
 .popup__value {
   color: #6f25a7;

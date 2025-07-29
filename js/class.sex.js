@@ -1,108 +1,97 @@
+/**
+ * wqSex 性別選擇器類別
+ * 提供性別選擇的初始化、驗證和操作功能
+ */
 export class wqSex {
-  #select = null;
-  #options = [
-    { value: 0, text: "女" },
-    { value: 1, text: "男" }
-  ];
-
   constructor(elem) {
-    this.#select = (typeof elem === 'string') ?
+    // 初始化選擇器
+    this.select = (typeof elem === 'string') ?
       document.querySelector(elem) :
       (elem instanceof Element ? elem : null);
 
-    if (!this.#select) {
+    if (!this.select) {
       throw new Error('Invalid sex select element');
     }
 
-    this.#initialize();
+    // 初始化選項和默認值
+    this.initialize();
   }
 
-  #initialize() {
-    // 創建選項
-    this.#buildOptions();
-
-    // 設置默認值
-    this.#setDefaultValue();
+  /**
+   * 初始化選項和默認值
+   */
+  initialize() {
+    this.buildOptions();
+    this.setDefaultValue();
   }
 
-  #buildOptions() {
-    const fragment = document.createDocumentFragment();
-    this.#select.innerHTML = '';
+  /**
+   * 創建選項
+   */
+  buildOptions() {
+    const options = [
+      { value: 0, text: '女' },
+      { value: 1, text: '男' }
+    ];
 
-    this.#options.forEach(option => {
-      const optionElement = document.createElement('option');
-      optionElement.value = option.value;
-      optionElement.textContent = option.text;
-      fragment.appendChild(optionElement);
-    });
-
-    this.#select.appendChild(fragment);
+    this.select.innerHTML = options.map(option => `
+      <option value="${option.value}">${option.text}</option>
+    `).join('');
   }
 
-  #setDefaultValue() {
-    const defaultValue = this.#select.getAttribute('data-value');
-    if (defaultValue !== null) {
-      this.#select.value = defaultValue;
-    }
+  /**
+   * 設置默認值
+   */
+  setDefaultValue() {
+    const defaultValue = this.select.dataset.value || '0'; // 默認值為 "0"（女）
+    this.select.value = defaultValue;
   }
 
-  // 獲取當前值
+  /**
+   * 獲取當前值
+   */
   getValue() {
-    return this.#select.value;
+    return this.select.value;
   }
 
-  // 設置值
+  /**
+   * 設置值
+   */
   setValue(value) {
-    if (value === null || value === undefined) {
-      throw new Error('性別值不能為空');
+    const validValues = ['0', '1']; // 只允許 "0" 或 "1"
+    if (!validValues.includes(value)) {
+      throw new Error('Invalid sex value');
     }
-    const numValue = parseInt(value, 10);
-    if (isNaN(numValue) || !this.#options.some(opt => opt.value === numValue)) {
-      throw new Error('無效的性別值');
-    }
-    this.#select.value = value;
+    this.select.value = value;
   }
 
-  // 驗證
+  /**
+   * 驗證
+   */
   validation() {
-    const value = this.#select.value;
-    const numValue = parseInt(value, 10);
+    const value = this.select.value;
     return {
-      valid: value !== null && value !== undefined && value !== '' &&
-        !isNaN(numValue) && this.#options.some(opt => opt.value === numValue),
-      errMsg: value === '' ? '請選擇性別' :
-        !this.#options.some(opt => opt.value === numValue) ? '無效的性別選項' : ''
+      valid: ['0', '1'].includes(value),
+      errMsg: value === '' ? '請選擇性別' : ''
     };
   }
 
-  // 清理方法
+  /**
+   * 銷毀選擇器
+   */
   destroy() {
-    if (this.#select) {
-      // 清理所有可能的事件監聽器
-      this.#select.innerHTML = '';
-      // 移除實例引用
-      delete this.#select.wqSex;
-      this.#select = null;
+    if (this.select) {
+      this.select.innerHTML = '';
+      this.select = null;
     }
   }
 }
 
-// 在 DOMContentLoaded 時初始化所有性別選擇器
+// 初始化所有性別選擇器
 document.addEventListener('DOMContentLoaded', () => {
-  try {
-    document.querySelectorAll('.wq-select[data-type="sex"]').forEach(select => {
-      if (!select.wqSex) {
-        select.wqSex = new wqSex(select);
-      }
-    });
-  } catch (error) {
-    // 使用錯誤處理器處理初始化錯誤
-    if (window.ErrorHandler) {
-      window.ErrorHandler.handle(error, 'wqSex Initialization');
-    } else {
-      console.error('性別選擇器初始化失敗:', error);
-    }
-  }
+  document.querySelectorAll('.wq-select[data-type="sex"]').forEach(select => {
+    new wqSex(select);
+  });
 });
 
 // 為了向後相容，也可以掛載到 window 對象
