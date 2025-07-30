@@ -32,7 +32,8 @@ export class wqPopup {
       </div>
     `;
 
-    // 添加到頁面
+    // 添加到頁面前，禁止背景滾動
+    document.body.style.overflow = 'hidden';
     document.body.appendChild(this.currentPopup);
 
     // 綁定關閉事件
@@ -80,7 +81,8 @@ export class wqPopup {
 
     this.currentPopup.querySelector('.popup__content').innerHTML = contentHTML;
 
-    // 添加到頁面
+    // 添加到頁面前，禁止背景滾動
+    document.body.style.overflow = 'hidden';
     document.body.appendChild(this.currentPopup);
 
     // 綁定事件
@@ -133,7 +135,6 @@ export class wqPopup {
    */
   generateFormDataHTML(data, titles) {
     let html = '';
-
     // 姓名
     if (data.nickname) {
       html += `
@@ -250,6 +251,8 @@ export class wqPopup {
       this.currentPopup.remove();
       this.currentPopup = null;
     }
+    // 恢復 body 的 overflow
+    document.body.style.overflow = '';
   }
 
   /**

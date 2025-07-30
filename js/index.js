@@ -1,20 +1,16 @@
 // Import core components
-import { EventManager } from "./event.manager.js";
 import { wqInput } from "./class.input.js";
 import { wqPopup } from "./class.popup.js";
 import { wqDateTime } from "./class.datetime.js";
 import { wqSex } from "./class.sex.js";
-import { wqRadio } from "./class.radio.js";
 import { wqForm } from "./class.form.js";
 
 // Create the module object
 const WenQu = {
-  EventManager,
   wqInput,
   wqPopup,
   wqDateTime,
   wqSex,
-  wqRadio,
   wqForm
 };
 

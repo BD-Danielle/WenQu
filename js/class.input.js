@@ -212,8 +212,7 @@ export class wqInput {
       console.error('Validation error:', error);
       return {
         valid: false,
-        errMsg: '驗證過程發生錯誤',
-        error
+        errMsg: '驗證過程發生錯誤'
       };
     }
   }
@@ -222,7 +221,7 @@ export class wqInput {
    * 處理空值驗證
    */
   handleEmptyValue(result, format) {
-    const rule = window.WQ?.ValidationRules?.[format];
+    const rule = window.WQ.ValidationRules?.[format];
     // 使用自定義驗證函數
     if (rule?.validate && typeof rule?.validate === 'function') {
       try {
@@ -235,8 +234,7 @@ export class wqInput {
       }
     } else {
       // 檢查是否為必填
-
-      const isRequired = this.input.hasAttribute('required') ||
+      const isRequired = rule?.required === true || this.input.hasAttribute('required') ||
         this.input.dataset.validation === 'required';
 
       if (isRequired) {
@@ -252,7 +250,7 @@ export class wqInput {
    * 格式驗證
    */
   validateFormat(result, format, value) {
-    const rule = window.WQ?.ValidationRules?.[format];
+    const rule = window.WQ.ValidationRules?.[format];
 
     if (!rule) {
       return result;

@@ -198,18 +198,18 @@ export class wqForm {
   /**
    * 驗證單選按鈕組
    */
-  validateRadio(group, type) {
-    const rule = window.WQ?.ValidationRules?.[type];
+  validateRadio(group, format) {
+    const rule = window.WQ.ValidationRules?.[format];
     // 使用自定義驗證函數
-    if (rule?.validate && typeof window[rule.validate] === 'function') {
+    if (rule?.validate && typeof rule?.validate === 'function') {
       try {
-        const result = window[rule.validate](group);
+        const result = rule?.validate(group);
         return {
           isValid: result?.valid !== false,
           errMsg: result?.errMsg || result?.message || rule.errMsg || '驗證失敗'
         };
       } catch (error) {
-        console.error(`${type} 驗證函數執行錯誤:`, error);
+        console.error(`${format} 驗證函數執行錯誤:`, error);
         return {
           isValid: false,
           errMsg: rule.errMsg || '驗證過程發生錯誤'
@@ -294,7 +294,7 @@ export class wqForm {
           data.custom.push([
             type,
             checkedRadio.value,
-            WQ.ValidationRules?.[type]?.title || checkedRadio.dataset.title || type
+            WQ.ValidationRules?.[type]?.title || checkedRadio.dataset.title
           ]);
         }
       });
