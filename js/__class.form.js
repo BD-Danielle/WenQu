@@ -5,11 +5,8 @@ export class wqForm {
   #form;
   #options;
   #popupHandler;
-  inputInstances = new Map();
-  dateTimeInstances = new WeakMap();
-  sexInstances = new Map(); // 新增：管理所有 wqSex 實例
-  #handleInputBound;    // ← 新增
-  #handleSelectBound;   // ← 新增
+  #inputInstances = new Map();
+  #dateTimeInstances = new WeakMap();
 
   constructor(elem, options = {}) {
     try {
@@ -51,23 +48,16 @@ export class wqForm {
         if (!input.wqInput) {
           const inputInstance = new window.wqInput(input, this.#options);
           input.wqInput = inputInstance;
-          this.inputInstances.set(input, inputInstance);
+          this.#inputInstances.set(input, inputInstance);
         }
       });
-      // 初始化性別選擇器
-      this.#form.querySelectorAll('.wq-select[data-type="sex"]').forEach(select => {
-        if (!select.wqSex && typeof window.wqSex === 'function') {
-          const sexInstance = new window.wqSex(select);
-          select.wqSex = sexInstance;
-          this.sexInstances.set(select, sexInstance);
-        }
-      });
+
       // 初始化日期時間選擇器
       this.#form.querySelectorAll('.wq-group').forEach(group => {
-        if (!this.dateTimeInstances.has(group)) {
+        if (!this.#dateTimeInstances.has(group)) {
           if (typeof window.wqDateTime !== 'undefined') {
             const instance = new window.wqDateTime(group);
-            this.dateTimeInstances.set(group, instance);
+            this.#dateTimeInstances.set(group, instance);
           }
         }
       });
@@ -93,7 +83,7 @@ export class wqForm {
   #handleInput(event) {
     const input = event.target;
     if (input.classList.contains('wq-input')) {
-      const cachedInput = this.inputInstances.get(input);
+      const cachedInput = this.#inputInstances.get(input);
       if (cachedInput) cachedInput.validation();
     }
   }
@@ -109,7 +99,7 @@ export class wqForm {
 
   // 私有：設置單選按鈕組錯誤狀態
   #setRadioError(group, errorMessage) {
-    if (this.#options.errorDisplay !== 'popup') {
+    if (this.#options.errorDisplay === 'inline') {
       group.classList.add('error');
     }
     group.setAttribute('data-error', errorMessage);
@@ -117,7 +107,7 @@ export class wqForm {
 
   // 私有：清除單選按鈕組錯誤狀態
   #clearRadioError(group) {
-    if (this.#options.errorDisplay !== 'popup') {
+    if (this.#options.errorDisplay === 'inline') {
       group.classList.remove('error');
     }
     group.removeAttribute('data-error');
@@ -204,7 +194,7 @@ export class wqForm {
       });
 
       // 收集日期時間資料
-      const dateTimeInstance = this.dateTimeInstances.get(group);
+      const dateTimeInstance = this.#dateTimeInstances.get(group);
       if (dateTimeInstance && typeof dateTimeInstance.getFormattedDate === 'function') {
         const dateTimeData = dateTimeInstance.getFormattedDate();
         if (dateTimeData) {
@@ -248,29 +238,14 @@ export class wqForm {
 
       // 驗證選擇框
       this.#form.querySelectorAll('.wq-select').forEach(select => {
-        // 若有 wqSex 實例，優先用 wqSex 的驗證
-        if (select.wqSex && typeof select.wqSex.validation === 'function') {
-          const result = select.wqSex.validation();
-          if (!result.valid) {
-            isValid = false;
-            select.classList.add('error');
-            if (this.#options.errorDisplay === 'popup' && result.errMsg) {
-              errorMessages.push(result.errMsg);
-            }
-          } else {
-            select.classList.remove('error');
+        if (!select.value) {
+          isValid = false;
+          select.classList.add('error');
+          if (this.#options.errorDisplay === 'popup') {
+            errorMessages.push('請選擇選項');
           }
         } else {
-          // 一般下拉選單驗證
-          if (!select.value) {
-            isValid = false;
-            select.classList.add('error');
-            if (this.#options.errorDisplay === 'popup') {
-              errorMessages.push('請選擇選項');
-            }
-          } else {
-            select.classList.remove('error');
-          }
+          select.classList.remove('error');
         }
       });
 
@@ -326,7 +301,7 @@ export class wqForm {
    * 取得指定 group 的 wqDateTime 實例
    */
   getDateTimeInstance(groupElem) {
-    return this.dateTimeInstances.get(groupElem);
+    return this.#dateTimeInstances.get(groupElem);
   }
 
   /**
@@ -340,32 +315,31 @@ export class wqForm {
     }
 
     // 清理 input 實例
-    this.inputInstances.forEach((instance, input) => {
+    this.#inputInstances.forEach((instance, input) => {
       if (input.wqInput) {
         delete input.wqInput;
       }
     });
-    this.inputInstances.clear();
-    // 清理性別選擇器實例
-    this.sexInstances.forEach((instance, select) => {
-      if (select.wqSex) delete select.wqSex;
-      if (typeof instance.destroy === 'function') instance.destroy();
-    });
-    this.sexInstances.clear();
+    this.#inputInstances.clear();
+
     // 清理 dateTime 實例
-    this.dateTimeInstances = new WeakMap();
+    this.#dateTimeInstances = new WeakMap();
 
     // 清理 DOM 參考
     this.#form = null;
   }
 }
 
+// 全域掛載
+// if (typeof window !== 'undefined') {
+//   window.wqForm = wqForm;
+// }
 // 全域初始化
 if (typeof window !== 'undefined') {
   window.wqForm = wqForm; // 確保 wqForm 被正確導出到全局
   window.wq_form = window.wq_form || {}; // 只在全局範圍創建一次實例
-  document.addEventListener('DOMContentLoaded', () => { // 在 DOMContentLoaded 時初始化
-    if (window.wq_form.form) window.wq_form.form.destroy();
-    window.wq_form.form = new wqForm('.wq-form');
-  }, { once: true }); // 使用 once 選項確保事件監聽器只執行一次
+  // document.addEventListener('DOMContentLoaded', () => { // 在 DOMContentLoaded 時初始化
+  //   if (window.wq_form.form) window.wq_form.form.destroy();
+  //   window.wq_form.form = new wqForm('.wq-form');
+  // }, { once: true }); // 使用 once 選項確保事件監聽器只執行一次
 }

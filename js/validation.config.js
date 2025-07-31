@@ -30,6 +30,7 @@ WQ.addValidationRule(
 
 WQ.addValidationRule('mixedName',
   {
+    required: true,
     validate: function (element, value, rule) {
       const defaultErrMsg = '姓名欄位格式錯誤，最多可輸入5個中文字或是10個非中文字';
       const chineseChars = value.match(/[\u4e00-\u9fa5\uF900-\uFA2D\u3400-\u4DB5]/g) || [];
@@ -54,7 +55,7 @@ WQ.addValidationRule('mixedName',
           console.log('❌', check.console);
           return {
             valid: false,
-            errMsg: defaultErrMsg
+            errMsg: defaultErrMsg || rule?.message
           };
         }
       }

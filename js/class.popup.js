@@ -1,24 +1,138 @@
 /**
- * wqPopup 彈窗處理類別
+ * wqPopup 彈窗處理類別（現代私有化重構版）
  * 提供 alert 和 confirm 兩種彈窗功能
  */
 export class wqPopup {
-  constructor() {
-    // 只保留必要的屬性
-    this.currentPopup = null;
+  #currentPopup = null;
+
+  // 私有：生成彈窗內容
+  #generateContent(data, titles) {
+    if (!Array.isArray(data)) return '';
+    return data.map((item, index) => {
+      let html = '';
+      if (index > 0) html += '<div class="popup__border-line"></div>';
+      if (this.#isFormData(item)) {
+        html += this.#generateFormDataHTML(item, titles);
+      } else if (this.#isCustomData(item)) {
+        html += this.#generateCustomDataHTML(item);
+      }
+      return html;
+    }).join('');
   }
 
+  // 私有：判斷是否為表單數據格式
+  #isFormData(item) {
+    return item && typeof item === 'object' &&
+      (item.nickname !== undefined || item.sex !== undefined || item.datetime !== undefined);
+  }
+
+  // 私有：判斷是否為自定義數據格式
+  #isCustomData(item) {
+    return Array.isArray(item) && item.length > 0 &&
+      item.every(field => field && field.title && field.value);
+  }
+
+  // 私有：生成表單數據 HTML
+  #generateFormDataHTML(data, titles) {
+    let html = '';
+    if (data.nickname) {
+      html += `
+        <div class="popup__item">
+          <span class="popup__label">${titles.name_title}：</span>
+          <span class="popup__value">${data.nickname}</span>
+        </div>
+      `;
+    }
+    if (data.sex && data.sex[1]) {
+      html += `
+        <div class="popup__item">
+          <span class="popup__label">${titles.sex_title}：</span>
+          <span class="popup__value">${data.sex[1]}</span>
+        </div>
+      `;
+    }
+    if (data.datetime) {
+      const dateString = data.datetime.calendar[0] == 1 ?
+        `西元${data.datetime.solarString}` :
+        `農曆${data.datetime.lunarString}`;
+      html += `
+        <div class="popup__item">
+          <span class="popup__label">${titles.birth_title}：</span>
+          <span class="popup__value">${dateString}</span>
+        </div>
+      `;
+      if (data.datetime.hour[0] && data.datetime.hour[1]) {
+        html += `
+          <div class="popup__item">
+            <span class="popup__label">${titles.hour_title ? `${titles.hour_title}：` : ''}</span>
+            <span class="popup__value">${data.datetime.hour[1]}</span>
+          </div>
+        `;
+      }
+    }
+    if (data.custom && Array.isArray(data.custom)) {
+      data.custom.forEach(field => {
+        if (field && Array.isArray(field) && field.length >= 3) {
+          html += `
+            <div class="popup__item">
+              <span class="popup__label">${field[2]}：</span>
+              <span class="popup__value">${field[1]}</span>
+            </div>
+          `;
+        }
+      });
+    }
+    return html;
+  }
+
+  // 私有：生成自定義數據 HTML
+  #generateCustomDataHTML(customFields) {
+    return customFields.map(field => `
+      <div class="popup__item">
+        <span class="popup__label">${field.title}：</span>
+        <span class="popup__value">${field.value}</span>
+      </div>
+    `).join('');
+  }
+
+  // 私有：綁定關閉事件（alert 用）
+  #bindCloseEvents() {
+    if (!this.#currentPopup) return;
+    this.#currentPopup.addEventListener('click', (e) => {
+      if (e.target.matches('.popup__close-btn') ||
+        e.target.closest('.popup__alert-btn') ||
+        e.target === this.#currentPopup) {
+        this.closePopup();
+      }
+    });
+  }
+
+  // 私有：綁定確認事件（confirm 用）
+  #bindConfirmEvents(onConfirm) {
+    if (!this.#currentPopup) return;
+    this.#currentPopup.addEventListener('click', (e) => {
+      if (e.target.matches('.popup__close-btn') ||
+        e.target.closest('.popup__cancel-btn') ||
+        e.target === this.#currentPopup) {
+        this.closePopup();
+      } else if (e.target.closest('.popup__confirm-btn')) {
+        if (typeof onConfirm === 'function') {
+          onConfirm();
+        }
+        this.closePopup();
+      }
+    });
+  }
+  // ----------------- 對外公開 API -----------------
   /**
    * 顯示警告彈窗
    */
   alert(message) {
-    // 關閉現有彈窗
     this.closePopup();
 
-    // 創建警告彈窗
-    this.currentPopup = document.createElement('div');
-    this.currentPopup.className = 'popup__modal popup__alert';
-    this.currentPopup.innerHTML = `
+    this.#currentPopup = document.createElement('div');
+    this.#currentPopup.className = 'popup__modal popup__alert';
+    this.#currentPopup.innerHTML = `
       <div class="popup">
         <div class="popup__header">
           <span class="popup__close-btn"></span>
@@ -32,19 +146,16 @@ export class wqPopup {
       </div>
     `;
 
-    // 添加到頁面前，禁止背景滾動
     document.body.style.overflow = 'hidden';
-    document.body.appendChild(this.currentPopup);
+    document.body.appendChild(this.#currentPopup);
 
-    // 綁定關閉事件
-    this.bindCloseEvents();
+    this.#bindCloseEvents();
   }
 
   /**
    * 顯示確認彈窗（支援表單數據和自定義數據）
    */
   confirm(data, onConfirm, options = {}) {
-    // 關閉現有彈窗
     this.closePopup();
 
     const {
@@ -55,10 +166,9 @@ export class wqPopup {
       hour_title = options.hour_title || '時辰'
     } = options;
 
-    // 創建確認彈窗
-    this.currentPopup = document.createElement('div');
-    this.currentPopup.className = 'popup__modal popup__confirm';
-    this.currentPopup.innerHTML = `
+    this.#currentPopup = document.createElement('div');
+    this.#currentPopup.className = 'popup__modal popup__confirm';
+    this.#currentPopup.innerHTML = `
       <div class="popup">
         <div class="popup__header">
           <span class="popup__close-btn"></span>
@@ -76,182 +186,22 @@ export class wqPopup {
       </div>
     `;
 
-    // 生成內容
-    const contentHTML = this.generateContent(data, { name_title, sex_title, birth_title, hour_title });
+    const contentHTML = this.#generateContent(data, { name_title, sex_title, birth_title, hour_title });
+    this.#currentPopup.querySelector('.popup__content').innerHTML = contentHTML;
 
-    this.currentPopup.querySelector('.popup__content').innerHTML = contentHTML;
-
-    // 添加到頁面前，禁止背景滾動
     document.body.style.overflow = 'hidden';
-    document.body.appendChild(this.currentPopup);
+    document.body.appendChild(this.#currentPopup);
 
-    // 綁定事件
-    this.bindConfirmEvents(onConfirm);
+    this.#bindConfirmEvents(onConfirm);
   }
-
-  /**
-   * 生成彈窗內容（統一處理表單數據和自定義數據）
-   */
-  generateContent(data, titles) {
-    if (!Array.isArray(data)) return '';
-
-    return data.map((item, index) => {
-      let html = '';
-
-      // 添加分隔線（除了第一個）
-      if (index > 0) {
-        html += '<div class="popup__border-line"></div>';
-      }
-
-      // 判斷是表單數據還是自定義數據
-      if (this.isFormData(item)) {
-        html += this.generateFormDataHTML(item, titles);
-      } else if (this.isCustomData(item)) {
-        html += this.generateCustomDataHTML(item);
-      }
-
-      return html;
-    }).join('');
-  }
-
-  /**
-   * 判斷是否為表單數據格式
-   */
-  isFormData(item) {
-    return item && typeof item === 'object' &&
-      (item.nickname !== undefined || item.sex !== undefined || item.datetime !== undefined);
-  }
-
-  /**
-   * 判斷是否為自定義數據格式
-   */
-  isCustomData(item) {
-    return Array.isArray(item) && item.length > 0 &&
-      item.every(field => field && field.title && field.value);
-  }
-
-  /**
-   * 生成表單數據 HTML
-   */
-  generateFormDataHTML(data, titles) {
-    let html = '';
-    // 姓名
-    if (data.nickname) {
-      html += `
-        <div class="popup__item">
-          <span class="popup__label">${titles.name_title}：</span>
-          <span class="popup__value">${data.nickname}</span>
-        </div>
-      `;
-    }
-
-    // 性別
-    if (data.sex && data.sex[1]) {
-      html += `
-        <div class="popup__item">
-          <span class="popup__label">${titles.sex_title}：</span>
-          <span class="popup__value">${data.sex[1]}</span>
-        </div>
-      `;
-    }
-
-    // 生辰
-    if (data.datetime) {
-      const dateString = data.datetime.calendar[0] == 1 ?
-        `西元${data.datetime.solarString}` :
-        `農曆${data.datetime.lunarString}`;
-
-      html += `
-        <div class="popup__item">
-          <span class="popup__label">${titles.birth_title}：</span>
-          <span class="popup__value">${dateString}</span>
-        </div>
-      `;
-
-      // 時辰
-      if (data.datetime.hour[0] && data.datetime.hour[1]) {
-        html += `
-          <div class="popup__item">
-            <span class="popup__label">${titles.hour_title ? `${titles.hour_title}：` : ''}</span>
-            <span class="popup__value">${data.datetime.hour[1]}</span>
-          </div>
-        `;
-      }
-    }
-
-    // 自定義欄位
-    if (data.custom && Array.isArray(data.custom)) {
-      data.custom.forEach(field => {
-        if (field && Array.isArray(field) && field.length >= 3) {
-          html += `
-            <div class="popup__item">
-              <span class="popup__label">${field[2]}：</span>
-              <span class="popup__value">${field[1]}</span>
-            </div>
-          `;
-        }
-      });
-    }
-
-    return html;
-  }
-
-  /**
-   * 生成自定義數據 HTML
-   */
-  generateCustomDataHTML(customFields) {
-    return customFields.map(field => `
-      <div class="popup__item">
-        <span class="popup__label">${field.title}：</span>
-        <span class="popup__value">${field.value}</span>
-      </div>
-    `).join('');
-  }
-
-  /**
-   * 綁定關閉事件（alert 用）
-   */
-  bindCloseEvents() {
-    if (!this.currentPopup) return;
-
-    this.currentPopup.addEventListener('click', (e) => {
-      if (e.target.matches('.popup__close-btn') ||
-        e.target.closest('.popup__alert-btn') ||
-        e.target === this.currentPopup) {
-        this.closePopup();
-      }
-    });
-  }
-
-  /**
-   * 綁定確認事件（confirm 用）
-   */
-  bindConfirmEvents(onConfirm) {
-    if (!this.currentPopup) return;
-
-    this.currentPopup.addEventListener('click', (e) => {
-      if (e.target.matches('.popup__close-btn') ||
-        e.target.closest('.popup__cancel-btn') ||
-        e.target === this.currentPopup) {
-        this.closePopup();
-      } else if (e.target.closest('.popup__confirm-btn')) {
-        if (typeof onConfirm === 'function') {
-          onConfirm();
-        }
-        this.closePopup();
-      }
-    });
-  }
-
   /**
    * 關閉彈窗（統一方法）
    */
   closePopup() {
-    if (this.currentPopup && this.currentPopup.parentNode) {
-      this.currentPopup.remove();
-      this.currentPopup = null;
+    if (this.#currentPopup && this.#currentPopup.parentNode) {
+      this.#currentPopup.remove();
+      this.#currentPopup = null;
     }
-    // 恢復 body 的 overflow
     document.body.style.overflow = '';
   }
 
