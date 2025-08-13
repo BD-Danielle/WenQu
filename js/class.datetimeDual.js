@@ -320,6 +320,7 @@ export class wqDateTime {
 
     const yearData = this.data.lunarYear[year - 1900];
     const leapMonth = yearData & 0xf;
+
     return leapMonth;
   }
 
@@ -461,7 +462,6 @@ export class wqDateTime {
     } else { // 農曆
       // 檢查當前值是否為閏月
       const leapMonth = this.checkLunarLeapYear(year);
-      console.log(leapMonth);
       if (leapMonth !== 0 && Math.abs(currentMonthValue) === leapMonth) {
         // 如果當前月份是閏月位置，保持閏月狀態
         defaultValue = -leapMonth;
@@ -606,24 +606,207 @@ export class wqDateTime {
     }
 
     const calendarValue = this.elem.calendar.value;
-    const yearValue = this.elem.year.value;
+    const yearValue = parseInt(this.elem.year.value, 10);
     const monthValue = parseInt(this.elem.month.value, 10);
     const monthText = this.elem.month.options[this.elem.month.selectedIndex].text;
-    const dayValue = this.elem.day.value;
+    const dayValue = parseInt(this.elem.day.value, 10);
     const hourValue = this.elem.hour?.value;
     const hourText = this.elem.hour?.options[this.elem.hour.selectedIndex]?.text || '';
 
+    // ✅ 添加農曆轉換邏輯
+    let solarString = '';
+    let lunarString = '';
+    let convertedDate = null;
+
+    if (calendarValue === '1') {
+      // 西元模式：顯示西元日期，並轉換為農曆
+      solarString = `${yearValue}年${monthText}${String(dayValue).padStart(2, '0')}日`;
+
+      // 轉換為農曆
+      convertedDate = this.solarToLunar(yearValue, Math.abs(monthValue), dayValue);
+      if (convertedDate) {
+        const lunarMonthText = convertedDate.isLeapMonth ?
+          `${String(convertedDate.month).padStart(2, '0')}(閏)月` :
+          `${String(convertedDate.month).padStart(2, '0')}月`;
+        lunarString = `${convertedDate.year}年${lunarMonthText}${String(convertedDate.day).padStart(2, '0')}日`;
+      }
+    } else {
+      // 農曆模式：顯示農曆日期，並轉換為西元
+      lunarString = `${yearValue}年${monthText}${String(dayValue).padStart(2, '0')}日`;
+
+      // 轉換為西元
+      convertedDate = this.lunarToSolar(yearValue, monthValue, dayValue);
+      if (convertedDate) {
+        solarString = `${convertedDate.year}年${String(convertedDate.month).padStart(2, '0')}月${String(convertedDate.day).padStart(2, '0')}日`;
+      }
+    }
+
     return {
       calendar: [calendarValue, calendarValue === '0' ? '農曆' : '西元'],
-      solarString: calendarValue === '1' ?
-        `${yearValue}年${monthText}${dayValue}日` : '',
-      lunarString: calendarValue === '0' ?
-        `${yearValue}年${monthText}${dayValue}日` : '',
+      solarString: solarString,
+      lunarString: lunarString,
       hour: [!!hourValue, hourText],
       isLeapMonth: monthValue < 0,
-      // isLeapMonth: (calendarValue === '0') &&
-      //   (monthText.includes('閏') || (this.elem.leapmonth?.value === '1'))
+      convertedDate: convertedDate // ✅ 添加轉換後的日期資訊
     };
+  }
+
+  /**
+   * 農曆轉西元
+   * @param {number} lunarYear - 農曆年份
+   * @param {number} lunarMonth - 農曆月份（負值表示閏月）
+   * @param {number} lunarDay - 農曆日期
+   * @returns {Object|null} 西元日期對象或 null
+   */
+  lunarToSolar(lunarYear, lunarMonth, lunarDay) {
+    if (lunarYear < 1901 || lunarYear > 2100) {
+      return null;
+    }
+
+    try {
+      // 農曆1901年正月初一 = 西元1901年2月19日
+      let offset = 0;
+      const isLeapMonth = lunarMonth < 0;
+      const targetMonth = Math.abs(lunarMonth);
+
+      // 1. 累加從1901年到目標年份前一年的總天數
+      for (let year = 1901; year < lunarYear; year++) {
+        offset += this.getLunarYearTotalDays(year);
+      }
+
+      // 2. 累加目標年份中到目標月份前的天數
+      const leapMonth = this.checkLunarLeapYear(lunarYear);
+
+      for (let month = 1; month < targetMonth; month++) {
+        const monthDays = this.getLunarMonthDays(lunarYear, month, false);
+        offset += monthDays;
+
+        // 如果這個月有閏月，也要加上
+        if (leapMonth === month) {
+          const leapDays = this.getLunarMonthDays(lunarYear, month, true);
+          offset += leapDays;
+        }
+      }
+
+      // 3. 處理目標月份
+      if (isLeapMonth) {
+        // 目標是閏月：先加上正常月份的天數
+        const normalDays = this.getLunarMonthDays(lunarYear, targetMonth, false);
+        offset += normalDays;
+      }
+
+      // 4. 加上目標日期的天數（減1因為初一是第1天）
+      offset += lunarDay - 1;
+
+      // 5. 計算結果日期
+      const baseDate = new Date(1901, 1, 19); // 1901年2月19日 = 農曆1901年正月初一
+      const resultDate = new Date(baseDate.getTime() + offset * 86400000);
+
+      return {
+        year: resultDate.getFullYear(),
+        month: resultDate.getMonth() + 1,
+        day: resultDate.getDate()
+      };
+
+    } catch (error) {
+      console.error('農曆轉西元計算錯誤:', error);
+      return null;
+    }
+  }
+
+  /**
+   * 西元轉農曆
+   * @param {number} solarYear - 西元年份
+   * @param {number} solarMonth - 西元月份
+   * @param {number} solarDay - 西元日期
+   * @returns {Object|null} 農曆日期對象或 null
+   */
+  solarToLunar(solarYear, solarMonth, solarDay) {
+    if (solarYear < 1901 || solarYear > 2100) {
+      return null;
+    }
+
+    try {
+      // 計算目標日期與基準日期的天數差
+      const targetDate = new Date(solarYear, solarMonth - 1, solarDay);
+      const baseDate = new Date(1901, 1, 19); // 1901年2月19日 = 農曆1901年正月初一
+      const totalDays = Math.floor((targetDate - baseDate) / (24 * 60 * 60 * 1000));
+
+      if (totalDays < 0) return null;
+
+      // 逐年累減，找到目標農曆年份
+      let remainingDays = totalDays;
+      let lunarYear = 1901;
+
+      while (remainingDays >= 0) {
+        const yearDays = this.getLunarYearTotalDays(lunarYear);
+        if (remainingDays < yearDays) break;
+        remainingDays -= yearDays;
+        lunarYear++;
+      }
+
+      // 逐月累減，找到目標農曆月份
+      let lunarMonth = 1;
+      let isLeapMonth = false;
+      const leapMonth = this.checkLunarLeapYear(lunarYear);
+
+      while (remainingDays >= 0) {
+        // 正常月份
+        const monthDays = this.getLunarMonthDays(lunarYear, lunarMonth, false);
+        if (remainingDays < monthDays) break;
+        remainingDays -= monthDays;
+
+        // 檢查是否有閏月
+        if (leapMonth === lunarMonth) {
+          const leapMonthDays = this.getLunarMonthDays(lunarYear, lunarMonth, true);
+          if (remainingDays < leapMonthDays) {
+            isLeapMonth = true;
+            break;
+          }
+          remainingDays -= leapMonthDays;
+        }
+
+        lunarMonth++;
+        if (lunarMonth > 12) break;
+      }
+
+      const lunarDay = remainingDays + 1;
+
+      return {
+        year: lunarYear,
+        month: lunarMonth,
+        day: lunarDay,
+        isLeapMonth: isLeapMonth
+      };
+
+    } catch (error) {
+      console.error('西元轉農曆計算錯誤:', error);
+      return null;
+    }
+  }
+
+  /**
+   * 獲取農曆年份的總天數
+   * @param {number} year - 農曆年份
+   * @returns {number} 該年的總天數
+   */
+  getLunarYearTotalDays(year) {
+    if (year < 1900 || year > 2100) return 354;
+
+    let totalDays = 0;
+
+    // 計算12個正常月份的天數
+    for (let month = 1; month <= 12; month++) {
+      totalDays += this.getLunarMonthDays(year, month, false);
+    }
+
+    // 如果有閏月，加上閏月天數
+    const leapMonth = this.checkLunarLeapYear(year);
+    if (leapMonth !== 0) {
+      totalDays += this.getLunarMonthDays(year, leapMonth, true);
+    }
+
+    return totalDays;
   }
 }
 

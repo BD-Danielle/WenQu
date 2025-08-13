@@ -156,6 +156,7 @@ export class wqPopup {
    * 顯示確認彈窗（支援表單數據和自定義數據）
    */
   confirm(data, onConfirm, options = {}) {
+    console.log(data);
     this.closePopup();
 
     const {

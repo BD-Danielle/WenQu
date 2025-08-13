@@ -92,3 +92,9 @@ WQ.addValidationRule(
     errMsg: '請選擇感情狀態'
   }
 );
+
+WQ.addValidationRule(
+  'emotion_type',
+  /^(8|9|11)$/,
+  '請選擇你的感情現況'
+);

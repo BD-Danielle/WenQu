@@ -256,11 +256,27 @@ export class wqInput {
     try {
       const value = this.#input.value.trim();
       const format = this.#input.dataset.format;
-      if (!value) return this.#handleEmptyValue(format);
-      if (format) return this.#validateFormat(format, value);
-      return { valid: true, errMsg: '' };
+
+      let result;
+      if (!value) {
+        result = this.#handleEmptyValue(format);
+      } else if (format) {
+        result = this.#validateFormat(format, value);
+      } else {
+        result = { valid: true, errMsg: '' };
+      }
+
+      // ✅ 統一處理視覺回饋
+      if (!result.valid) {
+        this.#input.classList.add('error');
+      } else {
+        this.#input.classList.remove('error');
+      }
+
+      return result;
     } catch (error) {
       console.error('Validation error:', error);
+      this.#input.classList.add('error'); // ✅ 錯誤時也加上 error 類別
       return { valid: false, errMsg: '驗證過程發生錯誤' };
     }
   }

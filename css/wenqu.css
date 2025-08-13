@@ -7,6 +7,7 @@
   --background-color: #fff;
   --text-color: #333;
   --error-color: #c00;
+  --border-error-color: #f90;
   --error-background-color: #fc6;
   --icon-background-color: #727272;
   --hover-background-color: #727272dd;
@@ -68,9 +69,9 @@ textarea.wq-input {
 /* Error States */
 [type="text"].wq-input.error,
 .wq-select.error {
-  color: var(--error-color);
-  background-color: var(--error-background-color);
-  border: 1px solid var(--error-color);
+  color: var(--error-color) !important;
+  background-color: var(--error-background-color) !important;
+  border: 1px solid var(--border-error-color) !important;
 }
 
 [type="text"].wq-input.error::placeholder {
@@ -302,7 +303,7 @@ textarea.wq-input {
 }
 
 .popup__item:not(:last-child) {
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 
 .popup__label {

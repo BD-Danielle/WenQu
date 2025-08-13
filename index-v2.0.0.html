@@ -31,49 +31,50 @@
 </head>
 
 <body>
-  <form action="" class="wq-form" id="form2088">
+  <form action="" class="wq-form" id="form2088" action="">
     <div class="DATA_BOX">
       <div class="wq-group">
         <div class="FORM">
           <div style="width: 50%">
-            <input type="text" class="wq-input" placeholder="請輸入您的姓名" data-format="mixedName" data-value="陳奕伶"
-              data-type="nickname" />
+            <input type="text" class="wq-input" placeholder="請輸入您的姓名" data-format="mixedName" data-value=""
+              name="nickname1" data-type="nickname" required />
           </div>
           <div style="width: 50%">
             <input type="text" class="wq-input" placeholder="請輸入身分證字號" data-format="taiwanId" data-value="C123456789"
-              data-type="id" data-validation="required" />
+              name="id1" data-type="id" data-validation="required" />
           </div>
           <div style="width: 50%">
             <div class="radio-group" data-type="sex">
-              <input class="wq-radio" id="radio-female" type="radio" data-name="sex" name="sex" data-value="0"
+              <input class="wq-radio" id="radio-female" type="radio" data-name="sex" name="sex1" data-value="0"
                 value="0">
               <label for="radio-female">女</label>
 
-              <input class="wq-radio" id="radio-male" type="radio" data-name="sex" name="sex" data-value="1" value="1">
+              <input class="wq-radio" id="radio-male" type="radio" data-name="sex" name="sex1" data-value="1" value="1">
               <label for="radio-male">男</label>
             </div>
           </div>
           <div style="width: 50%">
-            <select class="wq-select" data-type="calendar" data-value="1"></select>
+            <select class="wq-select" name="calendar1" data-type="calendar" data-value="0"></select>
           </div>
           <div style="width: 50%;">
-            <select class="wq-select" data-type="year" min="1998" max="2024" data-value="1998"></select>
+            <select class="wq-select" name="year1" data-type="year" min="1979" max="2024" data-value="1979"></select>
           </div>
           <div style="width: 50%;">
-            <select class="wq-select" data-type="month" data-value="5"></select>
+            <select class="wq-select" name="month1" data-type="month" data-value="-6"></select>
           </div>
           <div style="width: 50%">
-            <select class="wq-select" data-type="day" data-value="14"></select>
+            <select class="wq-select" name="day1" data-type="day" data-value="1"></select>
           </div>
           <div style="width: 50%; margin-bottom: 5px">
-            <select class="wq-select" data-type="hour"></select>
+            <select class="wq-select" name="hour1" data-type="hour"></select>
           </div>
           <div style="width: 50%; margin-bottom: 5px">
             <textarea type="text" class="wq-input" placeholder="請輸入內容" data-format="chi10" data-value="你他媽是個大美人"
-              data-type="textarea" rows="4" cols="50" maxlength="200" data-validation="required"></textarea>
+              name="textarea1" data-type="textarea" rows="4" cols="50" maxlength="200"
+              data-validation="required"></textarea>
           </div>
           <div style="width: 50%">
-            <div class="radio-group" data-type="relationship">
+            <div class="radio-group" name="relationship1" data-type="relationship">
               <h3>感情狀態：</h3>
               <input class="wq-radio" id="radio-single" type="radio" data-name="relationship" name="relationship"
                 data-value="single" value="單身中">
@@ -90,31 +91,42 @@
     <div class="DATA_BOX" style="margin: 20px auto">
       <div class="wq-group">
         <div class="FORM">
+          <div style="width:50%; margin-bottom: 10px;">
+            <div class="styled-select">
+              <select class="wq-select wq-extra" id="_emotion_type" name="emotion_type" style="color: black;"
+                name="emotion_type1" data-type="emotion_type" data-format="emotion_type" data-validation="required">
+                <option value="-1" selected="">請選擇你的感情現況</option>
+                <option value="8">單身</option>
+                <option value="9">交往中</option>
+                <option value="11">已婚</option>
+              </select>
+            </div>
+          </div>
           <div style="width: 50%">
             <input type="text" class="wq-input" placeholder="請輸入姓名（最多10個中文字）" data-format="chi10" data-value="車銀優"
-              data-type="nickname" />
+              name="nickname2" data-type="nickname" />
           </div>
           <div style="width: 50%">
             <input type="text" class="wq-input" placeholder="請輸入身分證字號" data-format="taiwanId" data-value="C123456789"
-              data-type="id" />
+              name="id2" data-type="id" />
           </div>
           <div style="width: 50%">
-            <select class="wq-select" data-type="calendar" data-fixed="solar" data-value="1"></select>
+            <select class="wq-select" name="calendar2" data-type="calendar" data-fixed="solar" data-value="1"></select>
           </div>
           <div style="width: 50%">
-            <select class="wq-select" data-type="sex" data-value="1"></select>
+            <select class="wq-select" name="sex2" data-type="sex" data-value="1"></select>
           </div>
           <div style="width: 50%;">
-            <select class="wq-select" data-type="year" data-value="1979" min="1900" max="2010"></select>
+            <select class="wq-select" name="year2" data-type="year" data-value="1979" min="1900" max="2010"></select>
           </div>
           <div style="width: 50%;">
-            <select class="wq-select" data-type="month" data-value="6"></select>
+            <select class="wq-select" name="month2" data-type="month" data-value="6"></select>
           </div>
           <div style="width: 50%">
-            <select class="wq-select" data-type="day" data-value="30"></select>
+            <select class="wq-select" name="day2" data-type="day" data-value="30"></select>
           </div>
           <div style="width: 50%; margin-bottom: 5px">
-            <select class="wq-select" data-type="hour"></select>
+            <select class="wq-select" name="hour2" data-type="hour"></select>
           </div>
         </div>
       </div>
@@ -124,6 +136,8 @@
     <ul class="TWO">
       <button><a class="pq_BT_SROUND pq_BG_GRA_PINK01" id="checkGo_free" data-href="./free.php"
           type="button">免費體驗</a></button>
+      <button><a class="pq_BT_SROUND pq_BG_GRA_PINK01" id="checkGo_paid" data-href="./paid.php"
+          type="button">付費體驗</a></button>
     </ul>
   </div>
   <script type="module">
@@ -144,6 +158,7 @@
         customFieldLabels: {
           id: '身分證字號',
           textarea: '備註內容',
+          emotion_type: '感情現況',
           // 可以添加更多自定義標籤
         },
         errorMessages: {
@@ -172,17 +187,21 @@
       //     }
       //   });
       // }, 100); // 等待 wqForm 初始化後確保 DOM 掛載完成
-      const button = document.querySelector("#checkGo_free");
-      if (button) {
-        button.addEventListener("click", function (event) {
-          event.preventDefault();
-          if (window.wq_form?.form) {
-            window.wq_form.form.validation({
-              valid_action: this.getAttribute('data-href'),
-            });
-          }
+      console.log(window.wq_form?.form);
+      const buttons = document.querySelectorAll("#checkGo_free, #checkGo_paid");
+      if (buttons) {
+        buttons.forEach(button => {
+          button.addEventListener("click", function (event) {
+            event.preventDefault();
+            if (window.wq_form?.form) {
+              window.wq_form.form.validation({
+                submit_button: `#${this.id}`,      // 動態設定按鈕選擇器
+                valid_action: this.getAttribute('data-href'),
+              });
+            }
+          });
         });
-      }
+      };
     });
   </script>
 </body>
