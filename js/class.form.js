@@ -10,7 +10,6 @@ export class wqForm {
   sexInstances = new Map(); // 新增：管理所有 wqSex 實例
   #handleInputBound;    // ← 新增
   #handleSelectBound;   // ← 新增
-  #isSubmitting = false;
 
   constructor(elem, options = {}) {
     try {
@@ -373,7 +372,6 @@ export class wqForm {
         const formData = this.#collectFormData();
         this.#popupHandler.confirm(formData, () => {
           // ✅ 設定提交狀態
-          this.#isSubmitting = true;
           console.log('準備提交表單');
           const button = document.querySelector(formOptions.submit_button);
           if (button) {
@@ -384,6 +382,7 @@ export class wqForm {
               this.#form.method = 'POST';
 
               console.log('表單即將提交到:', href);
+              console.log('送出前 LeapMonth:', document.querySelector('input[name="LeapMonth"]')?.value);
               this.#form.submit();
             }
           }

@@ -209,6 +209,7 @@ export class wqDateTime {
     // 月份改變
     this.elem.month.addEventListener('change', () => {
       const currentDay = this.elem.day.value;
+      this.applyLeapMonth();
       this.buildDayOptions(currentDay);
     });
   }
@@ -461,7 +462,6 @@ export class wqDateTime {
     } else { // 農曆
       // 檢查當前值是否為閏月
       const leapMonth = this.checkLunarLeapYear(year);
-      console.log(leapMonth);
       if (leapMonth !== 0 && Math.abs(currentMonthValue) === leapMonth) {
         // 如果當前月份是閏月位置，保持閏月狀態
         defaultValue = -leapMonth;
@@ -492,7 +492,9 @@ export class wqDateTime {
     const monthName = this.elem.month.getAttribute('name');
     if (!monthName) return;
 
-    const leapMonthName = monthName.replace('iMonth', 'LeapMonth');
+    // const leapMonthName = monthName.replace('iMonth', 'LeapMonth');
+    // 只要有 name 就直接用 LeapMonth
+    const leapMonthName = 'LeapMonth';
 
     let leapMonthInput = this.root.querySelector(`input[name="${leapMonthName}"]`);
 
@@ -511,16 +513,25 @@ export class wqDateTime {
     if (!this.elem.leapmonth) return;
 
     this.elem.leapmonth.value = '';
-    const monthValue = parseInt(this.elem.month.value, 10);
+    const selectedOption = this.elem.month.querySelector('option:checked');
+    if (!selectedOption) return;
+
+    // 先判斷 data-org-value（原始負值），再判斷 value
+    let orgValue = selectedOption.getAttribute('data-org-value');
+    let monthValue = orgValue ? parseInt(orgValue, 10) : parseInt(selectedOption.value, 10);
+
     if (parseInt(this.elem.calendar.value, 10) === 0 && monthValue < 0) {
       this.elem.leapmonth.value = '1';
-
-      const selectedOption = this.elem.month.querySelector('option:checked');
-      if (selectedOption) {
-        // selectedOption.setAttribute('value', Math.abs(monthValue));
-        selectedOption.setAttribute('value', monthValue);
-        selectedOption.setAttribute('data-org-value', monthValue);
+      selectedOption.setAttribute('data-org-value', monthValue);
+      selectedOption.setAttribute('value', Math.abs(monthValue));
+      // 這樣送出時 iMonth 會是正值
+    } else {
+      // 非閏月時還原
+      if (orgValue) {
+        selectedOption.setAttribute('value', orgValue);
+        selectedOption.removeAttribute('data-org-value');
       }
+      this.elem.leapmonth.value = '';
     }
   }
 
