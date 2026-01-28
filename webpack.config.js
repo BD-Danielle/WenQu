@@ -1,4 +1,5 @@
 const path = require('path');
+const TerserPlugin = require('terser-webpack-plugin');
 const VERSION = '3.0.0';
 
 module.exports = {
@@ -28,7 +29,8 @@ module.exports = {
             presets: ['@babel/preset-env'],
             plugins: [
               '@babel/plugin-proposal-class-properties',
-              '@babel/plugin-proposal-private-methods'
+              '@babel/plugin-proposal-private-methods',
+              'transform-remove-console' // 新增這行
             ]
           }
         }
@@ -38,8 +40,17 @@ module.exports = {
   resolve: {
     extensions: ['.js']
   },
+  // ... 其他設定 ...
   optimization: {
-    moduleIds: 'deterministic',
-    minimize: true
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          compress: {
+            drop_console: true, // 移除所有 console.*
+          },
+        },
+      }),
+    ],
   }
 }

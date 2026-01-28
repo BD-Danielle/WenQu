@@ -270,7 +270,7 @@ export class wqForm {
         if (checkedRadio) {
           data.custom.push([
             type,
-            checkedRadio.value,
+            checkedRadio.dataset.value || checkedRadio.value,
             window.WQ.ValidationRules?.[type]?.title || checkedRadio.dataset.title
           ]);
         }
